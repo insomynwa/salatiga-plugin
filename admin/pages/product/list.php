@@ -14,7 +14,7 @@
 			<?php foreach( $data as $pl ): ?>
 			<tr>
 				<td><?php _e( $pl->GetNama() ) ?></td>
-				<td>Edit | Delete</td>
+				<td><a href="?page=sltg-product&detail=<?php _e( $pl->GetId() ); ?>">Detail</a> | Edit | Delete</td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

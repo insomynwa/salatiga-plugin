@@ -22,24 +22,13 @@ jQuery(document).ready( function ($) {
 	var limit = $( "#data-limit" ).val();
 	var searchfor = $( "#txt-search").val();
 	var isSearching = false;
-
-	/*var pagination = new Pagination( "product", limit, searchfor, "#plugin-data-pagination");
-	pagination.retrieve();*/
-
+	
 	doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
 
 	$( "#data-limit" ).on( "change", function() {
-		//selected_page = 1;
 		limit = this.value;
-		//searchfor = "";//$( "#txt-search" ).val();
-		//if( isSearching ) searchfor = $( "#txt-search" ).val();
-
-		// $( ".pagination a.page-" + current_page).parent().removeClass("active");
-		// $( ".pagination a.page-" + selected_page ).parent().addClass("active");
-		//current_page = selected_page;
 
 		doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
-		//retrieveList( "#plugin-data-list" );
 	});	
 
 	$( "#btn-search" ).click( function(e) {
@@ -58,16 +47,8 @@ jQuery(document).ready( function ($) {
 				$( "#txt-search").val("");
 			}
 			limit = $( "#data-limit" ).val();
-
-			/*searchfor = ( $( "#txt-search").val() ).split(' ').join('');;
-			if( searchfor != "" ) {
-				isSearching = true;
-			}*/
 			doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
 		}
-		//current_page = 1;
-		//selected_page = current_page;
-		//searchFor( searchfor, "#plugin-data-list" );
 	});
 });
 </script>

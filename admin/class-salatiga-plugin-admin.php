@@ -13,11 +13,12 @@ class Salatiga_Plugin_Admin {
 		wp_register_script( 'sltg-script', plugin_dir_url( __FILE__ ) . 'js/sltg-script.js' );
 		wp_register_script( 'jquery-ui-script', plugin_dir_url( __FILE__ ) . 'css/jquery-ui.min.js' );
 		wp_register_script( 'bootstrap-js', plugin_dir_url( __FILE__ ) . 'css/bootstrap.min.js' );
+		wp_register_script( 'freewall-js', plugin_dir_url( __FILE__ ) . 'js/freewall.js' );
 		wp_register_style( 'jquery-min-style', plugin_dir_url( __FILE__ ) . 'css/jquery-ui.min.css' );
 		wp_register_style( 'bootstrap-css', plugin_dir_url( __FILE__ ) . 'css/bootstrap.min.css' );
-		
 
 		wp_enqueue_script( 'sltg-script' );
+		wp_enqueue_script( 'freewall-js' );
 		wp_enqueue_script( 'jquery-ui-script' );
 		wp_enqueue_script( 'bootstrap-js' );
 		wp_enqueue_style( 'jquery-min-style' );
@@ -84,21 +85,44 @@ class Salatiga_Plugin_Admin {
 	}
 	// Render Product page
 	public function render_product_page(){
-		//require( 'models/product.php' );
-		//require( 'models/kategori.php' );
-		$obj = new Sltg_Product();
-		$obj_kat = new Sltg_Kategori_Product();
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail'] > 0) {
 
-		$attributes = array();
-		$kats = $obj_kat->Datalist();
-		foreach( $kats as $kat ) {
-			$kategori = new Sltg_Kategori_Product();
-			$kategori->HasID( $kat->id_kategori );
-			$attributes[ 'kategori' ][] = $kategori;
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Product();
+			/*$obj_kat = new Sltg_Kategori_Product();
+			$obj_ukm = new Sltg_UKM();
+			$obj_gbr = new Sltg_Gambar();*/
+
+			$obj->HasID( $get_detail );
+			$attributes[ 'product' ] = $obj;
+
+			$content = $this->get_html_template( 'pages/product', 'detail', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
 		}
+		else {
+			$obj = new Sltg_Product();
+			$obj_kat = new Sltg_Kategori_Product();
+			$obj_ukm = new Sltg_UKM();
 
-		$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
-		$this->get_html_template( 'pages', 'template', $content );
+			$attributes = array();
+			$kats = $obj_kat->Datalist();
+			foreach( $kats as $kat ) {
+				$kategori = new Sltg_Kategori_Product();
+				$kategori->HasID( $kat->id_kategori );
+				$attributes[ 'kategori' ][] = $kategori;
+			}
+
+			$ukms = $obj_ukm->DataList();
+			foreach( $ukms as $ukm ){
+				$ukm_new = new Sltg_UKM();
+				$ukm_new->HasID( $ukm->id_ukm );
+				$attributes[ 'ukm' ][] = $ukm_new;
+			}
+
+			$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+			
 	}
 	// Render Personal page
 	public function render_personal_page(){
@@ -273,6 +297,63 @@ class Salatiga_Plugin_Admin {
 	public function test( $times ) {
 		print str_repeat( ' foo ', (int) $times );
 		//wp_die();
+	}
+
+	public function create_product() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
+		if( $post_isset ) {
+			$post_nama = $_POST[ 'nama' ];
+			$post_deskripsi = $_POST[ 'deskripsi' ];
+			$post_infolain = $_POST[ 'infolain' ];
+			$post_kategori = $_POST[ 'kategori' ];
+			$post_kreator = $_POST[ 'kreator' ];
+			$post_gambararr = $_POST[ 'gambararr' ];
+
+			$post_not_empty = ($post_nama!="") && ($post_kategori>0) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$product = new Sltg_Product();
+				$product->SetNama( $post_nama );
+				$product->SetDeskripsi( $post_deskripsi );
+				$product->SetOther( $post_infolain );
+				$product->SetKategori( $post_kategori );
+				$product->SetUKM( $post_kreator );
+				//$product->SetGambars( $post_gambararr );
+
+				$result = $product->AddNew();
+				$this->add_picture( 'produk', $result[ 'new_id' ], $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	private function add_picture( $type_pict, $owner_id, $pictureArr ) {
+		if ( $type_pict == "produk" ){
+			$table = "ext_gambar_produk";
+		}
+		$gambar = new Sltg_Gambar( $table );
+		if ( $type_pict == "produk" ){
+			$gambar->SetProduk( $owner_id );
+			$gambar_utama = 1;
+			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
+				$gambar->SetGambarUtama( $gambar_utama );
+				$gambar->SetLinkGambar( $pictureArr[ $i ] );
+				$gambar->SetDeskripsi( "" );
+				$gambar->AddNew();
+				$gambar_utama = 0;
+			}
+		}
 	}
 
 	/*public function test2() {

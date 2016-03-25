@@ -27,12 +27,18 @@ class Sltg_Product {
 	public function GetUKM() { return $this->ukm; }
 	public function SetUKM($ukm) { $this->ukm = $ukm; }
 
+	// IN RELATIONSHIP
 	private $gambar_utama;
 	public function GetGambarUtama() { return $this->gambar_utama; }
-	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+	//public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+
+	private $gambars;
+	public function GetGambars() { return $this->gambars; }
+	public function SetGambars( $gambars ) { $this->gambars = $gambars; }
 
 	function __construct() {
 		$this->table_name = "ext_produk";
+		$this->gambars = array();
 	}
 
 	public function HasID( $produk_id = 0){
@@ -52,11 +58,27 @@ class Sltg_Product {
 			$this->nama = $row[ 'nama_produk' ];
 			$this->deskripsi = $row[ 'deskripsi_produk' ];
 			$this->other = $row[ 'other_produk' ];
-			$this->kategori = $row[ 'kategori' ];
-			$this->ukm = $row[ 'ukm' ];
 
-			$gu = new Sltg_Gambar( "ext_gambar_produk" );
-			$this->gambar_utama = $gu->GetAPicture( $this->id );
+			$obj_kat = new Sltg_Kategori_Product();
+			$obj_kat->HasID( $row[ 'kategori' ] );
+			$this->kategori = $obj_kat;
+
+			$obj_ukm = new Sltg_UKM();
+			$obj_ukm->HasID( $row[ 'ukm' ] );
+			$this->ukm = $obj_ukm;
+
+			$obj_gbr = new Sltg_Gambar( "ext_gambar_produk" );
+			$list_gambar = $obj_gbr->SetProduk( $this->id );
+			foreach( $list_gambar as $g) {
+				$gambar = new Sltg_Gambar( "ext_gambar_produk" );
+				$gambar->HasID( $g->id_gambar_produk );
+				if( $gambar->GetGambarUtama() == 1) {
+					$this->gambar_utama = $gambar;
+					/*break;*/
+				}
+				$this->gambars[] = $gambar;
+			}
+			//var_dump($this->gambars);
 		}
 		return $result;
 	}
@@ -64,7 +86,6 @@ class Sltg_Product {
 	public function CountData( $searchForName = "", $kategori = 0 ) {
 		global $wpdb;
 
-		//$query = "SELECT COUNT(id_produk) AS jumlah FROM $this->table_name";
 		$str_operator = "<>";
 		if ( $kategori > 0 )
 			$str_operator = "=";
@@ -73,13 +94,6 @@ class Sltg_Product {
 		$bindValues = array();
 		$bindValues[] = $kategori;
 		$bindValues[] = "%".$searchForName."%";
-
-		/*if ( !is_null( $searchForName ) ){
-			$str_search = "WHERE nama_produk LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}*/
-		//var_dump( $query, $kategori );
 
 		$jumlah =
 			$wpdb->get_var(
@@ -95,7 +109,6 @@ class Sltg_Product {
 	public function DataList( $limit = -1, $offset = -1, $searchForName = "", $kategori = 0) {
 		global $wpdb;
 
-		//$query = "SELECT id_produk FROM $this->table_name";
 		$str_operator = "<>";
 		if ( $kategori > 0 )
 			$str_operator = "=";
@@ -104,12 +117,7 @@ class Sltg_Product {
 		$bindValues = array();
 		$bindValues[] = $kategori;
 		$bindValues[] = "%".$searchForName."%";
-
-		/*if( !is_null( $searchForName )) {
-			$str_search = "WHERE nama_produk LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}*/
+		$query .= " ORDER BY nama_produk";
 
 		if( $limit > 0 && $offset >= 0){
 			$str_limit = "LIMIT %d, %d";
@@ -117,7 +125,6 @@ class Sltg_Product {
 			$bindValues[] = $offset;
 			$bindValues[] = $limit;
 		}
-		//var_dump($query, $searchForName);
 		$rows =
 			$wpdb->get_results(
 				$wpdb->prepare(
@@ -125,7 +132,31 @@ class Sltg_Product {
 					$bindValues
 					)
 				);
-		//var_dump( $rows ); 
 		return $rows;
+	}
+
+	public function AddNew() {
+		global $wpdb;
+
+		$result = array( 'status' => false, 'message' => 'Error AddNew()-product' );
+
+		if( $wpdb->insert(
+			$this->table_name,
+			array(
+				'nama_produk' => $this->nama,
+				'deskripsi_produk' => $this->deskripsi,
+				'other_produk' => $this->other,
+				'kategori' => $this->kategori,
+				'ukm' => $this->ukm
+				),
+			array(
+				'%s', '%s', '%s', '%d', '%d'
+				)
+			) ){
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = 'Berhasil menambah produk';
+			$result[ 'new_id' ] = $wpdb->insert_id;
+		}
+		return $result;
 	}
 }

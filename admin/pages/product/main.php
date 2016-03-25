@@ -23,9 +23,9 @@
 		<div class="col-sm-2">
 			<label class="">Jumlah list:</label>
 			<select id="data-limit" class="">
-				<option value="1" <?php if( get_option( 'product_list_limit' ) == 1 ) _e( "selected='selected'" ); ?> >1</option>
-				<option value="2" <?php if( get_option( 'product_list_limit' ) == 2 ) _e( "selected='selected'" ); ?> >2</option>
-				<option value="3" <?php if( get_option( 'product_list_limit' ) == 3 ) _e( "selected='selected'" ); ?> >3</option>
+				<option value="5" <?php if( get_option( 'product_list_limit' ) == 5 ) _e( "selected='selected'" ); ?> >5</option>
+				<option value="10" <?php if( get_option( 'product_list_limit' ) == 10 ) _e( "selected='selected'" ); ?> >10</option>
+				<option value="25" <?php if( get_option( 'product_list_limit' ) == 25 ) _e( "selected='selected'" ); ?> >25</option>
 			</select>
 		</div>
 	</div>
@@ -46,7 +46,7 @@
 				<h4 class="modal-title text-primary" id="productModalLabel">Form Product</h4>
 			</div>
 			<div class="modal-body">
-				<form class="form-horizontal">
+				<form class="form-horizontal" id="form-product">
 					<div class="form-group">
 						<label class="col-sm-2 control-label" for="nama-product">Name</label>
 						<div class="col-sm-10">
@@ -88,6 +88,16 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label class="col-sm-2 control-label" for="creator-product">Gambar</label>
+						<!-- <input type="hidden" name="gambar-arr-product[]"> -->
+						<!-- <div class="col-sm-8">
+							<button id="btn-open-modal-gambar" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modal-gambar"><span class="glyphicon glyphicon-picture"></span></button>
+						</div> -->
+						<div class="col-sm-10">
+							<button id="btn-open-modal-gambar" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modal-gambar"><span class="glyphicon glyphicon-picture"></span></button>
+						</div>
+					</div>
+					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
 							<button class="form-control btn btn-success" type="submit" name="submit-product" id="submit-product"><span class="glyphicon glyphicon-save"></span> Save</button>
 						</div>	
@@ -109,9 +119,14 @@
 			</div>
 			<div class="modal-body">
 				<div class="list-group">
-					<a href="#" class="list-kategori list-group-item" id="1">kategori A</a>
+					<?php if( sizeof( $attributes[ 'kategori' ] ) > 0 ): ?>
+						<?php foreach( $attributes[ 'kategori' ] as $kategori ): ?>
+							<a href="#" class="list-kategori list-group-item" id="<?php _e( $kategori->GetId() ); ?>"><?php _e( $kategori->GetNama() ); ?></a>
+						<?php endforeach; ?>
+					<?php endif; ?>
+					<!-- <a href="#" class="list-kategori list-group-item" id="1">kategori A</a>
 					<a href="#" class="list-kategori list-group-item" id="2">kategori B</a>
-					<a href="#" class="list-kategori list-group-item" id="3">kategori C</a>
+					<a href="#" class="list-kategori list-group-item" id="3">kategori C</a> -->
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -129,9 +144,41 @@
 			</div>
 			<div class="modal-body">
 				<div class="list-group">
-					<a href="#" class="list-creator list-group-item" id="1">creator A</a>
-					<a href="#" class="list-creator list-group-item" id="2">creator B</a>
-					<a href="#" class="list-creator list-group-item" id="3">creator C</a>
+					<?php if( sizeof( $attributes[ 'ukm' ] ) > 0 ): ?>
+						<?php foreach( $attributes[ 'ukm' ] as $ukm ): ?>
+							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetId() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
+						<?php endforeach; ?>
+					<?php endif; ?>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-gambar" class="modal fade" role="dialog" aria-labelledby="gambarModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title text-primary">Gambar</h4>
+			</div>
+			<div class="modal-body">
+				<div id="form-gambar-area">
+					<div class="row">
+						<div class="col-sm-12">
+							<button class="btn btn-primary upload-btn" id="1">Add Picture</button>
+						</div>
+						<div class="col-sm-12">
+							<div class="list-group">
+							</div>
+						</div>
+					</div>
+					<div id="list-tambah-gambar"></div>
+					<div class="row">
+						<div class="col-sm-offset-4 col-sm-4"><button class="btn btn-primary" id="btn-confirm-gambar">OK</button></div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -148,17 +195,27 @@ jQuery(document).ready( function($) {
 	$( "#modal-creator" ).on( "hidden.bs.modal", function (event) {
 		$( "#modal-form-product" ).modal( "show" );
 	});
+	$( "#modal-gambar" ).on( "hidden.bs.modal", function (event) {
+		$( "#modal-form-product" ).modal( "show" );
+	});
 
-	$( "#modal-kategori" ).on( "show.bs.modal", function (event) {
+	/*$( "#modal-kategori" ).on( "show.bs.modal", function (event) {
 		$( "#modal-form-product" ).modal( "hide" );
 	});
 	$( "#modal-creator" ).on( "show.bs.modal", function (event) {
 		$( "#modal-form-product" ).modal( "hide" );
+	});*/
+	$( "#modal-kategori, #modal-creator, #modal-gambar" ).on( "show.bs.modal", function (event) {
+		hide_modal_product();
 	});
+
+	function hide_modal_product() {
+		$( "#modal-form-product" ).modal( "hide" );
+	}
 
 	$( ".list-kategori" ).click( function(){
 		$( "#kategori-product-id" ).val( (this).id );
-		$( "#kategori-product" ).val( (this).text );
+		$( "#kategori-product" ).val( (this).text );//alert( (this).text );
 		$( "#kategori-product" ).prop( "readonly", true );
 		$( "#modal-kategori" ).modal( "hide" );
 	});
@@ -180,32 +237,116 @@ jQuery(document).ready( function($) {
 		$( "#creator-product" ).focus();
 		$( "#creator-product-id" ).val( 0 );
 	});
-	
-	//alert( $("ul.pagination li"))
-	// var current_page = 1;
-	// var selected_page = current_page;
+
+	// UPLOAD PICTURES
+	var arrGambar = [];
+	var n_upload = 0;
+	$('.upload-btn').click(function(e) {
+        e.preventDefault();
+        var image = wp.media({ 
+            title: 'Upload Image',
+            multiple: true
+        }).open()
+        .on('select', function(e){
+            var selected = image.state().get('selection');
+            var list_item = "";
+            selected.each( function( att ) {
+            	var url = att.toJSON().url;
+            	//console.log(att.toJSON());
+            	if( n_upload < 5 ) {
+            		n_upload += 1;
+            		list_item += "<div class='list-gambar list-group-item'><input class='list-gambar-radio' type='radio' name='gambar-product' value='" + url + "'> <label>" + att.toJSON().filename + "</label>  <a href='#' class='text-danger btn-remove-gambar' >remove</a></div>";
+            	}
+            });
+
+            $( '#list-tambah-gambar' ).append(list_item);
+            if ( n_upload == 5 ) {
+            	$( "button.upload-btn").hide();
+            }
+        });
+    });
+
+	$( "#list-tambah-gambar" ).on( 'click', '.btn-remove-gambar', function() {
+		$(this).parent().remove();
+		n_upload -= 1;
+		if( n_upload <= 5 && (! $( "button.upload-btn").is(":visible")) ) {
+			$( "button.upload-btn").show();
+		}
+	});
+
+	$( "#btn-confirm-gambar" ).click( function() {
+		var i = 0;
+		$( "input.list-gambar-radio" ).each( function(att) {
+			//console.log( $(this).val() );
+			arrGambar[i] = $( this ).val();
+			i++;
+		});
+		//console.log( arrGambar );
+		$( "#modal-gambar" ).modal( "hide" );
+	});
+	// END UPLOAD PICTURES
+
+	$( "#form-product").submit( function(e) {
+		e.preventDefault();
+		//alert(arrGambar);
+		var data = {
+			action: "CreateNewProduct",
+			nama: $( "#nama-product" ).val(),
+			deskripsi: $( "#deskripsi-product" ).val(),
+			infolain: $( "#info-lain-product" ).val(),
+		};
+		data.kategori = $( "#kategori-product-id" ).val();
+		data.kreator = $( "#creator-product-id" ).val();
+		data.gambararr = arrGambar;
+		//alert("TEST");
+		$.post(
+			sltg_ajax.ajaxurl,
+			data,
+			function( response ) {
+				var result = jQuery.parseJSON( response );
+				if( result.status ) {
+					hide_modal_product();
+					reset_form_product();
+					doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
+				}else{
+					alert( result.message );
+				}
+			}
+		);
+	});
+
+	function reset_form_product() {
+		$( "#nama-product" ).val( "" );
+		$( "#deskripsi-product" ).val( "" );
+		$( "#info-lain-product" ).val( "" );
+		$( "#kategori-product-id" ).val( 0 );
+		$( "#kategori-product" ).val( "" );
+		$( "#creator-product-id" ).val( 0 );
+		$( "#creator-product" ).val( "" );
+
+		arrGambar.length = 0;
+		n_upload = 0;
+
+		$( "#list-tambah-gambar" ).html( "" );
+		if( (! $( "button.upload-btn").is(":visible")) ) {
+			$( "button.upload-btn").show();
+		}
+	}
+
+
 	var limit = $( "#data-limit" ).val();
 	var searchfor = $( "#txt-search").val();
 	var isSearching = false;
 	var kategori = $( "#data-filter-kategori" ).val();
 
-	/*var pagination = new Pagination( "product", limit, searchfor, "#plugin-data-pagination");
-	pagination.retrieve();*/
-
 	doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
 
 	$( "#data-limit" ).on( "change", function() {
-		//selected_page = 1;
-		limit = this.value;
-		//searchfor = "";//$( "#txt-search" ).val();
-		//if( isSearching ) searchfor = $( "#txt-search" ).val();
 
-		// $( ".pagination a.page-" + current_page).parent().removeClass("active");
-		// $( ".pagination a.page-" + selected_page ).parent().addClass("active");
-		//current_page = selected_page;
+		limit = this.value;
 
 		doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
-		//retrieveList( "#plugin-data-list" );
+
 	});	
 
 	$( "#data-filter-kategori").on( "change", function() {
@@ -228,30 +369,11 @@ jQuery(document).ready( function($) {
 				searchfor = "";
 				$( "#txt-search").val("");
 			}
-			//limit = $( "#data-limit" ).val();
 
-			/*searchfor = ( $( "#txt-search").val() ).split(' ').join('');;
-			if( searchfor != "" ) {
-				isSearching = true;
-			}*/
 			doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
 		}
-		//current_page = 1;
-		//selected_page = current_page;
-		//searchFor( searchfor, "#plugin-data-list" );
+
 	});
-
-	/*function searchFor( search, target_element) {
-
-		$.get( sltg_ajax.ajaxurl,
-			{
-				action: 'SearchFor',
-				listfor: 'product', page: current_page, limit: limit, search: search
-			},
-			function (response) {
-				$( target_element ).html( response );
-		});
-	}*/
 	
 });
 </script>
