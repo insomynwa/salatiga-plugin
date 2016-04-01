@@ -65,6 +65,7 @@ class Sltg_Gambar {
 			$this->produk = $row[ 'produk' ];
 			$this->gambar_utama = $row[ 'gambar_utama_produk' ];
 			$this->post_id = $row[ 'post_id' ];
+
 		}
 		return $result;
 	}
@@ -92,4 +93,35 @@ class Sltg_Gambar {
 		}
 		return $result;
 	}
+
+	/*public function Delete(){
+		global $wpdb;
+		wp_delete_post( $this->post_id, true );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $this->table_name WHERE id_produk = %d",
+				$this->produk
+			)
+		);
+	}*/
+
+	public function DeleteMultiple() {
+		global $wpdb;
+		//wp_delete_post( $this->post_id, true );
+		if( $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $this->table_name WHERE produk = %d",
+				$this->produk
+			)
+		) ){
+			return true;
+		}
+		return false;
+	}
+
+	public function DeletePost() {
+		if( wp_delete_post( $this->post_id, true ) === false) return false;
+		return true;
+	}
+
 }

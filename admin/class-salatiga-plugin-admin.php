@@ -438,4 +438,24 @@ class Salatiga_Plugin_Admin {
 	public function add_meta_box() {
 
 	}
+
+	private function TESTFROMPLUGIN() {
+		_e( "HELLO BRO");
+	}
+
+	function delete_post_attachments($post_id) {
+	    global $wpdb;
+	 
+	    $sql = "SELECT ID FROM {$wpdb->posts} ";
+	    $sql .= " WHERE post_parent = $post_id ";
+	    $sql .= " AND post_type = 'attachment'";
+	 
+	    $ids = $wpdb->get_col($sql);
+	 
+	    foreach ( $ids as $id ) {
+	        wp_delete_attachment($id);
+	    }
+	}
+
+
 }

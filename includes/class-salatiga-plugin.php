@@ -48,6 +48,7 @@ class Salatiga_Plugin {
 		$this->loader->add_action( 'wp_ajax_SearchFor', $admin, 'retrieve_list' );
 		$this->loader->add_action( 'sltg_product_category_pagination', $admin, 'get_kategori_product' );
 		$this->loader->add_action( 'wp_ajax_CreateNewProduct', $admin, 'create_product' );
+		$this->loader->add_action( 'delete_post', $admin, 'delete_post_attachments' );
 		
 		$controller = new Salatiga_Plugin_Controller();
 		$this->loader->add_action( 'wp_ajax_nopriv_RetrievePaginationTemplate', $controller, 'retrieve_pagination' );

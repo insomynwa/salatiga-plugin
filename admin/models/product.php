@@ -159,4 +159,50 @@ class Sltg_Product {
 		}
 		return $result;
 	}
+
+	public function Delete(){
+		global $wpdb;
+
+		$result = array( "status" => false, "message" => "" );
+		if( $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $this->table_name WHERE id_produk = %d",
+				$this->id
+			)
+		)) {
+			$result ['status'] = $this->deleteGambars();
+		}
+
+		return $result;
+
+	}
+
+	private function deleteGambars() {
+		global $wpdb;
+
+		$obj_gbr = new Sltg_Gambar( "ext_gambar_produk" );
+		$obj_gbr->SetProduk( $this->id );
+		$result = $obj_gbr->DeleteMultiple();
+
+		foreach( $this->gambars as $gbr ) {
+			$result = $result && $gbr->DeletePost();
+		}
+
+		/*$query = 
+			"DELETE gbr, p, pm
+			FROM ext_gambar_produk gbr
+			LEFT JOIN sltg_posts p ON gbr.post_id = p.ID
+			LEFT JOIN sltg_postmeta pm ON p.ID = pm.post_id
+			WHERE gbr.produk = %d";
+
+		if( $wpdb->query(
+			$wpdb->prepare(
+				$query,
+				$this->id
+			)
+		) ) {
+			return true;
+		}*/
+		return $result;
+	}
 }
