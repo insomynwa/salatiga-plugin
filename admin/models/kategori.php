@@ -34,56 +34,60 @@ class Sltg_Kategori_Product {
 		return $result;
 	}
 
-	/*public function CountData( $searchForName = null ) {
+	public function FindName() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(id_kategori) AS jumlah FROM $this->table_name";
-		$bindValues = array();
-
-		if ( !is_null( $searchForName ) ){
-			$str_search = "WHERE nama_kategori LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}
-
-		$jumlah =
-			$wpdb->get_var(
+		$query = "SELECT * FROM $this->table_name WHERE nama_kategori = %s LIMIT %d";
+		
+		$row =
+			$wpdb->get_row(
 				$wpdb->prepare(
 					$query,
-					$bindValues
-					)
+					$this->nama, 1
+					),
+				ARRAY_A
 				);
+		$result = ! is_null( $row );
+		if ( $result ){
+			$this->id = $row[ 'id_kategori' ];
+			$this->nama = $row[ 'nama_kategori' ];
+		}
+		return $result;
+	}
 
-		return is_null( $jumlah )? 0 : $jumlah;
-	}*/
-
-	public function DataList( /*$limit = -1, $offset = -1, $searchForName = null*/$arg1 = "", $arg2 = 0, $arg3 = null, $arg4 = null) {
+	public function DataList( $arg1 = "", $arg2 = 0, $arg3 = null, $arg4 = null) {
 		global $wpdb;
 
 		$query = "SELECT id_kategori FROM $this->table_name";
-		/*$bindValues = array();
-
-		if( !is_null( $searchForName )) {
-			$str_search = "WHERE nama_kategori LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}
-
-		if( $limit > 0 && $offset >= 0){
-			$str_limit = "LIMIT %d, %d";
-			$query .= " ". $str_limit;
-			$bindValues[] = $offset;
-			$bindValues[] = $limit;
-		}*/
-		//var_dump($query, $searchForName);
 		$rows =
 			$wpdb->get_results(
 				$wpdb->prepare(
 					$query,
-					/*$bindValues*/null
+					null
 					)
 				);
-		//var_dump( $rows ); 
+
 		return $rows;
+	}
+
+	function AddNew() {
+		global $wpdb;
+
+		$result = array( 'status' => false, 'message' => 'Error AddNew()-kategori' );
+
+		if( $wpdb->insert(
+			$this->table_name,
+			array(
+				'nama_kategori' => $this->nama
+				),
+			array(
+				'%s'
+				)
+			) ){
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = 'Berhasil menambah kategori';
+			$result[ 'new_id' ] = $wpdb->insert_id;
+		}
+		return $result;
 	}
 }

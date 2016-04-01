@@ -16,14 +16,6 @@
 			</div>
 			<div class="collapse navbar-collapse" id="sltgNavbar">
 				<ul class="nav navbar-nav">
-					<!-- <li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Industry <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li><a href="#">UKM</a></li>
-						</ul>
-					</li>
-					<li><a href="#">Artwork</a></li>
-					<li><a href="#">Escape plan</a></li> -->
 					<li><a href="<?php echo admin_url( 'admin.php?page=sltg-ukm' ); ?>">UKM</a></li>
 					<li><a href="<?php echo admin_url( 'admin.php?page=sltg-product' ); ?>">Product</a></li>
 					<li><a href="<?php echo admin_url( 'admin.php?page=sltg-personal' ); ?>">Founder/Creator</a></li>

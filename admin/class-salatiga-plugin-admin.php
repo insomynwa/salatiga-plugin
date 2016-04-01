@@ -99,6 +99,59 @@ class Salatiga_Plugin_Admin {
 			$content = $this->get_html_template( 'pages/product', 'detail', $attributes, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
 		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$obj_kat = new Sltg_Kategori_Product();
+			$obj_ukm = new Sltg_UKM();
+			
+			$attributes = array();
+			$kats = $obj_kat->Datalist();
+			foreach( $kats as $kat ) {
+				$kategori = new Sltg_Kategori_Product();
+				$kategori->HasID( $kat->id_kategori );
+				$attributes[ 'kategori' ][] = $kategori;
+			}
+
+			$ukms = $obj_ukm->DataList();
+			foreach( $ukms as $ukm ){
+				$ukm_new = new Sltg_UKM();
+				$ukm_new->HasID( $ukm->id_ukm );
+				$attributes[ 'ukm' ][] = $ukm_new;
+			}
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'product' ] ) && ($_GET[ 'product' ] > 0) ) {
+				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+
+				$action_template = "edit";
+
+				$obj = new Sltg_Product();
+				$obj->HasID( $get_product_id );
+				$attributes[ 'product' ] = $obj;
+			}else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
+				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Product();
+				$obj->HasID( $get_product_id );
+				$attributes[ 'product' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/product', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
 		else {
 			$obj = new Sltg_Product();
 			$obj_kat = new Sltg_Kategori_Product();
@@ -118,7 +171,6 @@ class Salatiga_Plugin_Admin {
 				$ukm_new->HasID( $ukm->id_ukm );
 				$attributes[ 'ukm' ][] = $ukm_new;
 			}
-
 			$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
 		}
@@ -304,23 +356,31 @@ class Salatiga_Plugin_Admin {
 		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
 			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
 		if( $post_isset ) {
-			$post_nama = $_POST[ 'nama' ];
-			$post_deskripsi = $_POST[ 'deskripsi' ];
-			$post_infolain = $_POST[ 'infolain' ];
-			$post_kategori = $_POST[ 'kategori' ];
-			$post_kreator = $_POST[ 'kreator' ];
-			$post_gambararr = $_POST[ 'gambararr' ];
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+			//var_dump($post_gambararr[0]['fname']);die;
+			//print_r($post_gambararr);
+			
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
 
-			$post_not_empty = ($post_nama!="") && ($post_kategori>0) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+			$post_not_empty = ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
 
 			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
 				$product = new Sltg_Product();
 				$product->SetNama( $post_nama );
 				$product->SetDeskripsi( $post_deskripsi );
 				$product->SetOther( $post_infolain );
 				$product->SetKategori( $post_kategori );
 				$product->SetUKM( $post_kreator );
-				//$product->SetGambars( $post_gambararr );
 
 				$result = $product->AddNew();
 				$this->add_picture( 'produk', $result[ 'new_id' ], $post_gambararr );
@@ -345,37 +405,35 @@ class Salatiga_Plugin_Admin {
 		$gambar = new Sltg_Gambar( $table );
 		if ( $type_pict == "produk" ){
 			$gambar->SetProduk( $owner_id );
-			$gambar_utama = 1;
+			//$gambar_utama = 1;
 			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
-				$gambar->SetGambarUtama( $gambar_utama );
-				$gambar->SetLinkGambar( $pictureArr[ $i ] );
+				//$gambar->SetGambarUtama( $gambar_utama );
+				$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
+				$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
 				$gambar->SetDeskripsi( "" );
+				$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
 				$gambar->AddNew();
-				$gambar_utama = 0;
+				/*$gambar_utama = 0;*/
 			}
 		}
 	}
 
-	/*public function test2() {
-		echo "TEST-2";
-	}*/
+	private function add_kategori( $kategori_name ) {
+		$kategori = new Sltg_Kategori_Product();
 
-	// Retrieve in Template
-	/*public function get_kategori_product(){
-		require( 'models/kategori.php' );
-		$kategoris = new Sltg_Kategori_Product();
+		$kategori->SetNama( $kategori_name );
 
-		$arrKategori = array();
 
-		$rows = $kategoris->DataList();
-		foreach( $rows as $row ) {
-			$kategori = new Sltg_Kategori_Product();
-			$kategori->HasID( $row->id_kategori );
-			$arrKategori[] = $kategori;
-		}
+		if( ! $kategori->FindName() )
+			$result = $kategori->AddNew();
+		else
+			$result[ 'new_id' ] = $kategori->GetId();
+		return $result;
+	}
 
-		return $arrKategori;
-	}*/
+	private function validate_kategori( $is_new_kategori, $kategori ) {
+		return ( ( $is_new_kategori && $kategori != "" ) || (!$is_new_kategori && $kategori>0) );
+	}
 
 	public function add_meta_box() {
 

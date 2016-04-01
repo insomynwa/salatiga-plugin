@@ -37,6 +37,10 @@ class Sltg_Gambar {
 	public function GetGambarUtama() { return $this->gambar_utama; }
 	public function SetGambarUtama($gambar_utama) { $this->gambar_utama = $gambar_utama; }
 
+	private $post_id;
+	public function GetPostId() { return $this->post_id; }
+	public function SetPostId($post_id) { $this->post_id = $post_id; }
+
 	function __construct( $table_name ) {
 		$this->table_name = $table_name; 
 	}
@@ -60,39 +64,10 @@ class Sltg_Gambar {
 			$this->deskripsi = $row[ 'deskripsi_gambar_produk' ];
 			$this->produk = $row[ 'produk' ];
 			$this->gambar_utama = $row[ 'gambar_utama_produk' ];
+			$this->post_id = $row[ 'post_id' ];
 		}
 		return $result;
 	}
-
-	/*function GetMainPicture() {
-		global $wpdb;
-
-		$rows =
-			$wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT * FROM $this->table_name " .
-					"WHERE produk = %d AND gambar_utama_produk = %d",
-					$this->produk, 1
-					)
-				);
-
-		return $rows;
-	}*/
-
-	/*function DataList() {
-		global $wpdb;
-
-		$rows =
-			$wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT * FROM $this->table_name " .
-					"WHERE produk = %d",
-					$this->produk
-					)
-				);
-
-		return $rows;
-	}*/
 
 	function AddNew() {
 		global $wpdb;
@@ -105,7 +80,8 @@ class Sltg_Gambar {
 				'link_gambar_produk' => $this->link_gambar,
 				'deskripsi_gambar_produk' => $this->deskripsi,
 				'produk' => $this->produk,
-				'gambar_utama_produk' => $this->gambar_utama
+				'gambar_utama_produk' => $this->gambar_utama,
+				'post_id' => $this->post_id
 				),
 			array(
 				'%s', '%s', '%d', '%d'

@@ -20,10 +20,6 @@ jQuery(document).ready(function($){
 	doRetrieveList( "<?php _e($attributes[ 'listfor' ]); ?>", limit, selected_page, searchfor, kategori, "#plugin-data-list");
 
 	$( ".pagination a").click( function() {
-		//limit = $( "#data-limit" ).val();
-		//kategori = $( "#data-filter-kategori" ).val();
-		//searchfor = $( "#txt-search").val();
-		
 		selected_page = $( this ).text();
 
 		$( ".pagination a.page-" + current_page).parent().removeClass("active");
