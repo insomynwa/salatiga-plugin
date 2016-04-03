@@ -94,16 +94,23 @@ class Sltg_Gambar {
 		return $result;
 	}
 
-	/*public function Delete(){
+	public function Delete(){
 		global $wpdb;
-		wp_delete_post( $this->post_id, true );
-		$wpdb->query(
+
+		$result = array( "status" => false, "message" => "" );
+		if( $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $this->table_name WHERE id_produk = %d",
-				$this->produk
+				"DELETE FROM $this->table_name WHERE id_gambar_produk = %d",
+				$this->id
 			)
-		);
-	}*/
+		)) {
+			$result ['status'] = true;
+			$result ['status'] = $result['status'] && $this->DeletePost();
+		}
+
+		return $result;
+
+	}
 
 	public function DeleteMultiple() {
 		global $wpdb;
@@ -122,6 +129,26 @@ class Sltg_Gambar {
 	public function DeletePost() {
 		if( wp_delete_post( $this->post_id, true ) === false) return false;
 		return true;
+	}
+
+	public function SetAsGambarUtama(){
+		global $wpdb;
+		$result = array( "status" => false, "message" => "gagal update gambar utama" );
+		$queryReset = 
+				"UPDATE $this->table_name 
+				SET gambar_utama_produk = %d 
+				WHERE id_gambar_produk <> %d AND produk = %d";
+		$querySetNew = 
+				"UPDATE $this->table_name 
+				SET gambar_utama_produk = %d 
+				WHERE id_gambar_produk = %d";
+
+		if( $wpdb->query($wpdb->prepare($queryReset,0,$this->id, $this->produk)) && $wpdb->query($wpdb->prepare($querySetNew,1,$this->id)) )
+		{
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = "berhasil update gambar utama";
+		}
+		return $result;
 	}
 
 }

@@ -272,6 +272,17 @@ jQuery(document).ready( function($) {
 	}
 	// END UPLOAD PICTURES
 
+	function setDefaultGambarUtama() {
+		var numUtama = 0;
+		for( var i=0; i < arrImgList.length; i++ ){
+			numUtama += arrImgList[ i ].utama ;
+		}
+		if (numUtama == 0) {
+			arrImgList[ 0 ].utama = 1;
+			$( "#gbr-radio0").prop( "checked", arrImgList[ 0 ].utama );
+		}
+	}
+
 	$( "#form-product").submit( function(e) {
 		e.preventDefault();
 		
@@ -313,6 +324,7 @@ jQuery(document).ready( function($) {
 			}
 			data.kreator = iCreId.val();
 			/*data.gambararr = arrGambar;*/
+			setDefaultGambarUtama();
 			data.gambararr = arrImgList;
 			$.post(
 				sltg_ajax.ajaxurl,

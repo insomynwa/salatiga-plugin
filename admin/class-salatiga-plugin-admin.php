@@ -136,10 +136,18 @@ class Salatiga_Plugin_Admin {
 
 				$action_template = "edit";
 
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
 				$obj = new Sltg_Product();
 				$obj->HasID( $get_product_id );
 				$attributes[ 'product' ] = $obj;
-			}else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
 				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
 
 				$action_template = 'delete';
@@ -398,10 +406,157 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
+	public function update_product() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'product' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		if( $post_isset ) {
+			$post_product_id = sanitize_text_field( $_POST[ 'product' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+			//var_dump($post_gambararr[0]['fname']);die;
+			//print_r($post_gambararr);
+			
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+
+			$post_not_empty = ($post_product_id > 0) && ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$product = new Sltg_Product();
+				$product->HasID( $post_product_id );
+
+				// compare data
+				$oldData = array(
+					$product->GetNama(), // nama produk
+					$product->GetDeskripsi(), // deskripsi
+					$product->GetOther(), // other
+					$product->GetKategori()->GetId(), // kategori
+					$product->GetUKM()->GetId() // ukm
+					);
+				$newData = array(
+					$post_nama, // nama produk
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_kategori, // kategori,
+					$post_kreator // ukm
+					);
+
+				// compare Picture
+				$arrOldPict = $product->GetGambars();
+				$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
+				// if( $sameSize ) {
+					// get added Picture
+					$arrAddedPict = array();
+					$arrAddedPictId = array();
+					$utamaInNew = false;
+					$selectedUtama = 0;
+					foreach( $post_gambararr as $newPict) {
+						$isNew = true;
+						foreach( $arrOldPict as $oldPict) {
+							if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+								$isNew = false;
+								break;
+							}
+						}
+						$arrAddedPict[] = $isNew;
+						if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+						if( $isNew ) {
+							$arrAddedPictId[] = $newPict;
+							if( $newPict['utama'] == 1){
+								$utamaInNew = true;
+							}
+						}
+					}
+
+					// get deleted picture
+					$arrDelPict = array();
+					$arrDelPictId = array();
+					$utamaInDel = false;
+					foreach( $arrOldPict as $oldPict) {
+						$isDel = true;
+						foreach( $post_gambararr as $newPict) {
+							if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+								$isDel = false;
+								break;
+							}
+						}
+						$arrDelPict[] = $isDel;
+						if( $isDel ) {
+							$arrDelPictId[] = $oldPict;
+							if( $oldPict->GetPostId() == 1){
+								$utamaInDel = true;
+							}
+						}
+					}
+
+					// var_dump( "select utama: ". $selectedUtama );
+
+					if( !$utamaInNew && !$utamaInDel ) {
+						// update gambar utama
+						foreach ($arrOldPict as $oldPict) {
+							if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+								$result = $oldPict->SetAsGambarUtama();
+								break;
+							}
+						}
+					}
+
+					// delete old picture
+					if ( sizeof( $arrDelPictId ) > 0 ) {
+						foreach( $arrDelPictId as $delGbr ) {
+							$result = $delGbr->Delete();
+						}
+					}
+
+					// add new picture
+					if( sizeof( $arrAddedPictId ) > 0 ) {
+						$result = $this->add_picture( 'produk', $post_product_id, $arrAddedPictId );
+					}
+
+					//var_dump($arrAddedPict, $arrDelPict, $arrAddedPictId, $arrDelPictId);			
+				// }else{
+
+				// }
+				//var_dump($oldData, $newData);
+
+				if ( $oldData !== $newData ) {
+					$product->SetNama( $post_nama );
+					$product->SetDeskripsi( $post_deskripsi );
+					$product->SetOther( $post_infolain );
+					$product->SetKategori( $post_kategori );
+					$product->SetUKM( $post_kreator );
+					$result = $product->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
 	private function add_picture( $type_pict, $owner_id, $pictureArr ) {
+		$result = array();
 		if ( $type_pict == "produk" ){
 			$table = "ext_gambar_produk";
 		}
+
 		$gambar = new Sltg_Gambar( $table );
 		if ( $type_pict == "produk" ){
 			$gambar->SetProduk( $owner_id );
@@ -412,10 +567,12 @@ class Salatiga_Plugin_Admin {
 				$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
 				$gambar->SetDeskripsi( "" );
 				$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
-				$gambar->AddNew();
+				$result = $gambar->AddNew();
 				/*$gambar_utama = 0;*/
 			}
 		}
+
+		return $result;
 	}
 
 	private function add_kategori( $kategori_name ) {

@@ -30,7 +30,7 @@ class Sltg_Product {
 	// IN RELATIONSHIP
 	private $gambar_utama;
 	public function GetGambarUtama() { return $this->gambar_utama; }
-	//public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
 
 	private $gambars;
 	public function GetGambars() { return $this->gambars; }
@@ -177,7 +177,7 @@ class Sltg_Product {
 
 	}
 
-	private function deleteGambars() {
+	public function deleteGambars() {
 		global $wpdb;
 
 		$obj_gbr = new Sltg_Gambar( "ext_gambar_produk" );
@@ -187,22 +187,35 @@ class Sltg_Product {
 		foreach( $this->gambars as $gbr ) {
 			$result = $result && $gbr->DeletePost();
 		}
+		return $result;
+	}
 
-		/*$query = 
-			"DELETE gbr, p, pm
-			FROM ext_gambar_produk gbr
-			LEFT JOIN sltg_posts p ON gbr.post_id = p.ID
-			LEFT JOIN sltg_postmeta pm ON p.ID = pm.post_id
-			WHERE gbr.produk = %d";
+	public function Update() {
+		global $wpdb;
+		$result = array( "status" => false, "message" => "gagal update produk" );
 
-		if( $wpdb->query(
-			$wpdb->prepare(
-				$query,
-				$this->id
-			)
-		) ) {
-			return true;
-		}*/
+		$arrUpdateData = array(
+			'nama_produk' => $this->nama,
+			'deskripsi_produk' => $this->deskripsi,
+			'other_produk' => $this->other,
+			'kategori' => $this->kategori,
+			'ukm' => $this->ukm
+			);
+		$arrCondition = array( 'id_produk' => $this->id );
+		$arrDataType = array( '%s', '%s', '%s', '%d', '%d');
+		$arrConditionType = array( '%d' );
+
+		if( $wpdb->update(
+			$this->table_name,
+			$arrUpdateData,
+			$arrCondition,
+			$arrDataType,
+			$arrConditionType
+			) )
+		{
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = "berhasil update produk";
+		}
 		return $result;
 	}
 }
