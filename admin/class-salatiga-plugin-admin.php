@@ -77,11 +77,78 @@ class Salatiga_Plugin_Admin {
 
 	// Render UKM page
 	public function render_ukm_page(){
-		//require( 'models/ukm.php' );
-		$obj = new Sltg_UKM();
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_UKM();
 
-		$content = $this->get_html_template( 'pages/ukm', 'main', null, TRUE);
-		$this->get_html_template( 'pages', 'template', $content );
+			$obj->HasID( $get_detail );
+			$attributes[ 'ukm' ] = $obj;
+
+			$content = $this->get_html_template( 'pages/ukm', 'detail', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$obj_kat = new Sltg_Kategori_Product();
+			$obj_ukm = new Sltg_UKM();
+			
+			$attributes = array();
+
+			$ukms = $obj_ukm->DataList();
+			foreach( $ukms as $ukm ){
+				$ukm_new = new Sltg_UKM();
+				$ukm_new->HasID( $ukm->id_ukm );
+				$attributes[ 'ukm' ][] = $ukm_new;
+			}
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			/*else if( $get_action == "edit" && isset( $_GET[ 'product' ] ) && ($_GET[ 'product' ] > 0) ) {
+				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Product();
+				$obj->HasID( $get_product_id );
+				$attributes[ 'product' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
+				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Product();
+				$obj->HasID( $get_product_id );
+				$attributes[ 'product' ] = $obj;
+			}*/
+
+			$content = $this->get_html_template( 'pages/ukm', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_UKM();
+			$content = $this->get_html_template( 'pages/ukm', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		
+
 	}
 	// Render Product page
 	public function render_product_page(){
@@ -230,33 +297,18 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Personal();
 				$attributes[ 'listfor' ] = 'personal';
 				$option_limit_name = "personal_list_limit";
-
-				/*if( isset( $get_search) )
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'personal_list_limit', $get_limit, $get_search );
-				else
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'personal_list_limit', $get_limit );*/
 			}
 			else if( $get_listfor == 'product' ) {
 				//require( 'models/product.php');
 				$obj = new Sltg_Product();
 				$attributes[ 'listfor' ] = 'product';
 				$option_limit_name = "product_list_limit";
-
-				/*if( isset( $get_search) )
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'product_list_limit', $get_limit, $get_search );
-				else
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'product_list_limit', $get_limit );*/
 			}
 			else if( $get_listfor == 'ukm' ) {
 				//require( 'models/ukm.php');
 				$obj = new Sltg_UKM();
 				$attributes[ 'listfor' ] = 'ukm';
 				$option_limit_name = "ukm_list_limit";
-
-				/*if( isset( $get_search) )
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'ukm_list_limit', $get_limit, $get_search );
-				else
-					$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'ukm_list_limit', $get_limit );*/
 			}
 			update_option( $option_limit_name, $get_limit );
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $get_kategori );
@@ -391,7 +443,9 @@ class Salatiga_Plugin_Admin {
 				$product->SetUKM( $post_kreator );
 
 				$result = $product->AddNew();
-				$this->add_picture( 'produk', $result[ 'new_id' ], $post_gambararr );
+				$newProduct = new Sltg_Product();
+				$newProduct->HasID( $result[ 'new_id' ] );
+				$this->add_picture( 'produk', $newProduct->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -520,7 +574,7 @@ class Salatiga_Plugin_Admin {
 
 					// add new picture
 					if( sizeof( $arrAddedPictId ) > 0 ) {
-						$result = $this->add_picture( 'produk', $post_product_id, $arrAddedPictId );
+						$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
 					}
 
 					//var_dump($arrAddedPict, $arrDelPict, $arrAddedPictId, $arrDelPictId);			
@@ -551,15 +605,15 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
-	private function add_picture( $type_pict, $owner_id, $pictureArr ) {
+	private function add_picture( $type_pict, $pict_code, $pictureArr ) {
 		$result = array();
-		if ( $type_pict == "produk" ){
+		/*if ( $type_pict == "produk" ){
 			$table = "ext_gambar_produk";
-		}
+		}*/
 
-		$gambar = new Sltg_Gambar( $table );
+		$gambar = new Sltg_Gambar();
 		if ( $type_pict == "produk" ){
-			$gambar->SetProduk( $owner_id );
+			$gambar->SetOwner( $pict_code );
 			//$gambar_utama = 1;
 			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
 				//$gambar->SetGambarUtama( $gambar_utama );

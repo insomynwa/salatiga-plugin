@@ -78,82 +78,10 @@ jQuery(document).ready( function ($) {
 	</div>
 </div>
 <div class="plugin-content-link">
-	<button id="add-new-ukm" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-ukm"><span class="glyphicon glyphicon-plus"></span> Add New</button>
-</div>
-<div id="modal-form-ukm" class="modal fade" role="dialog" aria-labelledby="ukmModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary" id="ukmModalLabel">Form UKM</h4>
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="nama-ukm">Nama</label>
-						<div class="col-sm-10">
-							<input type="text" name="nama-ukm" class="form-control" id="nama-ukm" placeholder="nama ukm (CV Blablabla) " required="required">
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="alamat-ukm">Alamat</label>
-						<div class="col-sm-10">
-							<textarea name="alamat-ukm" class="form-control" id="alamat-ukm"></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="telp-ukm">Telp</label>
-						<div class="col-sm-10">
-							<input type="text" name="telp-ukm" class="form-control" id="telp-ukm" placeholder="0298xxxxx" required="required">
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="deskripsi-ukm">Deskripsi</label>
-						<div class="col-sm-10">
-							<textarea name="deskripsi-ukm" class="form-control" id="deskripsi-ukm"></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="pemilik-ukm">Pemilik</label>
-						<div class="col-sm-6">
-							<input type="text" name="pemilik-ukm" class="form-control" id="pemilik-ukm" placeholder="nama pemilik (Soekarno) " required="required">
-							<input type="hidden" name="pemilik-ukm-id" id="pemilik-ukm-id" value="0">
-						</div>
-						<div class="col-sm-4">
-							<button id="btn-refresh-pemilik" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
-							<button id="btn-open-modal-personal" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modal-personal"><span class="glyphicon glyphicon-user"></span></button>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
-							<button class="form-control btn btn-success" type="submit" name="submit-ukm" id="submit-ukm"><span class="glyphicon glyphicon-save"></span> Save</button>
-						</div>	
-					</div>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div>
-<div id="modal-personal" class="modal fade" role="dialog" aria-labelledby="personalModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary">Pemilik</h4>
-			</div>
-			<div class="modal-body">
-				<div class="list-group">
-					<a href="#" class="list-personal list-group-item" id="1">Mr. A</a>
-					<a href="#" class="list-personal list-group-item" id="2">Mr. B</a>
-					<a href="#" class="list-personal list-group-item" id="3">Mr. C</a>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			</div>
-		</div>
-	</div>
+	<a href="?page=sltg-ukm&doaction=create-new">
+		<button id="add-ukm" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add New
+		</button>
+	</a>
+	<!-- <button id="add-new-ukm" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-ukm"><span class="glyphicon glyphicon-plus"></span> Add New</button> -->
 </div>

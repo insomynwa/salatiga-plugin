@@ -27,6 +27,8 @@ class Sltg_Personal {
 	public function GetOther() { return $this->other; }
 	public function SetOther($other) { $this->other = $other; }
 
+	// IN RELATIONSHIP
+	
 	private $foto;
 	public function GetFotos() { return $this->foto; }
 

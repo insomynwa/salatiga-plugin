@@ -115,7 +115,7 @@ class Salatiga_Plugin_Controller {
 				}
 			}
 			//var_dump( $arrObj );
-			get_html_template( 'templates' /*. $dir_obj*/, 'ukm-list-template', $arrObj , false);
+			get_html_template( 'templates' /*. $dir_obj*/, 'product-list-template', $arrObj , false);
 		}
 		wp_die();
 	}

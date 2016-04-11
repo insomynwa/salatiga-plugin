@@ -7,6 +7,10 @@ class Sltg_Product {
 	private $id;
 	public function GetId(){ return $this->id; }
 
+	private $pict_code;
+	public function GetPictCode() { return $this->pict_code; }
+	public function SetPictCode( $pict_code ) { $this->pict_code = $pict_code; }
+
 	private $nama;
 	public function GetNama() { return $this->nama; }
 	public function SetNama( $nama ) { $this->nama = $nama; }
@@ -19,6 +23,8 @@ class Sltg_Product {
 	public function GetOther() { return $this->other; }
 	public function SetOther($other) { $this->other = $other; }
 
+	// IN RELATIONSHIP
+
 	private $kategori;
 	public function GetKategori() { return $this->kategori; }
 	public function SetKategori( $kategori ) { $this->kategori = $kategori; }
@@ -27,7 +33,6 @@ class Sltg_Product {
 	public function GetUKM() { return $this->ukm; }
 	public function SetUKM($ukm) { $this->ukm = $ukm; }
 
-	// IN RELATIONSHIP
 	private $gambar_utama;
 	public function GetGambarUtama() { return $this->gambar_utama; }
 	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
@@ -55,6 +60,7 @@ class Sltg_Product {
 		$result = ! is_null( $row );
 		if ( $result ){
 			$this->id = $row[ 'id_produk' ];
+			$this->pict_code = 'P' . $row[ 'id_produk' ];
 			$this->nama = $row[ 'nama_produk' ];
 			$this->deskripsi = $row[ 'deskripsi_produk' ];
 			$this->other = $row[ 'other_produk' ];
@@ -67,18 +73,18 @@ class Sltg_Product {
 			$obj_ukm->HasID( $row[ 'ukm' ] );
 			$this->ukm = $obj_ukm;
 
-			$obj_gbr = new Sltg_Gambar( "ext_gambar_produk" );
-			$list_gambar = $obj_gbr->SetProduk( $this->id );
+			$obj_gbr = new Sltg_Gambar();
+			$list_gambar = $obj_gbr->SetOwner( $this->pict_code );
 			foreach( $list_gambar as $g) {
-				$gambar = new Sltg_Gambar( "ext_gambar_produk" );
-				$gambar->HasID( $g->id_gambar_produk );
+				$gambar = new Sltg_Gambar();
+				$gambar->HasID( $g->id_gambar );
 				if( $gambar->GetGambarUtama() == 1) {
 					$this->gambar_utama = $gambar;
 					/*break;*/
 				}
 				$this->gambars[] = $gambar;
 			}
-			//var_dump($this->gambars);
+			//var_dump($this->gambar_utama);
 		}
 		return $result;
 	}
@@ -180,8 +186,8 @@ class Sltg_Product {
 	public function deleteGambars() {
 		global $wpdb;
 
-		$obj_gbr = new Sltg_Gambar( "ext_gambar_produk" );
-		$obj_gbr->SetProduk( $this->id );
+		$obj_gbr = new Sltg_Gambar();
+		$obj_gbr->SetOwner( $this->pict_code );
 		$result = $obj_gbr->DeleteMultiple();
 
 		foreach( $this->gambars as $gbr ) {

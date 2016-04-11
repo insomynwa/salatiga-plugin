@@ -3,6 +3,7 @@
 class Sltg_Gambar {
 
 	private $table_name;
+	/*private $owner_pict_name;*/
 
 	private $id;
 	public function GetId(){ return $this->id; }
@@ -15,21 +16,38 @@ class Sltg_Gambar {
 	public function GetDeskripsi() { return $this->deskripsi; }
 	public function SetDeskripsi($deskripsi) { $this->deskripsi = $deskripsi; }
 
-	private $produk;
-	public function GetProduk() { return $this->produk; }
-	public function SetProduk($produk) { 
+	/*private $owner;
+	public function GetProduk() { return $this->owner; }
+	public function SetProduk($owner) { 
 		global $wpdb;
 
-		$this->produk = $produk;
+		$this->owner = $owner;
 
 		$rows =
 			$wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT * FROM $this->table_name ".
-					"WHERE produk = %d",
-					$this->produk
+					"WHERE owner = %d",
+					$this->owner
 					)
 				);
+		return $rows;
+	}*/
+	private $owner;
+	public function GetOwner() { return $this->owner; }
+	public function SetOwner($owner) { 
+		global $wpdb;
+
+		$this->owner = $owner;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE owner = %s",
+					$this->owner
+					)
+				);//var_dump($rows);
 		return $rows;
 	}
 
@@ -41,8 +59,11 @@ class Sltg_Gambar {
 	public function GetPostId() { return $this->post_id; }
 	public function SetPostId($post_id) { $this->post_id = $post_id; }
 
-	function __construct( $table_name ) {
-		$this->table_name = $table_name; 
+	function __construct() {
+		$this->table_name = 'ext_gambar';
+
+		/*if( $table_name == 'ext_gambar_owner')
+			$this->owner_pict_name = 'owner';*/
 	}
 
 	function HasID( $gambar_id = 0 ) {
@@ -52,18 +73,18 @@ class Sltg_Gambar {
 			$wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM $this->table_name 
-					WHERE id_gambar_produk = %d",
+					WHERE id_gambar = %d",
 					$gambar_id
 					),
 				ARRAY_A
 				);
 		$result = ! is_null( $row );
 		if ( $result ){
-			$this->id = $row[ 'id_gambar_produk' ];
-			$this->link_gambar = $row[ 'link_gambar_produk' ];
-			$this->deskripsi = $row[ 'deskripsi_gambar_produk' ];
-			$this->produk = $row[ 'produk' ];
-			$this->gambar_utama = $row[ 'gambar_utama_produk' ];
+			$this->id = $row[ 'id_gambar' ];
+			$this->link_gambar = $row[ 'link_gambar' ];
+			$this->deskripsi = $row[ 'deskripsi_gambar' ];
+			$this->owner = $row[ 'owner' ];
+			$this->gambar_utama = $row[ 'gambar_utama' ];
 			$this->post_id = $row[ 'post_id' ];
 
 		}
@@ -78,14 +99,14 @@ class Sltg_Gambar {
 		if( $wpdb->insert(
 			$this->table_name,
 			array(
-				'link_gambar_produk' => $this->link_gambar,
-				'deskripsi_gambar_produk' => $this->deskripsi,
-				'produk' => $this->produk,
-				'gambar_utama_produk' => $this->gambar_utama,
+				'link_gambar' => $this->link_gambar,
+				'deskripsi_gambar' => $this->deskripsi,
+				'owner' => $this->owner,
+				'gambar_utama' => $this->gambar_utama,
 				'post_id' => $this->post_id
 				),
 			array(
-				'%s', '%s', '%d', '%d'
+				'%s', '%s', '%s', '%d', '%d'
 				)
 			) ){
 			$result[ 'status' ] = true;
@@ -100,7 +121,7 @@ class Sltg_Gambar {
 		$result = array( "status" => false, "message" => "" );
 		if( $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $this->table_name WHERE id_gambar_produk = %d",
+				"DELETE FROM $this->table_name WHERE id_gambar = %d",
 				$this->id
 			)
 		)) {
@@ -117,8 +138,8 @@ class Sltg_Gambar {
 		//wp_delete_post( $this->post_id, true );
 		if( $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $this->table_name WHERE produk = %d",
-				$this->produk
+				"DELETE FROM $this->table_name WHERE owner = %s",
+				$this->owner
 			)
 		) ){
 			return true;
@@ -136,14 +157,14 @@ class Sltg_Gambar {
 		$result = array( "status" => false, "message" => "gagal update gambar utama" );
 		$queryReset = 
 				"UPDATE $this->table_name 
-				SET gambar_utama_produk = %d 
-				WHERE id_gambar_produk <> %d AND produk = %d";
+				SET gambar_utama = %d 
+				WHERE id_gambar <> %d AND owner = %s";
 		$querySetNew = 
 				"UPDATE $this->table_name 
-				SET gambar_utama_produk = %d 
-				WHERE id_gambar_produk = %d";
+				SET gambar_utama = %d 
+				WHERE id_gambar = %d";
 
-		if( $wpdb->query($wpdb->prepare($queryReset,0,$this->id, $this->produk)) && $wpdb->query($wpdb->prepare($querySetNew,1,$this->id)) )
+		if( $wpdb->query($wpdb->prepare($queryReset,0,$this->id, $this->owner)) && $wpdb->query($wpdb->prepare($querySetNew,1,$this->id)) )
 		{
 			$result[ 'status' ] = true;
 			$result[ 'message' ] = "berhasil update gambar utama";

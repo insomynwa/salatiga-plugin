@@ -7,6 +7,10 @@ class Sltg_UKM {
 	private $id;
 	public function GetId(){ return $this->id; }
 
+	private $pict_code;
+	public function GetPictCode() { return $this->pict_code; }
+	public function SetPictCode( $pict_code ) { $this->pict_code = $pict_code; }
+
 	private $nama;
 	public function GetNama() { return $this->nama; }
 	public function SetNama( $nama ) { $this->nama = $nama; }
@@ -27,9 +31,19 @@ class Sltg_UKM {
 	public function GetOther() { return $this->other; }
 	public function SetOther($other) { $this->other = $other; }
 
+	// IN RELATIONSHIP
+
 	private $pemilik;
 	public function GetPemilik() { return $this->pemilik; }
 	public function SetPemilik($pemilik) { $this->pemilik = $pemilik; }
+	
+	private $gambar_utama;
+	public function GetGambarUtama() { return $this->gambar_utama; }
+	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+
+	private $gambars;
+	public function GetGambars() { return $this->gambars; }
+	public function SetGambars( $gambars ) { $this->gambars = $gambars; }
 
 
 	function __construct() {
@@ -50,12 +64,16 @@ class Sltg_UKM {
 		$result = ! is_null( $row );
 		if ( $result ){
 			$this->id = $row[ 'id_ukm' ];
+			$this->pict_code = 'U' . $row[ 'id_ukm' ];
 			$this->nama = $row[ 'nama_ukm' ];
 			$this->deskripsi = $row[ 'deskripsi_ukm' ];
 			$this->alamat = $row[ 'alamat_ukm' ];
 			$this->telp = $row[ 'telp_ukm' ];
 			$this->other = $row[ 'other_ukm' ];
-			$this->pemilik = $row[ 'pemilik' ];
+
+			$obj_person = new Sltg_Personal();
+			$obj_person->HasID( $row[ 'pemilik' ] );
+			$this->pemilik = $obj_person;
 		}
 		return $result;
 	}
