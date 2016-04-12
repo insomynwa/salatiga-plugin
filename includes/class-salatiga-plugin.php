@@ -50,6 +50,7 @@ class Salatiga_Plugin {
 		$this->loader->add_action( 'wp_ajax_CreateNewProduct', $admin, 'create_product' );
 		$this->loader->add_action( 'delete_post', $admin, 'delete_post_attachments' );
 		$this->loader->add_action( 'wp_ajax_UpdateProduct', $admin, 'update_product' );
+		$this->loader->add_action( 'wp_ajax_CreateNewUKM', $admin, 'create_ukm' );
 		
 		$controller = new Salatiga_Plugin_Controller();
 		$this->loader->add_action( 'wp_ajax_nopriv_RetrievePaginationTemplate', $controller, 'retrieve_pagination' );

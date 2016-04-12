@@ -91,15 +91,15 @@ class Salatiga_Plugin_Admin {
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
 			$obj_kat = new Sltg_Kategori_Product();
-			$obj_ukm = new Sltg_UKM();
+			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
 
-			$ukms = $obj_ukm->DataList();
-			foreach( $ukms as $ukm ){
-				$ukm_new = new Sltg_UKM();
-				$ukm_new->HasID( $ukm->id_ukm );
-				$attributes[ 'ukm' ][] = $ukm_new;
+			$persons = $obj_person->DataList();
+			foreach( $persons as $p ){
+				$person = new Sltg_Personal();
+				$person->HasID( $p->id_personal );
+				$attributes[ 'person' ][] = $person;
 			}
 
 			$action_template = "";
@@ -128,16 +128,16 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Product();
 				$obj->HasID( $get_product_id );
 				$attributes[ 'product' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
-				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+			}*/
+			else if( $get_action == 'delete' && isset( $_GET[ 'ukm' ] ) && ( $_GET[ 'ukm' ] ) ) {
+				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
 				$action_template = 'delete';
 
-				$obj = new Sltg_Product();
-				$obj->HasID( $get_product_id );
-				$attributes[ 'product' ] = $obj;
-			}*/
+				$obj = new Sltg_UKM();
+				$obj->HasID( $get_ukm_id );
+				$attributes[ 'ukm' ] = $obj;
+			}
 
 			$content = $this->get_html_template( 'pages/ukm', $action_template, $attributes, TRUE );
 			$this->get_html_template( 'pages', 'template', $content );
@@ -625,6 +625,19 @@ class Salatiga_Plugin_Admin {
 				/*$gambar_utama = 0;*/
 			}
 		}
+		else if ( $type_pict == "ukm" ){
+			$gambar->SetOwner( $pict_code );
+			//$gambar_utama = 1;
+			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
+				//$gambar->SetGambarUtama( $gambar_utama );
+				$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
+				$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
+				$gambar->SetDeskripsi( "" );
+				$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
+				$result = $gambar->AddNew();
+				/*$gambar_utama = 0;*/
+			}
+		}
 
 		return $result;
 	}
@@ -666,6 +679,59 @@ class Salatiga_Plugin_Admin {
 	    foreach ( $ids as $id ) {
 	        wp_delete_attachment($id);
 	    }
+	}
+
+	public function create_ukm() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'founder' ] ) && isset( $_POST[ 'gambararr' ] );
+		// var_dump($_POST);
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_founder = sanitize_text_field( $_POST[ 'founder' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && ($post_founder>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$ukm = new Sltg_UKM();
+				$ukm->SetNama( $post_nama );
+				$ukm->SetAlamat( $post_alamat );
+				$ukm->SetTelp( $post_telp );
+				$ukm->SetDeskripsi( $post_deskripsi );
+				$ukm->SetOther( $post_infolain );
+				$ukm->SetPemilik( $post_founder );
+
+				$result = $ukm->AddNew();
+				$newUKM = new Sltg_UKM();
+				$newUKM->HasID( $result[ 'new_id' ] );
+
+				/*$product = new Sltg_Product();
+				$product->SetNama( $post_nama );
+				$product->SetDeskripsi( $post_deskripsi );
+				$product->SetOther( $post_infolain );
+				$product->SetUKM( $post_founder );
+
+				$result = $product->AddNew();
+				$newProduct = new Sltg_Product();
+				$newProduct->HasID( $result[ 'new_id' ] );*/
+				$this->add_picture( 'ukm', $newUKM->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
 	}
 
 

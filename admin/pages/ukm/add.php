@@ -1,38 +1,64 @@
+<style type="text/css">
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+</style>
 <h3>Create New UKM</h3>
 <div class="data-wrapper">
-	<form class="form-horizontal" id="form-product">
+	<form class="form-horizontal" id="form-ukm">
 		<?php if( isset( $attributes[ 'message' ] ) ) { ?><div class="form-group"><div class="col-sm-offset-2  col-sm-4 form-message"><p class="text-success"><?php _e( $attributes[ 'message' ] ); ?></p></div></div><?php } ?>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="nama-product">Name <strong>*</strong></label>
+			<label class="col-sm-offset-2  col-sm-4 control-label form-message" for="message-ukm"></label>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-2 control-label" for="nama-ukm">Name <strong>*</strong></label>
 			<div class="col-sm-4">
-				<input type="text" name="nama-product" class="form-control" id="nama-product" placeholder="nama" required="required">
+				<input type="text" name="nama-ukm" class="form-control" id="nama-ukm" placeholder="nama" required="required">
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="deskripsi-product">Description</label>
+			<label class="col-sm-2 control-label" for="address-ukm">Address <strong>*</strong></label>
 			<div class="col-sm-4">
-				<textarea name="deskripsi-product" class="form-control" id="deskripsi-product"></textarea>
+				<textarea required='required' name="address-ukm" class="form-control" id="address-ukm"></textarea>
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="info-lain-product">Other</label>
+			<label class="col-sm-2 control-label" for="telp-ukm">Telp</label>
 			<div class="col-sm-4">
-				<textarea name="info-lain-product" class="form-control" id="info-lain-product"></textarea>
+				<input type="number" name="telp-ukm" class="form-control" id="telp-ukm" placeholder="telp">
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="creator-product">Creator <strong>*</strong></label>
+			<label class="col-sm-2 control-label" for="deskripsi-ukm">Description</label>
 			<div class="col-sm-4">
-				<input type="text" name="creator-product" class="form-control" id="creator-product" placeholder="nama creator (Soekarno) " required="required" readonly>
-				<input type="hidden" name="creator-product-id" id="creator-product-id" value="0">
+				<textarea name="deskripsi-ukm" class="form-control" id="deskripsi-ukm"></textarea>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-2 control-label" for="info-lain-ukm">Other</label>
+			<div class="col-sm-4">
+				<textarea name="info-lain-ukm" class="form-control" id="info-lain-ukm"></textarea>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-2 control-label" for="founder-ukm">Founder <strong>*</strong></label>
+			<div class="col-sm-4">
+				<input type="text" name="founder-ukm" class="form-control" id="founder-ukm" placeholder="nama founder (Soekarno) " required="required" readonly>
+				<input type="hidden" name="founder-ukm-id" id="founder-ukm-id" value="0">
 			</div>
 			<div class="col-sm-2">
-				<button id="btn-refresh-creator" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
-				<button id="btn-open-modal-creator" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modal-creator"><span class="glyphicon glyphicon-user"></span></button>
+				<button id="btn-refresh-founder" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
+				<button id="btn-open-modal-founder" class="btn btn-primary" type="button" data-toggle="modal" data-target="#modal-founder"><span class="glyphicon glyphicon-user"></span></button>
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="creator-product">Picture(s) <strong>*</strong></label>
+			<label class="col-sm-2 control-label" for="founder-ukm">Picture(s) <strong>*</strong></label>
 			<div class="col-sm-2">
 				<button class="btn btn-primary upload-btn" id="1">Add Picture</button>
 			</div>
@@ -40,50 +66,50 @@
 		<?php for( $i = 0; $i < 5; $i++ ): ?>
 		<div class="form-group">
 			<div class="col-sm-offset-1 col-sm-1">
-				<img id="gbr-view<?php _e($i); ?>" src="" alt="" class="gambar-view-product" height="50">
+				<img id="gbr-view<?php _e($i); ?>" src="" alt="" class="gambar-view-ukm" height="50">
 			</div>
 			<div class="col-sm-3">
-				<input id="gbr-fname<?php _e($i); ?>" type="text" name="gambar-url-product[]" class="form-control gambar-url-product" readonly="readonly" >
-				<input id="gbr-id<?php _e($i); ?>" type="hidden" name="gambar-id-product[]" value="0" class="gambar-id-product">
+				<input id="gbr-fname<?php _e($i); ?>" type="text" name="gambar-url-ukm[]" class="form-control gambar-url-ukm" readonly="readonly" >
+				<input id="gbr-id<?php _e($i); ?>" type="hidden" name="gambar-id-ukm[]" value="0" class="gambar-id-ukm">
 			</div>
 			<div class="col-sm-1">
-				<button id="rem-gbr<?php _e($i); ?>" class="btn btn-primary remove-gambar-product" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+				<button id="rem-gbr<?php _e($i); ?>" class="btn btn-primary remove-gambar-ukm" type="button"><span class="glyphicon glyphicon-remove"></span></button>
 			</div>
 			<div class="col-sm-2">
-				<input id="gbr-radio<?php _e($i); ?>" class='gambar-utama-product' type='radio' name='gambar-utama-product' value='0'> gambar utama
+				<input id="gbr-radio<?php _e($i); ?>" class='gambar-utama-ukm' type='radio' name='gambar-utama-ukm' value='0'> gambar utama
 			</div>
 		</div>
 		<?php endfor; ?>
 		<div class="form-group">
 			<div class="col-sm-offset-2 col-sm-4">
-				<button class="form-control btn btn-success" type="submit" name="submit-product" id="submit-product"><span class="glyphicon glyphicon-save"></span> Save</button>
+				<button class="form-control btn btn-success" type="submit" name="submit-ukm" id="submit-ukm"><span class="glyphicon glyphicon-save"></span> Save</button>
 			</div>	
 		</div>
 	</form>
 </div>
 <div class="plugin-content-link">
-	<!-- <button id="add-product" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-product">
+	<!-- <button id="add-ukm" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-ukm">
 		<span class="glyphicon glyphicon-plus"></span> Add
 	</button> -->
 </div>
-<div id="modal-creator" class="modal fade" role="dialog" aria-labelledby="creatorModalLabel">
+<div id="modal-founder" class="modal fade" role="dialog" aria-labelledby="founderModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary">Pemilik</h4>
+				<h4 class="modal-title text-primary">Founder</h4>
 			</div>
 			<div class="modal-body">
 				<div class="list-group">
-					<?php if( sizeof( $attributes[ 'ukm' ] ) > 0 ): ?>
-						<?php foreach( $attributes[ 'ukm' ] as $ukm ): ?>
-							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetId() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
+					<?php if( sizeof( $attributes[ 'person' ] ) > 0 ): ?>
+						<?php foreach( $attributes[ 'person' ] as $p ): ?>
+							<a href="#" class="list-founder list-group-item" id="<?php _e( $p->GetId() ); ?>"><?php _e( $p->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
-				<!-- <a href="?page=sltg-product&doaction=create-new"> -->
+				<!-- <a href="?page=sltg-ukm&doaction=create-new"> -->
 				<a href="#">
-					<button id="add-product" class="btn btn-primary">
+					<button id="add-ukm" class="btn btn-primary">
 						<span class="glyphicon glyphicon-plus"></span> Add
 					</button>
 				</a>
@@ -98,29 +124,18 @@
 <script type="text/javascript">
 jQuery(document).ready( function($) {
 
-	$( ".list-kategori" ).click( function(){
-		$( "#kategori-product-id" ).val( (this).id );
-		$( "#kategori-product" ).val( (this).text );//alert( (this).text );
-		$( "#kategori-product" ).prop( "readonly", true );
-		$( "#modal-kategori" ).modal( "hide" );
+	$( ".list-founder" ).click( function(){
+		$( "#founder-ukm-id" ).val( (this).id );
+		$( "#founder-ukm" ).val( (this).text );
+		$( "#founder-ukm" ).prop( "readonly", true );
+		$( "#modal-founder" ).modal( "hide" );
 	});
-	$( ".list-creator" ).click( function(){
-		$( "#creator-product-id" ).val( (this).id );
-		$( "#creator-product" ).val( (this).text );
-		$( "#creator-product" ).prop( "readonly", true );
-		$( "#modal-creator" ).modal( "hide" );
-	});
-	$( "#btn-refresh-kategori").click( function(){
-		$( "#kategori-product" ).prop( "readonly", false );
-		$( "#kategori-product" ).val( "" );
-		$( "#kategori-product" ).focus();
-		$( "#kategori-product-id" ).val( 0 );
-	});
-	$( "#btn-refresh-creator").click( function(){
-		//$( "#creator-product" ).prop( "readonly", false );
-		$( "#creator-product" ).val( "" );
-		$( "#creator-product" ).focus();
-		$( "#creator-product-id" ).val( 0 );
+
+	$( "#btn-refresh-founder").click( function(){
+		//$( "#founder-ukm" ).prop( "readonly", false );
+		$( "#founder-ukm" ).val( "" );
+		$( "#founder-ukm" ).focus();
+		$( "#founder-ukm-id" ).val( 0 );
 	});
 
 	// UPLOAD PICTURES
@@ -158,7 +173,7 @@ jQuery(document).ready( function($) {
         });
     });
 
-	$( ".remove-gambar-product" ).click( function() {
+	$( ".remove-gambar-ukm" ).click( function() {
 		var idBtn = ((this).id).split('rem-gbr').pop();
 
 		if( $( "#gbr-fname" + idBtn).val() != "" ) {
@@ -169,7 +184,7 @@ jQuery(document).ready( function($) {
 		}
 	});
 
-	$( ".gambar-utama-product" ).on( "click", function(e) {
+	$( ".gambar-utama-ukm" ).on( "click", function(e) {
 		var idRadio = ((this).id).split( 'gbr-radio' ).pop();
 
 		if( $( "#gbr-fname" + idRadio).val() != "" ) {
@@ -203,12 +218,12 @@ jQuery(document).ready( function($) {
 	}
 
 	function clearImageForm() {
-		$( ".gambar-url-product" ).val( "" );
-		$( ".gambar-id-product" ).val( "" );
-		$( ".gambar-view-product" ).prop( "src", "" );
-		$( ".gambar-view-product" ).prop( "alt", "" );
-		$( ".gambar-utama-product" ).val( 0 );
-		$( ".gambar-utama-product" ).prop( "checked", 0 );
+		$( ".gambar-url-ukm" ).val( "" );
+		$( ".gambar-id-ukm" ).val( "" );
+		$( ".gambar-view-ukm" ).prop( "src", "" );
+		$( ".gambar-view-ukm" ).prop( "alt", "" );
+		$( ".gambar-utama-ukm" ).val( 0 );
+		$( ".gambar-utama-ukm" ).prop( "checked", 0 );
 	}
 
 	function showButtonUploadImage() {
@@ -224,7 +239,7 @@ jQuery(document).ready( function($) {
 	}
 
 	function clearCheckedRadio() {
-		$( ".gambar-utama-product" ).prop( "checked", 0 );
+		$( ".gambar-utama-ukm" ).prop( "checked", 0 );
 		for( var i=0; i < arrImgList.length; i++ ){
 			arrImgList[ i ].utama = 0;
 		}
@@ -250,16 +265,16 @@ jQuery(document).ready( function($) {
 		}
 	}
 
-	$( "#form-product").submit( function(e) {
+	$( "#form-ukm").submit( function(e) {
 		e.preventDefault();
 		
-		var iNama = $( "#nama-product" ),
-			iKatId = $( "#kategori-product-id" ),
-			iKatTxt = $( "#kategori-product" ),
-			iCreId = $( "#creator-product-id" ),
-			iCreTxt = $( "#creator-product" ),
-			iInfo = $( "#info-lain-product" ),
-			iDes = $( "#deskripsi-product" ),
+		var iNama = $( "#nama-ukm" ),
+			iFndId = $( "#founder-ukm-id" ),
+			iFndTxt = $( "#founder-ukm" ),
+			iAddr = $( "#address-ukm" ),
+			iTelp = $( "#telp-ukm" ),
+			iInfo = $( "#info-lain-ukm" ),
+			iDes = $( "#deskripsi-ukm" ),
 			not_empty = true;
 
 		if( $.trim( iNama.val() ) == '' ) {
@@ -267,29 +282,32 @@ jQuery(document).ready( function($) {
 			iNama.focus();
 			not_empty = false;
 		}
-		if( iKatId.val() == 0 && $.trim( iKatTxt.val() ) == '' )
-			not_empty = false;
-		if( iCreId.val() == 0 && $.trim( iCreTxt.val() ) == '' )
+
+		if( iFndId.val() == 0 && $.trim( iFndTxt.val() ) == '' )
 			not_empty = false;
 		/*if( arrGambar.length < 1 ){
 			not_empty = false;
 		}*/
+		if( $.trim( iAddr.val() ) == '' ) {
+			not_empty = false;
+		}
+
 		if( arrImgList.length == 0 ) {
 			not_empty = false;
 		}
 
+		console.log(not_empty);
+
 		if( not_empty ) {
 			var data = {
-				action: "CreateNewProduct",
+				action: "CreateNewUKM",
 				nama: iNama.val(),
+				alamat: iAddr.val(),
+				telp: iTelp.val(),
 				deskripsi: iDes.val(),
 				infolain: iInfo.val(),
 			};
-			data.kategori = iKatId.val();
-			if ( iKatId.val() == 0 ) {
-				data.kategori = iKatTxt.val();
-			}
-			data.kreator = iCreId.val();
+			data.founder = iFndId.val();
 			/*data.gambararr = arrGambar;*/
 			setDefaultGambarUtama();
 			data.gambararr = arrImgList;
@@ -300,26 +318,26 @@ jQuery(document).ready( function($) {
 					var result = jQuery.parseJSON( response );
 					if( result.status ) {
 						$( "div.form-message").html( "<p class='text-success'>Success!</p>");
-						//reset_form_product();
-						location.href = "<?php echo admin_url('admin.php?page=sltg-product&doaction=create-new&status=success'); ?>";
+						//reset_form_ukm();
+						location.href = "<?php echo admin_url('admin.php?page=sltg-ukm&doaction=create-new&status=success'); ?>";
 					}else{
 						$( "div.form-message").html( "<p class='text-danger'>" + result.message + "</p>");
 					}
 				}
 			);
 		}else{
-			$( "div.form-message").html( "<p class='text-danger'>Name, Category, Creator, and Picture(s) are required.</p>");
+			$( "label.form-message").html( "<p class='text-danger'>Name, Address, Founder, and Picture(s) are required.</p>");
 		}
 	});
 
-	function reset_form_product() {
-		$( "#nama-product" ).val( "" );
-		$( "#deskripsi-product" ).val( "" );
-		$( "#info-lain-product" ).val( "" );
-		$( "#kategori-product-id" ).val( 0 );
-		$( "#kategori-product" ).val( "" );
-		$( "#creator-product-id" ).val( 0 );
-		$( "#creator-product" ).val( "" );
+	function reset_form_ukm() {
+		$( "#nama-ukm" ).val( "" );
+		$( "#deskripsi-ukm" ).val( "" );
+		$( "#address-ukm" ).val( "" );
+		$( "#telp-ukm" ).val( "" );
+		$( "#info-lain-ukm" ).val( "" );
+		$( "#founder-ukm-id" ).val( 0 );
+		$( "#founder-ukm" ).val( "" );
 
 		/*arrGambar.length = 0;*/
 		arrImgList.length = 0;

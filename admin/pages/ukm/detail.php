@@ -5,7 +5,7 @@
 	<div class="row">
 		<div class="col col-sm-4">
 			<h3 class=""><?php _e( $ukm->GetNama() ); ?></h3>
-			<img src="<?php //_e( $ukm->GetGambarUtama()->GetLinkGambar() ); ?>">
+			<img src="<?php _e( $ukm->GetGambarUtama()->GetLinkGambar() ); ?>">
 		</div>
 		<div class="col col-sm-8">
 			<p><?php _e( $ukm->GetDeskripsi() ); ?></p>
