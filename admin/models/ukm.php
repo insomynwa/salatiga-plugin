@@ -46,6 +46,8 @@ class Sltg_UKM {
 	public function SetGambars( $gambars ) { $this->gambars = $gambars; }
 
 	private $products;
+	public function GetProducts() { return $this->products; }
+	public function SetProducts( $products ) { $this->products = $products; }
 
 
 	function __construct() {
