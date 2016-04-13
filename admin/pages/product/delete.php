@@ -13,7 +13,7 @@
 <div class="form-delete-area">
 	<form id="form-delete-product" method="post">
 		<label>Yakin hapus <?php _e( $product->GetNama() ) ?>?</label>
-		<input type="hidden" value="<?php _e( $product->GetId() ); ?>" name="id-product" id="id-product">
+		<input type="hidden" value="<?php _e( $product->GetID() ); ?>" name="id-product" id="id-product">
 		<button class="btn btn-danger" type="submit" id="btn-delete-product" name="submit-delete-product">YES</button>
 	</form>
 </div>

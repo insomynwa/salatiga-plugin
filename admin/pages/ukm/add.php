@@ -103,7 +103,7 @@ input[type=number]::-webkit-outer-spin-button {
 				<div class="list-group">
 					<?php if( sizeof( $attributes[ 'person' ] ) > 0 ): ?>
 						<?php foreach( $attributes[ 'person' ] as $p ): ?>
-							<a href="#" class="list-founder list-group-item" id="<?php _e( $p->GetId() ); ?>"><?php _e( $p->GetNama() ); ?></a>
+							<a href="#" class="list-founder list-group-item" id="<?php _e( $p->GetID() ); ?>"><?php _e( $p->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>

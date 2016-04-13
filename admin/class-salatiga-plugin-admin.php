@@ -440,7 +440,7 @@ class Salatiga_Plugin_Admin {
 				$product->SetDeskripsi( $post_deskripsi );
 				$product->SetOther( $post_infolain );
 				$product->SetKategori( $post_kategori );
-				$product->SetUKM( $post_kreator );
+				$product->SetProducer( $post_kreator );
 
 				$result = $product->AddNew();
 				$newProduct = new Sltg_Product();
@@ -494,8 +494,8 @@ class Salatiga_Plugin_Admin {
 					$product->GetNama(), // nama produk
 					$product->GetDeskripsi(), // deskripsi
 					$product->GetOther(), // other
-					$product->GetKategori()->GetId(), // kategori
-					$product->GetUKM()->GetId() // ukm
+					$product->GetKategori()->GetID(), // kategori
+					$product->GetProducer()->GetID() // ukm
 					);
 				$newData = array(
 					$post_nama, // nama produk
@@ -507,7 +507,7 @@ class Salatiga_Plugin_Admin {
 
 				// compare Picture
 				$arrOldPict = $product->GetGambars();
-				$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
+				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
 				// if( $sameSize ) {
 					// get added Picture
 					$arrAddedPict = array();
@@ -557,7 +557,7 @@ class Salatiga_Plugin_Admin {
 
 					if( !$utamaInNew && !$utamaInDel ) {
 						// update gambar utama
-						foreach ($arrOldPict as $oldPict) {
+						foreach ( $arrOldPict as $oldPict ) {
 							if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
 								$result = $oldPict->SetAsGambarUtama();
 								break;
@@ -574,6 +574,11 @@ class Salatiga_Plugin_Admin {
 
 					// add new picture
 					if( sizeof( $arrAddedPictId ) > 0 ) {
+						if( $utamaInNew ) {
+							$temp_gbr = new Sltg_Gambar();
+							$temp_gbr->SetOwner( $product->GetPictCode() );
+							$temp_gbr->ClearSelectedUtama();
+						}
 						$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
 					}
 
@@ -588,7 +593,7 @@ class Salatiga_Plugin_Admin {
 					$product->SetDeskripsi( $post_deskripsi );
 					$product->SetOther( $post_infolain );
 					$product->SetKategori( $post_kategori );
-					$product->SetUKM( $post_kreator );
+					$product->SetProducer( $post_kreator );
 					$result = $product->Update();
 				}
 			}
@@ -651,7 +656,7 @@ class Salatiga_Plugin_Admin {
 		if( ! $kategori->FindName() )
 			$result = $kategori->AddNew();
 		else
-			$result[ 'new_id' ] = $kategori->GetId();
+			$result[ 'new_id' ] = $kategori->GetID();
 		return $result;
 	}
 
@@ -714,7 +719,7 @@ class Salatiga_Plugin_Admin {
 				$product->SetNama( $post_nama );
 				$product->SetDeskripsi( $post_deskripsi );
 				$product->SetOther( $post_infolain );
-				$product->SetUKM( $post_founder );
+				$product->SetProducer( $post_founder );
 
 				$result = $product->AddNew();
 				$newProduct = new Sltg_Product();

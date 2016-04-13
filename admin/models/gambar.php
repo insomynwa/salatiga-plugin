@@ -35,21 +35,7 @@ class Sltg_Gambar {
 	}*/
 	private $owner;
 	public function GetOwner() { return $this->owner; }
-	public function SetOwner($owner) { 
-		global $wpdb;
-
-		$this->owner = $owner;
-
-		$rows =
-			$wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT * FROM $this->table_name ".
-					"WHERE owner = %s",
-					$this->owner
-					)
-				);//var_dump($rows);
-		return $rows;
-	}
+	public function SetOwner($owner) { $this->owner = $owner; }
 
 	private $gambar_utama;
 	public function GetGambarUtama() { return $this->gambar_utama; }
@@ -153,6 +139,7 @@ class Sltg_Gambar {
 	}
 
 	public function SetAsGambarUtama(){
+		$clearOther = $this->clearOtherSelectedUtama();
 		global $wpdb;
 		$result = array( "status" => false, "message" => "gagal update gambar utama" );
 		$queryReset = 
@@ -164,10 +151,82 @@ class Sltg_Gambar {
 				SET gambar_utama = %d 
 				WHERE id_gambar = %d";
 
-		if( $wpdb->query($wpdb->prepare($queryReset,0,$this->id, $this->owner)) && $wpdb->query($wpdb->prepare($querySetNew,1,$this->id)) )
+		if( 
+			$clearOther && 
+			$wpdb->query($wpdb->prepare( $querySetNew, 1, $this->id )) )
 		{
 			$result[ 'status' ] = true;
 			$result[ 'message' ] = "berhasil update gambar utama";
+		}
+		return $result;
+	}
+
+	private function clearOtherSelectedUtama() {
+		global $wpdb;
+		$queryReset = 
+				"UPDATE $this->table_name 
+				SET gambar_utama = %d 
+				WHERE id_gambar <> %d AND owner = %s";
+		if( $wpdb->query(
+			$wpdb->prepare( 
+				$queryReset, 
+				0, $this->id, $this->owner 
+				)
+			)){
+			return true;
+		}
+		return false;
+	}
+
+	public function ClearSelectedUtama() {
+		global $wpdb;
+		$queryReset = 
+				"UPDATE $this->table_name 
+				SET gambar_utama = %d 
+				WHERE gambar_utama = %d AND owner = %s";
+		$wpdb->query(
+			$wpdb->prepare( 
+				$queryReset, 
+				0, 1, $this->owner 
+				)
+			);
+	}
+
+	public function ListByOwner( $owner ) {
+		global $wpdb;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE owner = %s",
+					$owner
+					)
+				);//var_dump($rows);
+		return $rows;
+	}
+
+	public function UtamaByOwner( $owner ){
+		global $wpdb;
+		$row =
+			$wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE owner = %s AND gambar_utama = %d LIMIT 1",
+					$owner, 1
+					),
+				ARRAY_A
+				);
+
+		$result = ! is_null( $row );
+		if ( $result ){
+			$this->id = $row[ 'id_gambar' ];
+			$this->link_gambar = $row[ 'link_gambar' ];
+			$this->deskripsi = $row[ 'deskripsi_gambar' ];
+			$this->owner = $row[ 'owner' ];
+			$this->gambar_utama = $row[ 'gambar_utama' ];
+			$this->post_id = $row[ 'post_id' ];
+
 		}
 		return $result;
 	}

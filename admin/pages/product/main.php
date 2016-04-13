@@ -7,7 +7,7 @@
 				<select id="data-filter-kategori" class="">
 					<option value="0">semua</option>
 					<?php foreach( $attributes[ 'kategori' ] as $kategori ): ?>
-						<option value="<?php _e( $kategori->GetId() ); ?>" ><?php _e( $kategori->GetNama() ); ?></option>
+						<option value="<?php _e( $kategori->GetID() ); ?>" ><?php _e( $kategori->GetNama() ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			<?php endif; ?>

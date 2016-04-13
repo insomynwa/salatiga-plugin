@@ -88,7 +88,7 @@
 				<div id="kategori-list" class="list-group">
 					<?php if( sizeof( $attributes[ 'kategori' ] ) > 0 ): ?>
 						<?php foreach( $attributes[ 'kategori' ] as $kategori ): ?>
-							<a href="#" class="list-kategori list-group-item" id="<?php _e( $kategori->GetId() ); ?>"><?php _e( $kategori->GetNama() ); ?></a>
+							<a href="#" class="list-kategori list-group-item" id="<?php _e( $kategori->GetID() ); ?>"><?php _e( $kategori->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
@@ -110,7 +110,7 @@
 				<div class="list-group">
 					<?php if( sizeof( $attributes[ 'ukm' ] ) > 0 ): ?>
 						<?php foreach( $attributes[ 'ukm' ] as $ukm ): ?>
-							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetId() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
+							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetID() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>

@@ -5,7 +5,7 @@ class Sltg_Personal {
 	private $table_name;
 
 	private $id;
-	public function GetId(){ return $this->id; }
+	public function GetID(){ return $this->id; }
 
 	private $nama;
 	public function GetNama() { return $this->nama; }

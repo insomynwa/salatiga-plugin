@@ -27,7 +27,7 @@
 			<label class="col-sm-2 control-label" for="kategori-product">Category <strong>*</strong></label>
 			<div class="col-sm-4">
 				<input type="text" name="kategori-product" class="form-control" id="kategori-product" placeholder="kategori" required="required" value="<?php _e( $product->GetKategori()->GetNama() ) ?>">
-				<input type="hidden" name="kategori-product-id" id="kategori-product-id" value="<?php _e( $product->GetKategori()->GetId() ) ?>">
+				<input type="hidden" name="kategori-product-id" id="kategori-product-id" value="<?php _e( $product->GetKategori()->GetID() ) ?>">
 			</div>
 			<div class="col-sm-2">
 				<button id="btn-refresh-kategori" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
@@ -37,8 +37,8 @@
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="creator-product">Creator <strong>*</strong></label>
 			<div class="col-sm-4">
-				<input type="text" name="creator-product" class="form-control" id="creator-product" placeholder="nama creator (Soekarno) " required="required" readonly value="<?php _e( $product->GetUKM()->GetNama() ) ?>">
-				<input type="hidden" name="creator-product-id" id="creator-product-id" value="<?php _e( $product->GetUKM()->GetId() ) ?>">
+				<input type="text" name="creator-product" class="form-control" id="creator-product" placeholder="nama creator (Soekarno) " required="required" readonly value="<?php _e( $product->GetProducer()->GetNama() ) ?>">
+				<input type="hidden" name="creator-product-id" id="creator-product-id" value="<?php _e( $product->GetProducer()->GetID() ) ?>">
 			</div>
 			<div class="col-sm-2">
 				<button id="btn-refresh-creator" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
@@ -98,7 +98,7 @@
 				<div id="kategori-list" class="list-group">
 					<?php if( sizeof( $attributes[ 'kategori' ] ) > 0 ): ?>
 						<?php foreach( $attributes[ 'kategori' ] as $kategori ): ?>
-							<a href="#" class="list-kategori list-group-item" id="<?php _e( $kategori->GetId() ); ?>"><?php _e( $kategori->GetNama() ); ?></a>
+							<a href="#" class="list-kategori list-group-item" id="<?php _e( $kategori->GetID() ); ?>"><?php _e( $kategori->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
@@ -120,7 +120,7 @@
 				<div class="list-group">
 					<?php if( sizeof( $attributes[ 'ukm' ] ) > 0 ): ?>
 						<?php foreach( $attributes[ 'ukm' ] as $ukm ): ?>
-							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetId() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
+							<a href="#" class="list-creator list-group-item" id="<?php _e( $ukm->GetID() ); ?>"><?php _e( $ukm->GetNama() ); ?></a>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
@@ -183,6 +183,7 @@ jQuery(document).ready( function($) {
 		initImg.utama = <?php _e( $gbr->GetGambarUtama() ); ?>;
 		arrImgList[ initIdx ] = initImg;
 
+		console.log(initIdx);
 		initIdx += 1;
 	<?php endforeach; ?>
 	//var n_upload = 0;
@@ -340,7 +341,7 @@ jQuery(document).ready( function($) {
 		if( not_empty ) {
 			var data = {
 				action: "UpdateProduct",
-				product: <?php _e( $product->GetId() ) ?>,
+				product: <?php _e( $product->GetID() ) ?>,
 				nama: iNama.val(),
 				deskripsi: iDes.val(),
 				infolain: iInfo.val(),
@@ -361,7 +362,7 @@ jQuery(document).ready( function($) {
 					if( result.status ) {
 						$( "div.form-message").html( "<p class='text-success'>Success!</p>");
 						//reset_form_product();
-						location.href = "<?php echo admin_url('admin.php?page=sltg-product&doaction=edit&product='); ?><?php _e($product->GetId()); ?>&status=success";
+						location.href = "<?php echo admin_url('admin.php?page=sltg-product&doaction=edit&product='); ?><?php _e($product->GetID()); ?>&status=success";
 					}else{
 						$( "div.form-message").html( "<p class='text-danger'>" + result.message + "</p>");
 					}

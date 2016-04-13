@@ -34,24 +34,55 @@ class Sltg_UKM {
 	// IN RELATIONSHIP
 
 	private $pemilik;
-	public function GetPemilik() { return $this->pemilik; }
+	public function GetPemilik() { 
+		$obj_person = new Sltg_Personal();
+		$obj_person->HasID( $this->pemilik );
+		return $obj_person; 
+	}
 	public function SetPemilik($pemilik) { $this->pemilik = $pemilik; }
 	
-	private $gambar_utama;
-	public function GetGambarUtama() { return $this->gambar_utama; }
+	//private $gambar_utama;
+	public function GetGambarUtama() { 
+		$obj_gbr = new Sltg_Gambar();
+
+		$obj_gbr->UtamaByOwner( $this->pict_code );
+		//var_dump($obj_gbr->UtamaByOwner( $this->pict_code )->GetLinkGambar());
+		return $obj_gbr; 
+	}
 	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
 
 	private $gambars;
-	public function GetGambars() { return $this->gambars; }
-	public function SetGambars( $gambars ) { $this->gambars = $gambars; }
+	public function GetGambars() { 
+		$obj_gbr = new Sltg_Gambar();
+
+		$list_gambar = $obj_gbr->ListByOwner( $this->pict_code );
+		foreach( $list_gambar as $g) {
+			$gambar = new Sltg_Gambar();
+			$gambar->HasID( $g->id_gambar );
+
+			$this->gambars[] = $gambar;
+		}
+
+		return $this->gambars; 
+	}
 
 	private $products;
-	public function GetProducts() { return $this->products; }
+	public function GetProducts() { 
+		$obj_product = new Sltg_Product();
+		$list_product = $obj_product->SetProducer( $this->id );
+		foreach( $list_product as $p ) {
+			$product = new Sltg_Product();
+			$product->HasID( $p->id_produk );
+			$this->products[] = $product;
+		}
+		return $this->products; 
+	}
 	public function SetProducts( $products ) { $this->products = $products; }
 
 
 	function __construct() {
 		$this->table_name = "ext_ukm";
+		$this->products = array();
 	}
 
 	public function HasID( $ukm_id = 0){
@@ -74,22 +105,32 @@ class Sltg_UKM {
 			$this->alamat = $row[ 'alamat_ukm' ];
 			$this->telp = $row[ 'telp_ukm' ];
 			$this->other = $row[ 'other_ukm' ];
+			$this->pemilik = $row[ 'pemilik' ];
 
-			$obj_person = new Sltg_Personal();
+			/*$obj_person = new Sltg_Personal();
 			$obj_person->HasID( $row[ 'pemilik' ] );
-			$this->pemilik = $obj_person;
+			$this->pemilik = $obj_person;*/
 
-			$obj_gbr = new Sltg_Gambar();
-			$list_gambar = $obj_gbr->SetOwner( $this->pict_code );
-			foreach( $list_gambar as $g) {
-				$gambar = new Sltg_Gambar();
-				$gambar->HasID( $g->id_gambar );
-				if( $gambar->GetGambarUtama() == 1) {
-					$this->gambar_utama = $gambar;
-					/*break;*/
-				}
-				$this->gambars[] = $gambar;
-			}
+			// $obj_gbr = new Sltg_Gambar();
+			// $list_gambar = $obj_gbr->SetOwner( $this->pict_code );
+			// foreach( $list_gambar as $g) {
+			// 	$gambar = new Sltg_Gambar();
+			// 	$gambar->HasID( $g->id_gambar );
+			// 	if( $gambar->GetGambarUtama() == 1) {
+			// 		$this->gambar_utama = $gambar;
+			// 		/*break;*/
+			// 	}
+			// 	$this->gambars[] = $gambar;
+			// }
+
+			/*$obj_product = new Sltg_Product();
+			$list_product = $obj_product->SetProducer( $this->id );
+			foreach( $list_product as $p ) {
+				$product = new Sltg_Product();
+				$product->HasID( $p->id_produk );
+				$this->products[] = $product;
+			}*/
+			//var_dump($this->products);
 		}
 		return $result;
 	}

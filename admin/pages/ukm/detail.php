@@ -16,11 +16,11 @@
 		</div>
 	</div>
 	<div>
-		<ul><h4>Gambar:</h4>
-			<?php //foreach( $ukm->GetGambars() as $gbr ): ?>
+		<ul><h4>Product:</h4>
+			<?php foreach( $ukm->GetProducts() as $product ): ?>
 			<?php //var_dump($gbr); ?>
-				<li><img src="<?php //_e( $gbr->GetLinkGambar() ) ?>" width="10%"></li>
-			<?php //endforeach; ?>
+				<li><img src="<?php _e( $product->GetGambarUtama()->GetLinkGambar() ) ?>" width="10%"></li>
+			<?php endforeach; ?>
 		</ul>
 	</div>
 </div>

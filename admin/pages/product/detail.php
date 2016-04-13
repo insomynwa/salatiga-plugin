@@ -8,7 +8,7 @@
 			<img src="<?php _e( $product->GetGambarUtama()->GetLinkGambar() ); ?>">
 		</div>
 		<div class="col col-sm-8">
-			<p><?php _e( $product->GetUKM()->GetNama() ); ?></p>
+			<p><?php _e( $product->GetProducer()->GetNama() ); ?></p>
 			<p><?php _e( $product->GetKategori()->GetNama() ); ?></p>
 			<p><?php _e( $product->GetDeskripsi() ); ?></p>
 			<p><?php _e( $product->GetOther() ); ?></p>
