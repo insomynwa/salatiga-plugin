@@ -1,7 +1,7 @@
 <?php 
 	$product = $attributes[ 'product' ]; 
 ?>
-<h3>Create New Product</h3>
+<h3>Edit Product</h3>
 <div class="data-wrapper">
 	<form class="form-horizontal" id="form-product">
 		<?php if( isset( $attributes[ 'message' ] ) ) { ?><div class="form-group"><div class="col-sm-offset-2  col-sm-4 form-message"><p class="text-success"><?php _e( $attributes[ 'message' ] ); ?></p></div></div><?php } ?>
@@ -183,7 +183,7 @@ jQuery(document).ready( function($) {
 		initImg.utama = <?php _e( $gbr->GetGambarUtama() ); ?>;
 		arrImgList[ initIdx ] = initImg;
 
-		console.log(initIdx);
+		//console.log(initIdx);
 		initIdx += 1;
 	<?php endforeach; ?>
 	//var n_upload = 0;

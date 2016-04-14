@@ -16,10 +16,18 @@
 		</div>
 	</div>
 	<div>
+		<ul><h4>Gambar:</h4>
+			<?php foreach( $ukm->GetGambars() as $gbr ): ?>
+			<?php //var_dump($gbr); ?>
+				<li><img src="<?php _e( $gbr->GetLinkGambar() ) ?>" width="10%"></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+	<div>
 		<ul><h4>Product:</h4>
 			<?php foreach( $ukm->GetProducts() as $product ): ?>
 			<?php //var_dump($gbr); ?>
-				<li><img src="<?php _e( $product->GetGambarUtama()->GetLinkGambar() ) ?>" width="10%"></li>
+				<li><a href="?page=sltg-product&detail=<?php _e( $product->GetID() ); ?>"><img src="<?php _e( $product->GetGambarUtama()->GetLinkGambar() ) ?>" width="10%"></a></li>
 			<?php endforeach; ?>
 		</ul>
 	</div>

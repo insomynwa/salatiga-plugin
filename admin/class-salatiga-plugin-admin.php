@@ -113,8 +113,8 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			/*else if( $get_action == "edit" && isset( $_GET[ 'product' ] ) && ($_GET[ 'product' ] > 0) ) {
-				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+			else if( $get_action == "edit" && isset( $_GET[ 'ukm' ] ) && ($_GET[ 'ukm' ] > 0) ) {
+				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
 				$action_template = "edit";
 
@@ -125,10 +125,10 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 
-				$obj = new Sltg_Product();
-				$obj->HasID( $get_product_id );
-				$attributes[ 'product' ] = $obj;
-			}*/
+				$obj = new Sltg_UKM();
+				$obj->HasID( $get_ukm_id );
+				$attributes[ 'ukm' ] = $obj;
+			}
 			else if( $get_action == 'delete' && isset( $_GET[ 'ukm' ] ) && ( $_GET[ 'ukm' ] ) ) {
 				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
@@ -715,16 +715,159 @@ class Salatiga_Plugin_Admin {
 				$newUKM = new Sltg_UKM();
 				$newUKM->HasID( $result[ 'new_id' ] );
 
-				/*$product = new Sltg_Product();
-				$product->SetNama( $post_nama );
-				$product->SetDeskripsi( $post_deskripsi );
-				$product->SetOther( $post_infolain );
-				$product->SetProducer( $post_founder );
-
-				$result = $product->AddNew();
-				$newProduct = new Sltg_Product();
-				$newProduct->HasID( $result[ 'new_id' ] );*/
 				$this->add_picture( 'ukm', $newUKM->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+
+
+	public function update_ukm() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'ukm' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'founder' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		//var_dump($_POST);
+		if( $post_isset ) {
+			$post_ukm_id = sanitize_text_field( $_POST[ 'ukm' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_founder = sanitize_text_field( $_POST[ 'founder' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+			//var_dump($post_gambararr[0]['fname']);die;
+			//print_r($post_gambararr);
+
+
+			$post_not_empty = ($post_ukm_id > 0) && ($post_nama!="") && ($post_alamat!="") && ($post_founder>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				
+				$ukm = new Sltg_UKM();
+				$ukm->HasID( $post_ukm_id );
+
+				// compare data
+				$oldData = array(
+					$ukm->GetNama(), // nama 
+					$ukm->GetDeskripsi(), // deskripsi
+					$ukm->GetOther(), // other
+					$ukm->GetAlamat(), // alamat
+					$ukm->GetTelp(), // telp
+					$ukm->GetPemilik()->GetID() // pemilik
+					);
+				$newData = array(
+					$post_nama, // nama 
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_alamat, // alamat,
+					$post_telp, // telp
+					$post_founder // pemilik
+					);
+
+				// compare Picture
+				$arrOldPict = $ukm->GetGambars();
+				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
+				// if( $sameSize ) {
+					// get added Picture
+				$arrAddedPict = array();
+				$arrAddedPictId = array();
+				$utamaInNew = false;
+				$selectedUtama = 0;
+				foreach( $post_gambararr as $newPict) {
+					$isNew = true;
+					foreach( $arrOldPict as $oldPict) {
+						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+							$isNew = false;
+							break;
+						}
+					}
+					$arrAddedPict[] = $isNew;
+					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+					if( $isNew ) {
+						$arrAddedPictId[] = $newPict;
+						if( $newPict['utama'] == 1){
+							$utamaInNew = true;
+						}
+					}
+				}
+
+				// get deleted picture
+				$arrDelPict = array();
+				$arrDelPictId = array();
+				$utamaInDel = false;
+				foreach( $arrOldPict as $oldPict) {
+					$isDel = true;
+					foreach( $post_gambararr as $newPict) {
+						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+							$isDel = false;
+							break;
+						}
+					}
+					$arrDelPict[] = $isDel;
+					if( $isDel ) {
+						$arrDelPictId[] = $oldPict;
+						if( $oldPict->GetPostId() == 1){
+							$utamaInDel = true;
+						}
+					}
+				}
+
+				// var_dump( "select utama: ". $selectedUtama );
+
+				if( !$utamaInNew && !$utamaInDel ) {
+					// update gambar utama
+					foreach ( $arrOldPict as $oldPict ) {
+						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+							$result = $oldPict->SetAsGambarUtama();
+							break;
+						}
+					}
+				}
+
+				// delete old picture
+				if ( sizeof( $arrDelPictId ) > 0 ) {
+					foreach( $arrDelPictId as $delGbr ) {
+						$result = $delGbr->Delete();
+					}
+				}
+
+				// add new picture
+				if( sizeof( $arrAddedPictId ) > 0 ) {
+					if( $utamaInNew ) {
+						$temp_gbr = new Sltg_Gambar();
+						$temp_gbr->SetOwner( $ukm->GetPictCode() );
+						$temp_gbr->ClearSelectedUtama();
+					}
+					$result = $this->add_picture( 'ukm', $ukm->GetPictCode(), $arrAddedPictId );
+				}
+
+					//var_dump($arrAddedPict, $arrDelPict, $arrAddedPictId, $arrDelPictId);			
+				// }else{
+
+				// }
+				//var_dump($oldData, $newData);
+
+				if ( $oldData !== $newData ) {
+					$ukm->SetNama( $post_nama );
+					$ukm->SetDeskripsi( $post_deskripsi );
+					$ukm->SetOther( $post_infolain );
+					$ukm->SetAlamat( $post_alamat );
+					$ukm->SetTelp( $post_telp );
+					$ukm->SetPemilik( $post_pemilik );
+					$result = $ukm->Update();
+				}
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';

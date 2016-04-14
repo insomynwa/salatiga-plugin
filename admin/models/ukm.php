@@ -49,10 +49,11 @@ class Sltg_UKM {
 		//var_dump($obj_gbr->UtamaByOwner( $this->pict_code )->GetLinkGambar());
 		return $obj_gbr; 
 	}
-	public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+	// public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
 
-	private $gambars;
+	//private $gambars;
 	public function GetGambars() { 
+		$arrGambar = array();
 		$obj_gbr = new Sltg_Gambar();
 
 		$list_gambar = $obj_gbr->ListByOwner( $this->pict_code );
@@ -60,16 +61,16 @@ class Sltg_UKM {
 			$gambar = new Sltg_Gambar();
 			$gambar->HasID( $g->id_gambar );
 
-			$this->gambars[] = $gambar;
+			$arrGambar[] = $gambar;
 		}
 
-		return $this->gambars; 
+		return $arrGambar; 
 	}
 
 	private $products;
 	public function GetProducts() { 
 		$obj_product = new Sltg_Product();
-		$list_product = $obj_product->SetProducer( $this->id );
+		$list_product = $obj_product->ListByOwner( $this->id );
 		foreach( $list_product as $p ) {
 			$product = new Sltg_Product();
 			$product->HasID( $p->id_produk );
@@ -77,7 +78,7 @@ class Sltg_UKM {
 		}
 		return $this->products; 
 	}
-	public function SetProducts( $products ) { $this->products = $products; }
+	// public function SetProducts( $products ) { $this->products = $products; }
 
 
 	function __construct() {
@@ -106,31 +107,6 @@ class Sltg_UKM {
 			$this->telp = $row[ 'telp_ukm' ];
 			$this->other = $row[ 'other_ukm' ];
 			$this->pemilik = $row[ 'pemilik' ];
-
-			/*$obj_person = new Sltg_Personal();
-			$obj_person->HasID( $row[ 'pemilik' ] );
-			$this->pemilik = $obj_person;*/
-
-			// $obj_gbr = new Sltg_Gambar();
-			// $list_gambar = $obj_gbr->SetOwner( $this->pict_code );
-			// foreach( $list_gambar as $g) {
-			// 	$gambar = new Sltg_Gambar();
-			// 	$gambar->HasID( $g->id_gambar );
-			// 	if( $gambar->GetGambarUtama() == 1) {
-			// 		$this->gambar_utama = $gambar;
-			// 		/*break;*/
-			// 	}
-			// 	$this->gambars[] = $gambar;
-			// }
-
-			/*$obj_product = new Sltg_Product();
-			$list_product = $obj_product->SetProducer( $this->id );
-			foreach( $list_product as $p ) {
-				$product = new Sltg_Product();
-				$product->HasID( $p->id_produk );
-				$this->products[] = $product;
-			}*/
-			//var_dump($this->products);
 		}
 		return $result;
 	}
@@ -222,7 +198,9 @@ class Sltg_UKM {
 				$this->id
 			)
 		)) {
-			$result ['status'] = $this->deleteGambars();
+			$statusDelGambars = $this->deleteGambars();
+			$statusDelProducts = $this->deleteProducts();
+			$result ['status'] = $statusDelGambars && $statusDelProducts;
 		}
 
 		return $result;
@@ -230,14 +208,66 @@ class Sltg_UKM {
 	}
 
 	public function deleteGambars() {
+		$arrGambar = $this->GetGambars();
+		//global $wpdb;
+		$result = ( sizeof( $arrGambar ) == 0 );
+
+		if( sizeof( $arrGambar ) > 0 ) {
+			$obj_gbr = new Sltg_Gambar();
+			$obj_gbr->SetOwner( $this->pict_code );
+
+			$result = $obj_gbr->DeleteMultiple();
+
+			foreach( $arrGambar as $gbr ) {
+				$result = $result && $gbr->DeletePost();
+			}
+			
+		}
+		return $result;
+	}
+
+	private function deleteProducts() {
+		$arrProducts = $this->GetProducts();
+		//global $wpdb;
+		$result[ 'status' ] = ( sizeof( $arrProducts ) == 0 );
+
+		if( sizeof( $arrProducts ) > 0 ) {
+			foreach( $arrProducts as $product ) {
+				// $product = new Sltg_Product();
+				// $product->HasID( $p->id_produk );
+				$result[ 'status' ] = $product->Delete();
+			}
+		}
+
+		return $result[ 'status' ];
+	}
+
+	public function Update() {
 		global $wpdb;
+		$result = array( "status" => false, "message" => "gagal update ukm" );
 
-		$obj_gbr = new Sltg_Gambar();
-		$obj_gbr->SetOwner( $this->pict_code );
-		$result = $obj_gbr->DeleteMultiple();
+		$arrUpdateData = array(
+			'nama_ukm' => $this->nama,
+			'deskripsi_ukm' => $this->deskripsi,
+			'other_ukm' => $this->other,
+			'telp_ukm' => $this->telp,
+			'alamat_ukm' => $this->alamat,
+			'pemilik' => $this->pemilik
+			);
+		$arrCondition = array( 'id_ukm' => $this->id );
+		$arrDataType = array( '%s', '%s', '%s', '%s', '%s', '%d' );
+		$arrConditionType = array( '%d' );
 
-		foreach( $this->gambars as $gbr ) {
-			$result = $result && $gbr->DeletePost();
+		if( $wpdb->update(
+			$this->table_name,
+			$arrUpdateData,
+			$arrCondition,
+			$arrDataType,
+			$arrConditionType
+			) )
+		{
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = "berhasil update ukm";
 		}
 		return $result;
 	}

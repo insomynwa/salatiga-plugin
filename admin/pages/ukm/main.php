@@ -67,9 +67,9 @@ jQuery(document).ready( function ($) {
 		<div class="col-sm-2">
 			<label class="">Jumlah list:</label>
 			<select id="data-limit" class="">
-				<option value="1" <?php if( get_option( 'ukm_list_limit' ) == 1 ) _e( "selected='selected'" ); ?> >1</option>
-				<option value="2" <?php if( get_option( 'ukm_list_limit' ) == 2 ) _e( "selected='selected'" ); ?> >2</option>
 				<option value="3" <?php if( get_option( 'ukm_list_limit' ) == 3 ) _e( "selected='selected'" ); ?> >3</option>
+				<option value="10" <?php if( get_option( 'ukm_list_limit' ) == 10 ) _e( "selected='selected'" ); ?> >10</option>
+				<option value="25" <?php if( get_option( 'ukm_list_limit' ) == 25 ) _e( "selected='selected'" ); ?> >25</option>
 			</select>
 		</div>
 	</div>

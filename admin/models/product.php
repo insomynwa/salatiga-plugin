@@ -107,26 +107,6 @@ class Sltg_Product {
 			$this->kategori = $row[ 'kategori' ];
 			$this->producer = $row[ 'producer' ];
 
-			// $obj_kat = new Sltg_Kategori_Product();
-			// $obj_kat->HasID( $row[ 'kategori' ] );
-			// $this->kategori = $obj_kat;
-
-			/*$obj_ukm = new Sltg_UKM();
-			$obj_ukm->HasID( $row[ 'ukm' ] );
-			$this->ukm = $obj_ukm;*/
-
-			// $obj_gbr = new Sltg_Gambar();
-			// $list_gambar = $obj_gbr->ListByOwner( $this->pict_code );
-			// foreach( $list_gambar as $g) {
-			// 	$gambar = new Sltg_Gambar();
-			// 	$gambar->HasID( $g->id_gambar );
-			// 	if( $gambar->GetGambarUtama() == 1) {
-			// 		$this->gambar_utama = $gambar;
-			// 		/*break;*/
-			// 	}
-			// 	$this->gambars[] = $gambar;
-			// }
-			//var_dump($this->gambar_utama);
 		}
 		return $result;
 	}
@@ -268,5 +248,19 @@ class Sltg_Product {
 			$result[ 'message' ] = "berhasil update produk";
 		}
 		return $result;
+	}
+
+	public function ListByOwner( $owner ) {
+		global $wpdb;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE producer = %d",
+					$owner
+					)
+				);//var_dump($rows);
+		return $rows;
 	}
 }
