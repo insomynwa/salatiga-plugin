@@ -13,9 +13,9 @@
 		<div class="col-sm-2">
 			<label class="">Jumlah list:</label>
 			<select id="data-limit" class="">
-				<option value="1" <?php if( get_option( 'personal_list_limit' ) == 1 ) _e( "selected='selected'" ); ?> >1</option>
-				<option value="2" <?php if( get_option( 'personal_list_limit' ) == 2 ) _e( "selected='selected'" ); ?> >2</option>
 				<option value="3" <?php if( get_option( 'personal_list_limit' ) == 3 ) _e( "selected='selected'" ); ?> >3</option>
+				<option value="10" <?php if( get_option( 'personal_list_limit' ) == 10 ) _e( "selected='selected'" ); ?> >10</option>
+				<option value="25" <?php if( get_option( 'personal_list_limit' ) == 25 ) _e( "selected='selected'" ); ?> >25</option>
 			</select>
 		</div>
 	</div>
@@ -24,82 +24,13 @@
 	</div>
 </div>
 <div class="plugin-content-link">
-	<button id="add-personal" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-personal">
-		<span class="glyphicon glyphicon-plus"></span> Add
-	</button>
+	<a href="?page=sltg-personal&doaction=create-new">
+		<button id="add-person" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
 </div>
-<div id="modal-form-personal" class="modal fade" role="dialog" aria-labelledby="personalModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary" id="personalModalLabel">Form Personal</h4>
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal">
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="nama-personal">Nama</label>
-						<div class="col-sm-10">
-							<input type="text" name="nama-personal" class="form-control" id="nama-personal" placeholder="nama" required="required">
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="alamat-personal">Alamat</label>
-						<div class="col-sm-10">
-							<textarea name="alamat-personal" class="form-control" id="alamat-personal"></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="telp-personal">Telp</label>
-						<div class="col-sm-10">
-							<input type="text" name="telp-personal" class="form-control" id="telp-personal" placeholder="0298xxxxx" required="required">
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="deskripsi-personal">Deskripsi</label>
-						<div class="col-sm-10">
-							<textarea name="deskripsi-personal" class="form-control" id="deskripsi-personal"></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label" for="info-lain-personal">Info Lain</label>
-						<div class="col-sm-10">
-							<textarea name="info-lain-personal" class="form-control" id="info-lain-personal"></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
-							<button class="form-control btn btn-success" type="submit" name="submit-personal" id="submit-personal"><span class="glyphicon glyphicon-save"></span> Save</button>
-						</div>	
-					</div>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- <div id="modal-personal" class="modal fade" role="dialog" aria-labelledby="personalModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary">Pemilik</h4>
-			</div>
-			<div class="modal-body">
-				<div class="list-group">
-					<a href="#" class="list-personal list-group-item" id="1">Mr. A</a>
-					<a href="#" class="list-personal list-group-item" id="2">Mr. B</a>
-					<a href="#" class="list-personal list-group-item" id="3">Mr. C</a>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div> -->
+
 <script type="text/javascript">
 jQuery(document).ready( function($) {
 	

@@ -118,7 +118,7 @@ input[type=number]::-webkit-outer-spin-button {
 					<?php endif; ?>
 				</div>
 				<!-- <a href="?page=sltg-ukm&doaction=create-new"> -->
-				<a href="#">
+				<a href="?page=sltg-personal&doaction=create-new">
 					<button id="add-ukm" class="btn btn-primary">
 						<span class="glyphicon glyphicon-plus"></span> Add
 					</button>
@@ -337,6 +337,7 @@ jQuery(document).ready( function($) {
 			};
 			data.founder = iFndId.val();
 			/*data.gambararr = arrGambar;*/
+			//console.log(data.founder);
 			setDefaultGambarUtama();
 			data.gambararr = arrImgList;
 			$.post(

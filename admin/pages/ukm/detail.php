@@ -12,7 +12,7 @@
 			<p><?php _e( $ukm->GetAlamat() ); ?></p>
 			<p><?php _e( $ukm->GetTelp() ); ?></p>
 			<p><?php _e( $ukm->GetOther() ); ?></p>
-			<p><?php _e( $ukm->GetPemilik()->GetNama() ); ?></p>
+			<p><a href="?page=sltg-personal&detail=<?php _e( $ukm->GetPemilik()->GetID() ); ?>"><?php _e( $ukm->GetPemilik()->GetNama() ); ?></a></p>
 		</div>
 	</div>
 	<div>

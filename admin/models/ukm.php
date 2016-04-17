@@ -106,7 +106,7 @@ class Sltg_UKM {
 			$this->alamat = $row[ 'alamat_ukm' ];
 			$this->telp = $row[ 'telp_ukm' ];
 			$this->other = $row[ 'other_ukm' ];
-			$this->pemilik = $row[ 'pemilik' ];
+			$this->pemilik = $row[ 'owner' ];
 		}
 		return $result;
 	}
@@ -175,7 +175,7 @@ class Sltg_UKM {
 				'other_ukm' => $this->other,
 				'alamat_ukm' => $this->alamat,
 				'telp_ukm' => $this->telp,
-				'pemilik' => $this->pemilik
+				'owner' => $this->pemilik
 				),
 			array(
 				'%s', '%s', '%s', '%s', '%s', '%d'
@@ -252,7 +252,7 @@ class Sltg_UKM {
 			'other_ukm' => $this->other,
 			'telp_ukm' => $this->telp,
 			'alamat_ukm' => $this->alamat,
-			'pemilik' => $this->pemilik
+			'owner' => $this->pemilik
 			);
 		$arrCondition = array( 'id_ukm' => $this->id );
 		$arrDataType = array( '%s', '%s', '%s', '%s', '%s', '%d' );
@@ -270,5 +270,19 @@ class Sltg_UKM {
 			$result[ 'message' ] = "berhasil update ukm";
 		}
 		return $result;
+	}
+
+	public function ListByOwner( $owner ) {
+		global $wpdb;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE owner = %d",
+					$owner
+					)
+				);//var_dump($rows);
+		return $rows;
 	}
 }

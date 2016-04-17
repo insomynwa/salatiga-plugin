@@ -52,6 +52,8 @@ class Salatiga_Plugin {
 		$this->loader->add_action( 'wp_ajax_UpdateProduct', $admin, 'update_product' );
 		$this->loader->add_action( 'wp_ajax_CreateNewUKM', $admin, 'create_ukm' );
 		$this->loader->add_action( 'wp_ajax_UpdateUKM', $admin, 'update_ukm' );
+		$this->loader->add_action( 'wp_ajax_CreateNewPerson', $admin, 'create_person' );
+		$this->loader->add_action( 'wp_ajax_UpdatePerson', $admin, 'update_person' );
 		
 		$controller = new Salatiga_Plugin_Controller();
 		$this->loader->add_action( 'wp_ajax_nopriv_RetrievePaginationTemplate', $controller, 'retrieve_pagination' );

@@ -82,7 +82,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary">Pemilik</h4>
+				<h4 class="modal-title text-primary">Kategori</h4>
 			</div>
 			<div class="modal-body">
 				<div id="kategori-list" class="list-group">
@@ -104,7 +104,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title text-primary">Pemilik</h4>
+				<h4 class="modal-title text-primary">Producer (UKM)</h4>
 			</div>
 			<div class="modal-body">
 				<div class="list-group">
@@ -115,7 +115,7 @@
 					<?php endif; ?>
 				</div>
 				<!-- <a href="?page=sltg-product&doaction=create-new"> -->
-				<a href="#">
+				<a href="?page=sltg-ukm&doaction=create-new">
 					<button id="add-product" class="btn btn-primary">
 						<span class="glyphicon glyphicon-plus"></span> Add
 					</button>

@@ -7,6 +7,10 @@ class Sltg_Personal {
 	private $id;
 	public function GetID(){ return $this->id; }
 
+	private $pict_code;
+	public function GetPictCode() { return $this->pict_code; }
+	public function SetPictCode( $pict_code ) { $this->pict_code = $pict_code; }
+
 	private $nama;
 	public function GetNama() { return $this->nama; }
 	public function SetNama( $nama ) { $this->nama = $nama; }
@@ -29,8 +33,45 @@ class Sltg_Personal {
 
 	// IN RELATIONSHIP
 	
-	private $foto;
-	public function GetFotos() { return $this->foto; }
+	//private $gambar_utama;
+	public function GetGambarUtama() { 
+		$obj_gbr = new Sltg_Gambar();
+
+		$obj_gbr->UtamaByOwner( $this->pict_code );
+		//var_dump($obj_gbr->UtamaByOwner( $this->pict_code )->GetLinkGambar());
+		return $obj_gbr; 
+	}
+	// public function SetGambarUtama( $gambar_utama ) { $this->gambar_utama = $gambar_utama; }
+
+	//private $gambars;
+	public function GetGambars() { 
+		$arrGambar = array();
+		$obj_gbr = new Sltg_Gambar();
+
+		$list_gambar = $obj_gbr->ListByOwner( $this->pict_code );
+		foreach( $list_gambar as $g) {
+			$gambar = new Sltg_Gambar();
+			$gambar->HasID( $g->id_gambar );
+
+			$arrGambar[] = $gambar;
+		}
+
+		return $arrGambar; 
+	}
+
+	//private $products;
+	public function GetUKMs() { 
+		$arrUKM = array();
+		$obj_ukm = new Sltg_UKM();
+		$list_ukm = $obj_ukm->ListByOwner( $this->id );
+		foreach( $list_ukm as $u ) {
+			$ukm = new Sltg_UKM();
+			$ukm->HasID( $u->id_ukm );
+			$arrUKM[] = $ukm;
+		}
+		return $arrUKM; 
+	}
+	// public function SetProducts( $products ) { $this->products = $products; }
 
 	function __construct() {
 		$this->table_name = "ext_personal";
@@ -50,6 +91,7 @@ class Sltg_Personal {
 		$result = ! is_null( $row );
 		if ( $result ){
 			$this->id = $row[ 'id_personal' ];
+			$this->pict_code = 'FC' . $row[ 'id_personal' ];
 			$this->nama = $row[ 'nama_personal' ];
 			$this->alamat = $row[ 'alamat_personal' ];
 			$this->deskripsi = $row[ 'deskripsi_personal' ];
@@ -68,12 +110,6 @@ class Sltg_Personal {
 		$bindValues = array();
 		$bindValues[] = "%".$searchForName."%";
 
-		/*if ( !is_null( $searchForName ) ){
-			$str_search = "WHERE nama_personal LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}*/
-
 		$jumlah =
 			$wpdb->get_var(
 				$wpdb->prepare(
@@ -88,14 +124,6 @@ class Sltg_Personal {
 	public function DataList( $limit = -1, $offset = -1, $searchForName = "", $arg1 = 0) {
 		global $wpdb;
 
-		/*$query = "SELECT id_personal FROM $this->table_name";
-		$bindValues = array();
-
-		if( !is_null( $searchForName )) {
-			$str_search = "WHERE nama_personal LIKE %s";
-			$query .= " ". $str_search;
-			$bindValues[] = "%".$searchForName."%";
-		}*/
 		$query = "SELECT id_personal FROM $this->table_name " . 
 					"WHERE nama_personal LIKE %s";
 		$bindValues = array();
@@ -107,7 +135,7 @@ class Sltg_Personal {
 			$bindValues[] = $offset;
 			$bindValues[] = $limit;
 		}
-		//var_dump($query, $searchForName);
+
 		$rows =
 			$wpdb->get_results(
 				$wpdb->prepare(
@@ -115,7 +143,116 @@ class Sltg_Personal {
 					$bindValues
 					)
 				);
-		//var_dump( $rows ); 
+
 		return $rows;
+	}
+
+	public function AddNew() {
+		global $wpdb;
+
+		$result = array( 'status' => false, 'message' => 'Error AddNew()-ukm' );
+
+		if( $wpdb->insert(
+			$this->table_name,
+			array(
+				'nama_personal' => $this->nama,
+				'alamat_personal' => $this->alamat,
+				'deskripsi_personal' => $this->deskripsi,
+				'telp_personal' => $this->telp,
+				'other_personal' => $this->other
+				),
+			array(
+				'%s', '%s', '%s', '%s', '%s'
+				)
+			) ){
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = 'Berhasil menambah personal';
+			$result[ 'new_id' ] = $wpdb->insert_id;
+		}
+		return $result;
+	}
+
+	public function Update() {
+		global $wpdb;
+		$result = array( "status" => false, "message" => "gagal update person" );
+
+		$arrUpdateData = array(
+			'nama_personal' => $this->nama,
+			'alamat_personal' => $this->alamat,
+			'deskripsi_personal' => $this->deskripsi,
+			'telp_personal' => $this->telp,
+			'other_personal' => $this->other
+			);
+		$arrCondition = array( 'id_personal' => $this->id );
+		$arrDataType = array( '%s', '%s', '%s', '%s', '%s' );
+		$arrConditionType = array( '%d' );
+
+		if( $wpdb->update(
+			$this->table_name,
+			$arrUpdateData,
+			$arrCondition,
+			$arrDataType,
+			$arrConditionType
+			) )
+		{
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = "berhasil update person";
+		}
+		return $result;
+	}
+
+	public function Delete(){
+		global $wpdb;
+
+		$result = array( "status" => false, "message" => "" );
+		if( $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $this->table_name WHERE id_personal = %d",
+				$this->id
+			)
+		)) {
+			$statusDelGambars = $this->deleteGambars();
+			$statusUpdateProducts = $this->updateProducts();
+			$result ['status'] = $statusDelGambars && $statusUpdateProducts;
+		}
+
+		return $result;
+
+	}
+
+	public function deleteGambars() {
+		$arrGambar = $this->GetGambars();
+		//global $wpdb;
+		$result = ( sizeof( $arrGambar ) == 0 );
+
+		if( sizeof( $arrGambar ) > 0 ) {
+			$obj_gbr = new Sltg_Gambar();
+			$obj_gbr->SetOwner( $this->pict_code );
+
+			$result = $obj_gbr->DeleteMultiple();
+
+			foreach( $arrGambar as $gbr ) {
+				$result = $result && $gbr->DeletePost();
+			}
+			
+		}
+		return $result;
+	}
+
+	private function updateProducts() {
+		$arrUKM = $this->GetUKMs();
+		//global $wpdb;
+		$result[ 'status' ] = ( sizeof( $arrUKM ) == 0 );
+
+		if( sizeof( $arrUKM ) > 0 ) {
+			foreach( $arrUKM as $ukm ) {
+				// $product = new Sltg_Product();
+				// $product->HasID( $p->id_produk );
+				$ukm->SetPemilik(0);
+				$result[ 'status' ] = $ukm->Update();
+			}
+		}
+
+		return $result[ 'status' ];
 	}
 }

@@ -11,10 +11,10 @@
 			</tr>
 		</thead>
 		<tbody>
-			<?php foreach( $data as $pl ): ?>
+			<?php foreach( $data as $p ): ?>
 			<tr>
-				<td><?php _e( $pl->GetNama() ) ?></td>
-				<td>Edit | Delete</td>
+				<td><?php _e( $p->GetNama() ) ?></td>
+				<td><a href="?page=sltg-personal&detail=<?php _e( $p->GetID() ); ?>">Detail</a> | <a href="?page=sltg-personal&doaction=edit&person=<?php _e( $p->GetID() ); ?>">Edit</a> | <a href="?page=sltg-personal&doaction=delete&person=<?php _e( $p->GetID() ); ?>">Delete</a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

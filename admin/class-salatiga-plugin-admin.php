@@ -156,9 +156,6 @@ class Salatiga_Plugin_Admin {
 
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Product();
-			/*$obj_kat = new Sltg_Kategori_Product();
-			$obj_ukm = new Sltg_UKM();
-			$obj_gbr = new Sltg_Gambar();*/
 
 			$obj->HasID( $get_detail );
 			$attributes[ 'product' ] = $obj;
@@ -253,12 +250,76 @@ class Salatiga_Plugin_Admin {
 	}
 	// Render Personal page
 	public function render_personal_page(){
-		//require( 'models/personal.php' );
-		$obj = new Sltg_Personal();
-		//$attributes[ 'n-page' ] = $this->create_pagination( $obj, 'personal_list_limit', 1 );
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Personal();
 
-		$content = $this->get_html_template( 'pages/personal', 'main', null, TRUE);
-		$this->get_html_template( 'pages', 'template', $content );
+			$obj->HasID( $get_detail );
+			$attributes[ 'person' ] = $obj;
+
+			$content = $this->get_html_template( 'pages/personal', 'detail', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$obj_kat = new Sltg_Kategori_Product();
+			$obj_person = new Sltg_Personal();
+			
+			$attributes = array();
+
+			$persons = $obj_person->DataList();
+			foreach( $persons as $p ){
+				$person = new Sltg_Personal();
+				$person->HasID( $p->id_personal );
+				$attributes[ 'person' ][] = $person;
+			}
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'person' ] ) && ($_GET[ 'person' ] > 0) ) {
+				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Personal();
+				$obj->HasID( $get_person_id );
+				$attributes[ 'person' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] ) ) {
+				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Personal();
+				$obj->HasID( $get_person_id );
+				$attributes[ 'person' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/personal', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Personal();
+			$content = $this->get_html_template( 'pages/personal', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
 	}
 
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
@@ -313,20 +374,14 @@ class Salatiga_Plugin_Admin {
 			update_option( $option_limit_name, $get_limit );
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $get_kategori );
 
-			//var_dump($attributes[ 'n-page' ]);
-			//if( $attributes[ 'n-page' ] > 0 )
 			echo $this->get_html_template( 'pages', 'pagination' , $attributes, FALSE );
-			//else
-				//echo "";
+
 		}
 		wp_die();
 	}
 
 	private function create_pagination( $obj, /*$limit_opt,*/ $limit, $search = "", $kategori = 0 ) {
-		/*if( is_null( $search ) )
-			$jumlah_data = $obj->CountData();
-		else
-			$jumlah_data = $obj->CountData( $search );*/
+
 		$jumlah_data = $obj->CountData( $search, $kategori );
 		//update_option( $limit_opt, $limit );
 		$jumlah_page = intval( $jumlah_data / $limit );
@@ -353,8 +408,6 @@ class Salatiga_Plugin_Admin {
 				$get_search = sanitize_text_field( $_GET[ 'search' ] );
 			}
 
-			//parse_str($_SERVER['QUERY_STRING']);
-
 			$offset = ( $get_page - 1 ) * $get_limit;
 			$obj = null;
 			$dir_obj = "";
@@ -375,10 +428,6 @@ class Salatiga_Plugin_Admin {
 				$dir_obj = "ukm";
 			}
 
-			/*if( isset( $_GET[ 'search' ] ) )
-				$rows = $obj->DataList( $get_limit, $offset, $get_search);
-			else
-				$rows = $obj->DataList( $get_limit, $offset);*/
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $get_kategori );
 
 			$arrObj = array();
@@ -422,9 +471,7 @@ class Salatiga_Plugin_Admin {
 			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
 			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
 			$post_gambararr = $_POST[ 'gambararr' ] ;
-			//var_dump($post_gambararr[0]['fname']);die;
-			//print_r($post_gambararr);
-			
+
 			$is_new_kategori = (! is_numeric( $post_kategori ) );
 			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
 
@@ -473,9 +520,7 @@ class Salatiga_Plugin_Admin {
 			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
 			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
 			$post_gambararr = $_POST[ 'gambararr' ] ;
-			//var_dump($post_gambararr[0]['fname']);die;
-			//print_r($post_gambararr);
-			
+
 			$is_new_kategori = (! is_numeric( $post_kategori ) );
 			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
 
@@ -507,86 +552,78 @@ class Salatiga_Plugin_Admin {
 
 				// compare Picture
 				$arrOldPict = $product->GetGambars();
-				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
-				// if( $sameSize ) {
-					// get added Picture
-					$arrAddedPict = array();
-					$arrAddedPictId = array();
-					$utamaInNew = false;
-					$selectedUtama = 0;
-					foreach( $post_gambararr as $newPict) {
-						$isNew = true;
-						foreach( $arrOldPict as $oldPict) {
-							if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-								$isNew = false;
-								break;
-							}
-						}
-						$arrAddedPict[] = $isNew;
-						if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-						if( $isNew ) {
-							$arrAddedPictId[] = $newPict;
-							if( $newPict['utama'] == 1){
-								$utamaInNew = true;
-							}
-						}
-					}
 
-					// get deleted picture
-					$arrDelPict = array();
-					$arrDelPictId = array();
-					$utamaInDel = false;
+				$arrAddedPict = array();
+				$arrAddedPictId = array();
+				$utamaInNew = false;
+				$selectedUtama = 0;
+				foreach( $post_gambararr as $newPict) {
+					$isNew = true;
 					foreach( $arrOldPict as $oldPict) {
-						$isDel = true;
-						foreach( $post_gambararr as $newPict) {
-							if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-								$isDel = false;
-								break;
-							}
-						}
-						$arrDelPict[] = $isDel;
-						if( $isDel ) {
-							$arrDelPictId[] = $oldPict;
-							if( $oldPict->GetPostId() == 1){
-								$utamaInDel = true;
-							}
+						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+							$isNew = false;
+							break;
 						}
 					}
-
-					// var_dump( "select utama: ". $selectedUtama );
-
-					if( !$utamaInNew && !$utamaInDel ) {
-						// update gambar utama
-						foreach ( $arrOldPict as $oldPict ) {
-							if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-								$result = $oldPict->SetAsGambarUtama();
-								break;
-							}
+					$arrAddedPict[] = $isNew;
+					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+					if( $isNew ) {
+						$arrAddedPictId[] = $newPict;
+						if( $newPict['utama'] == 1){
+							$utamaInNew = true;
 						}
 					}
+				}
 
-					// delete old picture
-					if ( sizeof( $arrDelPictId ) > 0 ) {
-						foreach( $arrDelPictId as $delGbr ) {
-							$result = $delGbr->Delete();
+				// get deleted picture
+				$arrDelPict = array();
+				$arrDelPictId = array();
+				$utamaInDel = false;
+				foreach( $arrOldPict as $oldPict) {
+					$isDel = true;
+					foreach( $post_gambararr as $newPict) {
+						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+							$isDel = false;
+							break;
 						}
 					}
-
-					// add new picture
-					if( sizeof( $arrAddedPictId ) > 0 ) {
-						if( $utamaInNew ) {
-							$temp_gbr = new Sltg_Gambar();
-							$temp_gbr->SetOwner( $product->GetPictCode() );
-							$temp_gbr->ClearSelectedUtama();
+					$arrDelPict[] = $isDel;
+					if( $isDel ) {
+						$arrDelPictId[] = $oldPict;
+						if( $oldPict->GetPostId() == 1){
+							$utamaInDel = true;
 						}
-						$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
 					}
+				}
 
-					//var_dump($arrAddedPict, $arrDelPict, $arrAddedPictId, $arrDelPictId);			
-				// }else{
+				// var_dump( "select utama: ". $selectedUtama );
 
-				// }
-				//var_dump($oldData, $newData);
+				if( !$utamaInNew && !$utamaInDel ) {
+					// update gambar utama
+					foreach ( $arrOldPict as $oldPict ) {
+						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+							$result = $oldPict->SetAsGambarUtama();
+							break;
+						}
+					}
+				}
+
+				// delete old picture
+				if ( sizeof( $arrDelPictId ) > 0 ) {
+					foreach( $arrDelPictId as $delGbr ) {
+						$result = $delGbr->Delete();
+					}
+				}
+
+				// add new picture
+				if( sizeof( $arrAddedPictId ) > 0 ) {
+					if( $utamaInNew ) {
+						$temp_gbr = new Sltg_Gambar();
+						$temp_gbr->SetOwner( $product->GetPictCode() );
+						$temp_gbr->ClearSelectedUtama();
+					}
+					$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
+				}
 
 				if ( $oldData !== $newData ) {
 					$product->SetNama( $post_nama );
@@ -617,7 +654,7 @@ class Salatiga_Plugin_Admin {
 		}*/
 
 		$gambar = new Sltg_Gambar();
-		if ( $type_pict == "produk" ){
+		// if ( $type_pict == "produk" ){
 			$gambar->SetOwner( $pict_code );
 			//$gambar_utama = 1;
 			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
@@ -629,20 +666,20 @@ class Salatiga_Plugin_Admin {
 				$result = $gambar->AddNew();
 				/*$gambar_utama = 0;*/
 			}
-		}
-		else if ( $type_pict == "ukm" ){
-			$gambar->SetOwner( $pict_code );
-			//$gambar_utama = 1;
-			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
-				//$gambar->SetGambarUtama( $gambar_utama );
-				$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
-				$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
-				$gambar->SetDeskripsi( "" );
-				$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
-				$result = $gambar->AddNew();
-				/*$gambar_utama = 0;*/
-			}
-		}
+		// }
+		// else if ( $type_pict == "ukm" ){
+		// 	$gambar->SetOwner( $pict_code );
+		// 	//$gambar_utama = 1;
+		// 	for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
+		// 		//$gambar->SetGambarUtama( $gambar_utama );
+		// 		$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
+		// 		$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
+		// 		$gambar->SetDeskripsi( "" );
+		// 		$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
+		// 		$result = $gambar->AddNew();
+		// 		/*$gambar_utama = 0;*/
+		// 	}
+		// }
 
 		return $result;
 	}
@@ -729,8 +766,6 @@ class Salatiga_Plugin_Admin {
 
 		wp_die();
 	}
-
-
 
 	public function update_ukm() {
 		$result = array( 'status' => false, 'message' => '' );
@@ -824,8 +859,6 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 
-				// var_dump( "select utama: ". $selectedUtama );
-
 				if( !$utamaInNew && !$utamaInDel ) {
 					// update gambar utama
 					foreach ( $arrOldPict as $oldPict ) {
@@ -853,19 +886,13 @@ class Salatiga_Plugin_Admin {
 					$result = $this->add_picture( 'ukm', $ukm->GetPictCode(), $arrAddedPictId );
 				}
 
-					//var_dump($arrAddedPict, $arrDelPict, $arrAddedPictId, $arrDelPictId);			
-				// }else{
-
-				// }
-				//var_dump($oldData, $newData);
-
 				if ( $oldData !== $newData ) {
 					$ukm->SetNama( $post_nama );
 					$ukm->SetDeskripsi( $post_deskripsi );
 					$ukm->SetOther( $post_infolain );
 					$ukm->SetAlamat( $post_alamat );
 					$ukm->SetTelp( $post_telp );
-					$ukm->SetPemilik( $post_pemilik );
+					$ukm->SetPemilik( $post_founder );
 					$result = $ukm->Update();
 				}
 			}
@@ -882,5 +909,184 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
+	public function create_person() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+		// var_dump($_POST);
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$person = new Sltg_Personal();
+				$person->SetNama( $post_nama );
+				$person->SetAlamat( $post_alamat );
+				$person->SetTelp( $post_telp );
+				$person->SetDeskripsi( $post_deskripsi );
+				$person->SetOther( $post_infolain );
+
+				$result = $person->AddNew();
+				$newPersonal = new Sltg_Personal();
+				$newPersonal->HasID( $result[ 'new_id' ] );
+
+				$this->add_picture( 'personal', $newPersonal->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function update_person() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'person' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		//var_dump($_POST);
+		if( $post_isset ) {
+			$post_person_id = sanitize_text_field( $_POST[ 'person' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+			//var_dump($post_gambararr[0]['fname']);die;
+			//print_r($post_gambararr);
+
+
+			$post_not_empty = ($post_person_id>0) && ($post_nama!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				
+				$person = new Sltg_Personal();
+				$person->HasID( $post_person_id );
+
+				// compare data
+				$oldData = array(
+					$person->GetNama(), // nama 
+					$person->GetDeskripsi(), // deskripsi
+					$person->GetOther(), // other
+					$person->GetAlamat(), // alamat
+					$person->GetTelp() // telp
+					);
+				$newData = array(
+					$post_nama, // nama 
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_alamat, // alamat,
+					$post_telp // telp
+					);
+
+				// compare Picture
+				$arrOldPict = $person->GetGambars();
+				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
+				// if( $sameSize ) {
+					// get added Picture
+				$arrAddedPict = array();
+				$arrAddedPictId = array();
+				$utamaInNew = false;
+				$selectedUtama = 0;
+				foreach( $post_gambararr as $newPict) {
+					$isNew = true;
+					foreach( $arrOldPict as $oldPict) {
+						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+							$isNew = false;
+							break;
+						}
+					}
+					$arrAddedPict[] = $isNew;
+					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+					if( $isNew ) {
+						$arrAddedPictId[] = $newPict;
+						if( $newPict['utama'] == 1){
+							$utamaInNew = true;
+						}
+					}
+				}
+
+				// get deleted picture
+				$arrDelPict = array();
+				$arrDelPictId = array();
+				$utamaInDel = false;
+				foreach( $arrOldPict as $oldPict) {
+					$isDel = true;
+					foreach( $post_gambararr as $newPict) {
+						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+							$isDel = false;
+							break;
+						}
+					}
+					$arrDelPict[] = $isDel;
+					if( $isDel ) {
+						$arrDelPictId[] = $oldPict;
+						if( $oldPict->GetPostId() == 1){
+							$utamaInDel = true;
+						}
+					}
+				}
+
+				if( !$utamaInNew && !$utamaInDel ) {
+					// update gambar utama
+					foreach ( $arrOldPict as $oldPict ) {
+						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+							$result = $oldPict->SetAsGambarUtama();
+							break;
+						}
+					}
+				}
+
+				// delete old picture
+				if ( sizeof( $arrDelPictId ) > 0 ) {
+					foreach( $arrDelPictId as $delGbr ) {
+						$result = $delGbr->Delete();
+					}
+				}
+
+				// add new picture
+				if( sizeof( $arrAddedPictId ) > 0 ) {
+					if( $utamaInNew ) {
+						$temp_gbr = new Sltg_Gambar();
+						$temp_gbr->SetOwner( $person->GetPictCode() );
+						$temp_gbr->ClearSelectedUtama();
+					}
+					$result = $this->add_picture( 'person', $person->GetPictCode(), $arrAddedPictId );
+				}
+
+				if ( $oldData !== $newData ) {
+					$person->SetNama( $post_nama );
+					$person->SetDeskripsi( $post_deskripsi );
+					$person->SetOther( $post_infolain );
+					$person->SetAlamat( $post_alamat );
+					$person->SetTelp( $post_telp );
+					$result = $person->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
 
 }
