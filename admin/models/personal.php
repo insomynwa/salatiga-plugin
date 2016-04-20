@@ -212,7 +212,7 @@ class Sltg_Personal {
 			)
 		)) {
 			$statusDelGambars = $this->deleteGambars();
-			$statusUpdateProducts = $this->updateProducts();
+			$statusUpdateProducts = $this->updateUKMs();
 			$result ['status'] = $statusDelGambars && $statusUpdateProducts;
 		}
 
@@ -239,7 +239,7 @@ class Sltg_Personal {
 		return $result;
 	}
 
-	private function updateProducts() {
+	private function updateUKMs() {
 		$arrUKM = $this->GetUKMs();
 		//global $wpdb;
 		$result[ 'status' ] = ( sizeof( $arrUKM ) == 0 );

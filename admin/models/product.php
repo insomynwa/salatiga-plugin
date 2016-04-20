@@ -27,7 +27,7 @@ class Sltg_Product {
 
 	private $kategori;
 	public function GetKategori() { 
-		$obj_kat = new Sltg_Kategori_Product();
+		$obj_kat = new Sltg_Kategori_Product_UKM();
 		$obj_kat->HasID( $this->kategori );
 		//$this->kategori = $obj_kat;
 		return $obj_kat; 
@@ -137,7 +137,7 @@ class Sltg_Product {
 	public function DataList( $limit = -1, $offset = -1, $searchForName = "", $kategori = 0) {
 		global $wpdb;
 
-		$str_operator = "<>";
+		$str_operator = ">=";
 		if ( $kategori > 0 )
 			$str_operator = "=";
 		$query = "SELECT id_produk FROM $this->table_name " . 
@@ -259,6 +259,20 @@ class Sltg_Product {
 					"SELECT * FROM $this->table_name ".
 					"WHERE producer = %d",
 					$owner
+					)
+				);//var_dump($rows);
+		return $rows;
+	}
+
+	public function ListByCategory( $cat ) {
+		global $wpdb;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE kategori = %d",
+					$cat
 					)
 				);//var_dump($rows);
 		return $rows;

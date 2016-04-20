@@ -1,2 +1,0 @@
-connect UKM + PRODUCT
-memory relationship

@@ -39,7 +39,7 @@ class Salatiga_Plugin_Admin {
 			3
 			);
 
-		// Sub Menu
+		// Menu UKM
 		// UKM
 		add_submenu_page(
 			null,
@@ -67,6 +67,15 @@ class Salatiga_Plugin_Admin {
 			'sltg-personal',
 			array( $this, 'render_personal_page' )
 			);
+		// KATEGORI PRODUK UKM
+		add_submenu_page(
+			null,
+			'Kategori Produk UKM',
+			'Kategori Produk UKM',
+			'manage_options',
+			'sltg-katprodukukm',
+			array( $this, 'render_katprodukukm' )
+			);
 	}
 
 	// Render Main Page
@@ -90,7 +99,7 @@ class Salatiga_Plugin_Admin {
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
-			$obj_kat = new Sltg_Kategori_Product();
+			$obj_kat = new Sltg_Kategori_Product_UKM();
 			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
@@ -129,7 +138,7 @@ class Salatiga_Plugin_Admin {
 				$obj->HasID( $get_ukm_id );
 				$attributes[ 'ukm' ] = $obj;
 			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'ukm' ] ) && ( $_GET[ 'ukm' ] ) ) {
+			else if( $get_action == 'delete' && isset( $_GET[ 'ukm' ] ) && ( $_GET[ 'ukm' ] > 0 ) ) {
 				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
 				$action_template = 'delete';
@@ -166,13 +175,13 @@ class Salatiga_Plugin_Admin {
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
-			$obj_kat = new Sltg_Kategori_Product();
+			$obj_kat = new Sltg_Kategori_Product_UKM();
 			$obj_ukm = new Sltg_UKM();
 			
 			$attributes = array();
 			$kats = $obj_kat->Datalist();
 			foreach( $kats as $kat ) {
-				$kategori = new Sltg_Kategori_Product();
+				$kategori = new Sltg_Kategori_Product_UKM();
 				$kategori->HasID( $kat->id_kategori );
 				$attributes[ 'kategori' ][] = $kategori;
 			}
@@ -211,7 +220,7 @@ class Salatiga_Plugin_Admin {
 				$obj->HasID( $get_product_id );
 				$attributes[ 'product' ] = $obj;
 			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] ) ) {
+			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] > 0 ) ) {
 				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
 
 				$action_template = 'delete';
@@ -226,13 +235,13 @@ class Salatiga_Plugin_Admin {
 		}
 		else {
 			$obj = new Sltg_Product();
-			$obj_kat = new Sltg_Kategori_Product();
+			$obj_kat = new Sltg_Kategori_Product_UKM();
 			$obj_ukm = new Sltg_UKM();
 
 			$attributes = array();
 			$kats = $obj_kat->Datalist();
 			foreach( $kats as $kat ) {
-				$kategori = new Sltg_Kategori_Product();
+				$kategori = new Sltg_Kategori_Product_UKM();
 				$kategori->HasID( $kat->id_kategori );
 				$attributes[ 'kategori' ][] = $kategori;
 			}
@@ -263,7 +272,7 @@ class Salatiga_Plugin_Admin {
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
-			$obj_kat = new Sltg_Kategori_Product();
+			$obj_kat = new Sltg_Kategori_Product_UKM();
 			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
@@ -302,7 +311,7 @@ class Salatiga_Plugin_Admin {
 				$obj->HasID( $get_person_id );
 				$attributes[ 'person' ] = $obj;
 			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] ) ) {
+			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] > 0 ) ) {
 				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
 
 				$action_template = 'delete';
@@ -321,7 +330,69 @@ class Salatiga_Plugin_Admin {
 			$this->get_html_template( 'pages', 'template', $content );
 		}
 	}
+	// Render Kategori Produk UKM page
+	public function render_katprodukukm(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
+			$obj_kat = new Sltg_Kategori_Product_UKM();
+			$obj_person = new Sltg_Personal();
+			
+			$attributes = array();
+
+			$persons = $obj_person->DataList();
+			foreach( $persons as $p ){
+				$person = new Sltg_Personal();
+				$person->HasID( $p->id_personal );
+				$attributes[ 'person' ][] = $person;
+			}
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'katprodukukm' ] ) && ($_GET[ 'katprodukukm' ] > 0) ) {
+				$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Kategori_Product_UKM();
+				$obj->HasID( $get_katprodukukm_id );
+				$attributes[ 'katprodukukm' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'katprodukukm' ] ) && ( $_GET[ 'katprodukukm' ] > 0 ) ) {
+				$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Kategori_Product_UKM();
+				$obj->HasID( $get_katprodukukm_id );
+				$attributes[ 'katprodukukm' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/kategori_produk_ukm', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Kategori_Product_UKM();
+			$content = $this->get_html_template( 'pages/kategori_produk_ukm', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+	}
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -370,6 +441,12 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_UKM();
 				$attributes[ 'listfor' ] = 'ukm';
 				$option_limit_name = "ukm_list_limit";
+			}
+			else if( $get_listfor == 'katprodukukm' ) {
+				//require( 'models/ukm.php');
+				$obj = new Sltg_Kategori_Product_UKM();
+				$attributes[ 'listfor' ] = 'katprodukukm';
+				$option_limit_name = "katprodukukm_list_limit";
 			}
 			update_option( $option_limit_name, $get_limit );
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $get_kategori );
@@ -427,6 +504,11 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_UKM();
 				$dir_obj = "ukm";
 			}
+			else if( $get_listfor == 'katprodukukm' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Kategori_Product_UKM();
+				$dir_obj = "kategori_produk_ukm";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $get_kategori );
 
@@ -447,6 +529,11 @@ class Salatiga_Plugin_Admin {
 					$ukm = new Sltg_UKM();
 					$ukm->HasID( $row->id_ukm );
 					$arrObj['ukm'][] = $ukm;
+				}
+				else if( $get_listfor == 'katprodukukm' ){
+					$katprodukukm = new Sltg_Kategori_Product_UKM();
+					$katprodukukm->HasID( $row->id_kategori );
+					$arrObj['katprodukukm'][] = $katprodukukm;
 				}
 			}
 			//var_dump( $arrObj );
@@ -685,7 +772,7 @@ class Salatiga_Plugin_Admin {
 	}
 
 	private function add_kategori( $kategori_name ) {
-		$kategori = new Sltg_Kategori_Product();
+		$kategori = new Sltg_Kategori_Product_UKM();
 
 		$kategori->SetNama( $kategori_name );
 
