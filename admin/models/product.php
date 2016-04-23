@@ -114,7 +114,7 @@ class Sltg_Product {
 	public function CountData( $searchForName = "", $kategori = 0 ) {
 		global $wpdb;
 
-		$str_operator = "<>";
+		$str_operator = ">=";
 		if ( $kategori > 0 )
 			$str_operator = "=";
 		$query = "SELECT COUNT(id_produk) AS jumlah FROM $this->table_name " .

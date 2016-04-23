@@ -76,6 +76,16 @@ class Salatiga_Plugin_Admin {
 			'sltg-katprodukukm',
 			array( $this, 'render_katprodukukm' )
 			);
+
+		// MUSIC
+		add_submenu_page(
+			null,
+			'Music',
+			'Music',
+			'manage_options',
+			'sltg-music',
+			array( $this, 'render_music_page' )
+			);
 	}
 
 	// Render Main Page
@@ -254,8 +264,7 @@ class Salatiga_Plugin_Admin {
 			}
 			$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
-		}
-			
+		}	
 	}
 	// Render Personal page
 	public function render_personal_page(){
@@ -393,6 +402,89 @@ class Salatiga_Plugin_Admin {
 			$this->get_html_template( 'pages', 'template', $content );
 		}
 	}
+	// Render Personal page
+	public function render_music_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Personal();
+
+			$obj->HasID( $get_detail );
+			$attributes[ 'person' ] = $obj;
+
+			$content = $this->get_html_template( 'pages/personal', 'detail', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$obj_genre = new Sltg_Genre_Music();
+			$obj_person = new Sltg_Personal();
+			
+			$attributes = array();
+
+			$persons = $obj_person->DataList();
+			foreach( $persons as $p ){
+				$person = new Sltg_Personal();
+				$person->HasID( $p->id_personal );
+				$attributes[ 'person' ][] = $person;
+			}
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'person' ] ) && ($_GET[ 'person' ] > 0) ) {
+				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Personal();
+				$obj->HasID( $get_person_id );
+				$attributes[ 'person' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] > 0 ) ) {
+				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Music();
+				$obj->HasID( $get_person_id );
+				$attributes[ 'music' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/personal', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Music();
+			$obj_genre = new Sltg_Genre_Music();
+
+			$attributes = array();
+			$genres = $obj_genre->Datalist();
+			foreach( $genres as $g ) {
+				$genre = new Sltg_Genre_Music();
+				$genre->HasID( $g->id_genre );
+				$attributes[ 'genre' ][] = $genre;
+			}
+			$content = $this->get_html_template( 'pages/music', 'main', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+	}
+
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -414,24 +506,29 @@ class Salatiga_Plugin_Admin {
 			$get_limit = sanitize_text_field( $_GET[ 'limit' ] );
 			$get_search = "";
 			$get_kategori = 0;
+			$get_genre = 0;
+			$filter = 0;
 
 			if( isset( $_GET[ 'category' ] ) ) {
 				$get_kategori = sanitize_text_field( $_GET[ 'category' ] );
+				$filter = $get_kategori;
 			}
 			if( isset( $_GET[ 'search' ] ) ) {
 				$get_search = sanitize_text_field( $_GET[ 'search' ] );
+			}
+			if( isset( $_GET[ 'genre' ] ) ) {
+				$get_genre = sanitize_text_field( $_GET[ 'genre' ] );
+				$filter = $get_genre;
 			}
 
 			$obj = null;
 			$option_limit_name = "";
 			if( $get_listfor == 'personal' ){
-				//require( 'models/personal.php');
 				$obj = new Sltg_Personal();
 				$attributes[ 'listfor' ] = 'personal';
 				$option_limit_name = "personal_list_limit";
 			}
 			else if( $get_listfor == 'product' ) {
-				//require( 'models/product.php');
 				$obj = new Sltg_Product();
 				$attributes[ 'listfor' ] = 'product';
 				$option_limit_name = "product_list_limit";
@@ -443,13 +540,18 @@ class Salatiga_Plugin_Admin {
 				$option_limit_name = "ukm_list_limit";
 			}
 			else if( $get_listfor == 'katprodukukm' ) {
-				//require( 'models/ukm.php');
 				$obj = new Sltg_Kategori_Product_UKM();
 				$attributes[ 'listfor' ] = 'katprodukukm';
 				$option_limit_name = "katprodukukm_list_limit";
 			}
+			else if( $get_listfor == 'music' ) {
+				$obj = new Sltg_Music();
+				$attributes[ 'listfor' ] = 'music';
+				$option_limit_name = "music_list_limit";
+			}
 			update_option( $option_limit_name, $get_limit );
-			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $get_kategori );
+
+			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
 
 			echo $this->get_html_template( 'pages', 'pagination' , $attributes, FALSE );
 
@@ -477,12 +579,19 @@ class Salatiga_Plugin_Admin {
 			$get_page = sanitize_text_field( $_GET[ 'page' ] );
 			$get_search = "";
 			$get_kategori = 0;
+			$get_genre = 0;
+			$filter = 0;
 
 			if( isset( $_GET[ 'category' ] ) ) {
 				$get_kategori = sanitize_text_field( $_GET[ 'category' ] );
+				$filter = $get_kategori;
 			}
 			if( isset( $_GET[ 'search' ] ) ) {
 				$get_search = sanitize_text_field( $_GET[ 'search' ] );
+			}
+			if( isset( $_GET[ 'genre' ] ) ) {
+				$get_genre = sanitize_text_field( $_GET[ 'genre' ] );
+				$filter = $get_genre;
 			}
 
 			$offset = ( $get_page - 1 ) * $get_limit;
@@ -509,8 +618,13 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Kategori_Product_UKM();
 				$dir_obj = "kategori_produk_ukm";
 			}
+			else if( $get_listfor == 'music' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Music();
+				$dir_obj = "music";
+			}
 
-			$rows = $obj->DataList( $get_limit, $offset, $get_search, $get_kategori );
+			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
 			$arrObj = array();
 
@@ -534,6 +648,11 @@ class Salatiga_Plugin_Admin {
 					$katprodukukm = new Sltg_Kategori_Product_UKM();
 					$katprodukukm->HasID( $row->id_kategori );
 					$arrObj['katprodukukm'][] = $katprodukukm;
+				}
+				else if( $get_listfor == 'music' ){
+					$music = new Sltg_Music();
+					$music->HasID( $row->id_music );
+					$arrObj['music'][] = $music;
 				}
 			}
 			//var_dump( $arrObj );
@@ -1175,5 +1294,4 @@ class Salatiga_Plugin_Admin {
 
 		wp_die();
 	}
-
 }

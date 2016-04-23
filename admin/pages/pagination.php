@@ -10,6 +10,7 @@ jQuery(document).ready(function($){
 	var selected_page = 1;
 	var limit = $( "#data-limit" ).val();
 	var kategori = $( "#data-filter-kategori" ).val();
+	var genre = $( "#data-filter-genre" ).val();
 	var searchfor = '';
 
 	if( $( "#btn-search" ).hasClass( 'searching' ) )
@@ -17,7 +18,24 @@ jQuery(document).ready(function($){
 
 	$( ".pagination a.page-" + selected_page ).parent().addClass( "active" );
 
-	doRetrieveList( "<?php _e($attributes[ 'listfor' ]); ?>", limit, selected_page, searchfor, kategori, "#plugin-data-list");
+	var data = {
+			action: 'RetrieveList',
+			listfor: "<?php _e($attributes[ 'listfor' ]); ?>",
+			page: selected_page,
+			limit: limit
+	};
+	if( kategori != 0 ){
+		data.category = kategori;
+	}
+	if( genre != 0 ){
+		data.genre = genre;
+	}
+	if( searchfor != "" ) {
+		data.search = searchfor;
+	}
+
+	//doRetrieveList( "<?php _e($attributes[ 'listfor' ]); ?>", limit, selected_page, searchfor, kategori, "#plugin-data-list");
+	doRetrieveList( data, "#plugin-data-list" );
 
 	$( ".pagination a").click( function() {
 		selected_page = $( this ).text();
@@ -26,7 +44,10 @@ jQuery(document).ready(function($){
 		$( ".pagination a.page-" + selected_page ).parent().addClass("active");
 		current_page = selected_page;
 
-		doRetrieveList( "<?php _e($attributes[ 'listfor' ]); ?>", limit, selected_page, searchfor, kategori, "#plugin-data-list" );
+		data.page = selected_page;
+
+		doRetrieveList( data, "#plugin-data-list" );
+		//doRetrieveList( "<?php _e($attributes[ 'listfor' ]); ?>", limit, selected_page, searchfor, kategori, "#plugin-data-list" );
 	});
 
 });

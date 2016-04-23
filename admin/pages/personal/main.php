@@ -33,31 +33,33 @@
 
 <script type="text/javascript">
 jQuery(document).ready( function($) {
-	
-	//alert( $("ul.pagination li"))
-	// var current_page = 1;
-	// var selected_page = current_page;
+
 	var limit = $( "#data-limit" ).val();
 	var searchfor = $( "#txt-search").val();
 	var isSearching = false;
 
-	/*var pagination = new Pagination( "personal", limit, searchfor, "#plugin-data-pagination");
-	pagination.retrieve();*/
+	var data = {
+			action: 'RetrievePagination',
+			listfor: "personal",
+			limit: limit
+		};
 
-	doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
+	if( searchfor != "" ) {
+		data.search = searchfor;
+	}
+
+
+	doRetrievePagination( data, "#plugin-data-pagination" );
+	// doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
 
 	$( "#data-limit" ).on( "change", function() {
-		//selected_page = 1;
+
 		limit = this.value;
-		//searchfor = "";//$( "#txt-search" ).val();
-		//if( isSearching ) searchfor = $( "#txt-search" ).val();
+		data.limit = limit;
 
-		// $( ".pagination a.page-" + current_page).parent().removeClass("active");
-		// $( ".pagination a.page-" + selected_page ).parent().addClass("active");
-		//current_page = selected_page;
+		// doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
+		doRetrievePagination( data, "#plugin-data-pagination" );
 
-		doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
-		//retrieveList( "#plugin-data-list" );
 	});	
 
 	$( "#btn-search" ).click( function(e) {
@@ -77,28 +79,13 @@ jQuery(document).ready( function($) {
 			}
 			limit = $( "#data-limit" ).val();
 
-			/*searchfor = ( $( "#txt-search").val() ).split(' ').join('');;
-			if( searchfor != "" ) {
-				isSearching = true;
-			}*/
-			doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
+			data.limit = limit;
+			data.search = searchfor;
+
+			// doRetrievePagination( "personal", limit, 0, searchfor, "#plugin-data-pagination" );
+			doRetrievePagination( data, "#plugin-data-pagination" );
 		}
-		//current_page = 1;
-		//selected_page = current_page;
-		//searchFor( searchfor, "#plugin-data-list" );
 	});
-
-	/*function searchFor( search, target_element) {
-
-		$.get( sltg_ajax.ajaxurl,
-			{
-				action: 'SearchFor',
-				listfor: 'personal', page: current_page, limit: limit, search: search
-			},
-			function (response) {
-				$( target_element ).html( response );
-		});
-	}*/
 	
 });
 </script>

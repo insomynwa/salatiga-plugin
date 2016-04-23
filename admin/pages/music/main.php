@@ -1,20 +1,20 @@
-<h3>Product</h3>
+<h3>Music</h3>
 <div class="data-wrapper">
 	<div class="plugin-data-filter row">
 		<div class="col-sm-6">
-			<?php if( sizeof( $attributes[ 'kategori' ] ) > 0 ): ?>
-				<label class="">Kategori:</label>
-				<select id="data-filter-kategori" class="">
+			<?php if( sizeof( $attributes[ 'genre' ] ) > 0 ): ?>
+				<label class="">Genre:</label>
+				<select id="data-filter-genre" class="">
 					<option value="0">semua</option>
-					<?php foreach( $attributes[ 'kategori' ] as $kategori ): ?>
-						<option value="<?php _e( $kategori->GetID() ); ?>" ><?php _e( $kategori->GetNama() ); ?></option>
+					<?php foreach( $attributes[ 'genre' ] as $genre ): ?>
+						<option value="<?php _e( $genre->GetID() ); ?>" ><?php _e( $genre->GetNama() ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			<?php endif; ?>
 		</div>
 		<div class="col-sm-4">
 			<div class="input-group">
-				<input type="text" id="txt-search" class="form-control" placeholder="(nama)">
+				<input type="text" id="txt-search" class="form-control" placeholder="(title)">
 				<span class="input-group-btn">
 					<button id="btn-search" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search">Cari</span></button>
 				</span>
@@ -23,9 +23,9 @@
 		<div class="col-sm-2">
 			<label class="">Jumlah list:</label>
 			<select id="data-limit" class="">
-				<option value="5" <?php if( get_option( 'product_list_limit' ) == 5 ) _e( "selected='selected'" ); ?> >5</option>
-				<option value="10" <?php if( get_option( 'product_list_limit' ) == 10 ) _e( "selected='selected'" ); ?> >10</option>
-				<option value="25" <?php if( get_option( 'product_list_limit' ) == 25 ) _e( "selected='selected'" ); ?> >25</option>
+				<option value="5" <?php if( get_option( 'music_list_limit' ) == 5 ) _e( "selected='selected'" ); ?> >5</option>
+				<option value="10" <?php if( get_option( 'music_list_limit' ) == 10 ) _e( "selected='selected'" ); ?> >10</option>
+				<option value="25" <?php if( get_option( 'music_list_limit' ) == 25 ) _e( "selected='selected'" ); ?> >25</option>
 			</select>
 		</div>
 	</div>
@@ -34,8 +34,11 @@
 	</div>
 </div>
 <div class="plugin-content-link">
-	<a href="?page=sltg-product&doaction=create-new">
-		<button id="add-product" class="btn btn-primary">
+	<!-- <button id="add-music" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-music">
+		<span class="glyphicon glyphicon-plus"></span> Add
+	</button> -->
+	<a href="?page=sltg-music&doaction=create-new">
+		<button id="add-music" class="btn btn-primary">
 			<span class="glyphicon glyphicon-plus"></span> Add
 		</button>
 	</a>
@@ -46,40 +49,38 @@ jQuery(document).ready( function($) {
 	var limit = $( "#data-limit" ).val();
 	var searchfor = $( "#txt-search").val();
 	var isSearching = false;
-	var kategori = $( "#data-filter-kategori" ).val();
+	var genre = $( "#data-filter-genre" ).val();
 
 	var data = {
 			action: 'RetrievePagination',
-			listfor: "product",
+			listfor: "music",
 			limit: limit
 		};
 
 	if( searchfor != "" ) {
 		data.search = searchfor;
 	}
-	if( kategori != 0 ) {
-		data.category = kategori;
+	if( genre != 0 ) {
+		data.genre = genre;
 	}
 	
 	doRetrievePagination( data, "#plugin-data-pagination" );
 
-	// doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
+	// doRetrievePagination( "music", limit, genre, searchfor, "#plugin-data-pagination" );
 
 	$( "#data-limit" ).on( "change", function() {
 
 		limit = this.value;
 		data.limit = limit;
 
-		// doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
+		// doRetrievePagination( "music", limit, genre, searchfor, "#plugin-data-pagination" );
 		doRetrievePagination( data, "#plugin-data-pagination" );
-
 	});	
 
-	$( "#data-filter-kategori").on( "change", function() {
-		kategori = this.value;
-		data.category = kategori;
-		//doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination");
-	
+	$( "#data-filter-genre").on( "change", function() {
+		genre = this.value;
+		data.genre = genre;
+		// doRetrievePagination( "music", limit, genre, searchfor, "#plugin-data-pagination");
 		doRetrievePagination( data, "#plugin-data-pagination" );
 	});
 
@@ -98,12 +99,10 @@ jQuery(document).ready( function($) {
 				searchfor = "";
 				$( "#txt-search").val("");
 			}
-
-			data.limit = limit;
 			data.search = searchfor;
-
-			// doRetrievePagination( "product", limit, kategori, searchfor, "#plugin-data-pagination" );
+			data.limit = limit;
 			doRetrievePagination( data, "#plugin-data-pagination" );
+			// doRetrievePagination( "music", limit, genre, searchfor, "#plugin-data-pagination" );
 		}
 
 	});

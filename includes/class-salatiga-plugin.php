@@ -14,7 +14,7 @@ class Salatiga_Plugin {
 
 		$this->plugin_slug = 'salatiga-plugin-slug';
 		$this->version = '0.1.0';
-		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar");
+		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar", 'music', 'music_genre' );
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();
@@ -40,6 +40,7 @@ class Salatiga_Plugin {
 
 		$admin = new Salatiga_Plugin_Admin( $this->get_version() );
 
+		// $this->loader->add_action( 'init', $admin, 'add_oembed_soundcloud' );
 		$this->loader->add_action( 'admin_menu', $admin, 'create_admin_menus_and_subs' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_scripts_and_styles' );
 

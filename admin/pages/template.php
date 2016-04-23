@@ -26,6 +26,13 @@
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-katprodukukm' ); ?>">Kategori</a></li>
 						</ul>
 					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Artwork <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-music' ); ?>">Music</a></li>
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-craft' ); ?>">Craft</a></li>
+						</ul>
+					</li>
 					<li><a href="#">Other</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right"></ul>

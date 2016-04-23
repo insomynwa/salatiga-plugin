@@ -1,34 +1,29 @@
 <script type="text/javascript">
 jQuery(document).ready( function ($) {
-	$( "#modal-personal" ).on( "hidden.bs.modal", function (event) {
-		$( "#modal-form-ukm" ).modal( "show" );
-	});
-	$( "#modal-personal" ).on( "show.bs.modal", function (event) {
-		$( "#modal-form-ukm" ).modal( "hide" );
-	});
-	$( ".list-personal" ).click( function(){
-		$( "#pemilik-ukm-id" ).val( (this).id );
-		$( "#pemilik-ukm" ).val( (this).text );
-		$( "#pemilik-ukm" ).prop( "readonly", true );
-		$( "#modal-personal" ).modal( "hide" );
-	});
-	$( "#btn-refresh-pemilik").click( function(){
-		$( "#pemilik-ukm" ).prop( "readonly", false );
-		$( "#pemilik-ukm" ).val( "" );
-		$( "#pemilik-ukm" ).focus();
-		$( "#pemilik-ukm-id" ).val( 0 );
-	});
 
 	var limit = $( "#data-limit" ).val();
 	var searchfor = $( "#txt-search").val();
 	var isSearching = false;
+
+	var data = {
+			action: 'RetrievePagination',
+			listfor: "ukm",
+			limit: limit
+		};
+
+	if( searchfor != "" ) {
+		data.search = searchfor;
+	}
 	
-	doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
+	doRetrievePagination( data, "#plugin-data-pagination" );
+	// doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
 
 	$( "#data-limit" ).on( "change", function() {
 		limit = this.value;
+		data.limit = limit;
 
-		doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
+		// doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
+		doRetrievePagination( data, "#plugin-data-pagination" );
 	});	
 
 	$( "#btn-search" ).click( function(e) {
@@ -47,7 +42,11 @@ jQuery(document).ready( function ($) {
 				$( "#txt-search").val("");
 			}
 			limit = $( "#data-limit" ).val();
-			doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
+
+			data.limit = limit;
+			data.search = searchfor;
+			// doRetrievePagination( "ukm", limit, 0, searchfor, "#plugin-data-pagination" );
+			doRetrievePagination( data, "#plugin-data-pagination" );
 		}
 	});
 });
@@ -83,5 +82,4 @@ jQuery(document).ready( function ($) {
 			<span class="glyphicon glyphicon-plus"></span> Add New
 		</button>
 	</a>
-	<!-- <button id="add-new-ukm" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-ukm"><span class="glyphicon glyphicon-plus"></span> Add New</button> -->
 </div>
