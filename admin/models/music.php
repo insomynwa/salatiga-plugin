@@ -22,11 +22,22 @@ class Sltg_Music {
 
 	// IN RELATIONSHIO
 	private $creator;
-	public function GetCreator() { return $this->creator; }
+	public function GetCreator() {
+		$obj_creator = new Sltg_Personal();
+		$obj_creator->HasID( $this->creator );
+		//$this->ukm = $obj_ukm;
+
+		return $obj_creator;
+	}
 	public function SetCreator($creator) { $this->creator = $creator; }
 
 	private $genre;
-	public function GetGenre() { return $this->genre; }
+	public function GetGenre() {
+		$obj_genre = new Sltg_Genre_Music();
+		$obj_genre->HasID( $this->genre );
+		//$this->kategori = $obj_kat;
+		return $obj_genre; 
+	}
 	public function SetGenre($genre) { $this->genre = $genre; }
 
 	function __construct() {
@@ -121,8 +132,8 @@ class Sltg_Music {
 		if( $wpdb->insert(
 			$this->table_name,
 			array(
-				'source_music' => $this->source,
 				'title_music' => $this->title,
+				'source_music' => $this->source,
 				'creator' => $this->creator,
 				'genre' => $this->genre,
 				'info_music' => $this->info
@@ -148,7 +159,7 @@ class Sltg_Music {
 			)
 		)) {
 			$result ['status'] = true;
-			$result ['status'] = $result['status'] && $this->DeletePost();
+			$result ['message'] = "berhasil delete music";
 		}
 
 		return $result;

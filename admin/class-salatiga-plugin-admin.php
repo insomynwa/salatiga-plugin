@@ -406,12 +406,12 @@ class Salatiga_Plugin_Admin {
 	public function render_music_page(){
 		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
-			$obj = new Sltg_Personal();
+			$obj = new Sltg_Music();
 
 			$obj->HasID( $get_detail );
-			$attributes[ 'person' ] = $obj;
+			$attributes[ 'music' ] = $obj;
 
-			$content = $this->get_html_template( 'pages/personal', 'detail', $attributes, TRUE);
+			$content = $this->get_html_template( 'pages/music', 'detail', $attributes, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
@@ -421,6 +421,13 @@ class Salatiga_Plugin_Admin {
 			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
+
+			$genres = $obj_genre->Datalist();
+			foreach( $genres as $g ) {
+				$genre = new Sltg_Genre_Music();
+				$genre->HasID( $g->id_genre );
+				$attributes[ 'genre' ][] = $genre;
+			}
 
 			$persons = $obj_person->DataList();
 			foreach( $persons as $p ){
@@ -456,17 +463,17 @@ class Salatiga_Plugin_Admin {
 				$obj->HasID( $get_person_id );
 				$attributes[ 'person' ] = $obj;
 			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] > 0 ) ) {
-				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+			else if( $get_action == 'delete' && isset( $_GET[ 'music' ] ) && ( $_GET[ 'music' ] > 0 ) ) {
+				$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
 
 				$action_template = 'delete';
 
 				$obj = new Sltg_Music();
-				$obj->HasID( $get_person_id );
+				$obj->HasID( $get_music_id );
 				$attributes[ 'music' ] = $obj;
 			}
 
-			$content = $this->get_html_template( 'pages/personal', $action_template, $attributes, TRUE );
+			$content = $this->get_html_template( 'pages/music', $action_template, $attributes, TRUE );
 			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
@@ -907,6 +914,10 @@ class Salatiga_Plugin_Admin {
 		return ( ( $is_new_kategori && $kategori != "" ) || (!$is_new_kategori && $kategori>0) );
 	}
 
+	private function validate_genre( $is_new_genre, $genre ) {
+		return ( ( $is_new_genre && $genre != "" ) || (!$is_new_genre && $genre>0) );
+	}
+
 	public function add_meta_box() {
 
 	}
@@ -1281,6 +1292,48 @@ class Salatiga_Plugin_Admin {
 					$person->SetTelp( $post_telp );
 					$result = $person->Update();
 				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_music() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
+			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
+		
+		//var_dump($_POST);
+		
+		if( $post_isset ) {
+			$post_title = sanitize_text_field( $_POST[ 'title' ] );
+			$post_source = sanitize_text_field( $_POST[ 'source' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_genre = sanitize_text_field( $_POST[ 'genre' ] );
+			$post_creator = sanitize_text_field( $_POST[ 'creator' ] );
+
+			$is_new_genre = (! is_numeric( $post_genre ) );
+			$valid_genre = $this->validate_genre( $is_new_genre, $post_genre );
+
+			$post_not_empty = ($post_title!="") && ($post_source!="") && ($valid_genre) && ($post_creator>0);
+
+			if( $post_not_empty ) {
+				$music = new Sltg_Music();
+				$music->SetTitle( $post_title );
+				$music->SetSource( $post_source );
+				$music->SetInfo( $post_deskripsi );
+				$music->SetGenre( $post_genre );
+				$music->SetCreator( $post_creator );
+
+				$result = $music->AddNew();
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
