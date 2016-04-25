@@ -180,4 +180,34 @@ class Sltg_Music {
 		return $rows;
 	}
 
+	public function Update() {
+		global $wpdb;
+		$result = array( "status" => false, "message" => "gagal update music" );
+
+		$arrUpdateData = array(
+			'title_music' => $this->title,
+			'source_music' => $this->source,
+			'info_music' => $this->info,
+			'creator' => $this->creator,
+			'genre' => $this->genre
+			);
+		$arrCondition = array( 'id_music' => $this->id );
+		$arrDataType = array( '%s', '%s', '%s', '%d', '%d' );
+		$arrConditionType = array( '%d' );
+
+		if( $wpdb->update(
+			$this->table_name,
+			$arrUpdateData,
+			$arrCondition,
+			$arrDataType,
+			$arrConditionType
+			) )
+		{
+			$result[ 'status' ] = true;
+			$result[ 'message' ] = "berhasil update music";
+		}
+		
+		return $result;
+	}
+
 }

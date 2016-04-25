@@ -447,8 +447,8 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'person' ] ) && ($_GET[ 'person' ] > 0) ) {
-				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+			else if( $get_action == "edit" && isset( $_GET[ 'music' ] ) && ($_GET[ 'music' ] > 0) ) {
+				$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
 
 				$action_template = "edit";
 
@@ -459,9 +459,9 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 
-				$obj = new Sltg_Personal();
-				$obj->HasID( $get_person_id );
-				$attributes[ 'person' ] = $obj;
+				$obj = new Sltg_Music();
+				$obj->HasID( $get_music_id );
+				$attributes[ 'music' ] = $obj;
 			}
 			else if( $get_action == 'delete' && isset( $_GET[ 'music' ] ) && ( $_GET[ 'music' ] > 0 ) ) {
 				$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
@@ -1334,6 +1334,68 @@ class Salatiga_Plugin_Admin {
 				$music->SetCreator( $post_creator );
 
 				$result = $music->AddNew();
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function update_music() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'music' ] ) && isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
+			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
+
+		//var_dump($_POST);
+		if( $post_isset ) {
+			$post_music_id = sanitize_text_field( $_POST[ 'music' ] );
+			$post_title = sanitize_text_field( $_POST[ 'title' ] );
+			$post_source = sanitize_text_field( $_POST[ 'source' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_genre = sanitize_text_field( $_POST[ 'genre' ] );
+			$post_creator = sanitize_text_field( $_POST[ 'creator' ] );
+
+			$is_new_genre = (! is_numeric( $post_genre ) );
+			$valid_genre = $this->validate_genre( $is_new_genre, $post_genre );
+
+			$post_not_empty = ($post_music_id>0) && ($post_title!="") && ($post_source!="") && ($valid_genre) && ($post_creator>0);
+
+			if( $post_not_empty ) {
+				
+				$music = new Sltg_Music();
+				$music->HasID( $post_music_id );
+
+				// compare data
+				$oldData = array(
+					$music->GetTitle(), // title 
+					$music->GetSource(), // source
+					$music->GetInfo(), // info
+					$music->GetGenre()->GetID(), // genre
+					$music->GetCreator()->GetID() // creator
+					);
+				$newData = array(
+					$post_title, // title 
+					$post_source, // source
+					$post_deskripsi, // info
+					$post_genre, // genre,
+					$post_creator // creator
+					);
+
+				if ( $oldData !== $newData ) {
+					$music->SetTitle( $post_title );
+					$music->SetSource( $post_source );
+					$music->SetInfo( $post_deskripsi );
+					$music->SetGenre( $post_genre );
+					$music->SetCreator( $post_creator );
+					$result = $music->Update();
+				}
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
