@@ -13,16 +13,16 @@ class Sltg_Genre_Music {
 
 	// IN RELATIONSHIP
 	public function GetMusics() { 
-		// $arrProduct = array();
+		$arrMusic = array();
 
-		// $obj_product = new Sltg_Product();
-		// $list_product = $obj_product->ListByCategory( $this->id );
-		// foreach( $list_product as $p ) {
-		// 	$product = new Sltg_Product();
-		// 	$product->HasID( $p->id_produk );
-		// 	$arrProduct[] = $product;
-		// }
-		// return $arrProduct; 
+		$obj_music = new Sltg_Music();
+		$list_music = $obj_music->ListByGenre( $this->id );
+		foreach( $list_music as $m) {
+			$music = new Sltg_Music();
+			$music->HasID( $m->id_music );
+			$arrMusic[] = $music;
+		}
+		return $arrMusic; 
 	}
 
 	function __construct() {
@@ -123,9 +123,9 @@ class Sltg_Genre_Music {
 	function AddNew() {
 		global $wpdb;
 
-		$result = array( 'status' => false, 'message' => 'Error AddNew()-kategori' );
+		$result = array( 'status' => false, 'message' => 'Error AddNew()-genre' );
 
-		if( $this->validCategoryName() ) {
+		if( $this->validGenreName() ) {
 			if( $wpdb->insert(
 				$this->table_name,
 				array(
@@ -136,14 +136,14 @@ class Sltg_Genre_Music {
 					)
 				) ){
 				$result[ 'status' ] = true;
-				$result[ 'message' ] = 'Berhasil menambah kategori';
+				$result[ 'message' ] = 'Berhasil menambah genre';
 				$result[ 'new_id' ] = $wpdb->insert_id;
 			}
 		}
 		return $result;
 	}
 
-	private function validCategoryName() {
+	private function validGenreName() {
 		global $wpdb;
 
 		$query = "SELECT COUNT(id_genre) AS jumlah FROM $this->table_name " .
@@ -172,24 +172,24 @@ class Sltg_Genre_Music {
 				$this->id
 			)
 		)) {
-			$statusUpdateProducts = $this->updateProducts();
-			$result ['status'] = $statusUpdateProducts;
+			$statusUpdateMusic = $this->updateMusics();
+			$result ['status'] = $statusUpdateMusic;
 		}
 
 		return $result;
 	}
 
-	private function updateProducts() {
-		$arrProducts = $this->GetProducts();
+	private function updateMusics() {
+		$arrMusics = $this->GetMusics();
 		//global $wpdb;
-		$result[ 'status' ] = ( sizeof( $arrProducts ) == 0 );
+		$result[ 'status' ] = ( sizeof( $arrMusics ) == 0 );
 
-		if( sizeof( $arrProducts ) > 0 ) {
-			foreach( $arrProducts as $product ) {
-				// $product = new Sltg_Product();
+		if( sizeof( $arrMusics ) > 0 ) {
+			foreach( $arrMusics as $music ) {
+				// $product = new Sltg_Music();
 				// $product->HasID( $p->id_produk );
-				$product->SetKategori(0);
-				$result[ 'status' ] = $product->Update();
+				$music->SetGenre(0);
+				$result[ 'status' ] = $music->Update();
 			}
 		}
 
@@ -198,9 +198,9 @@ class Sltg_Genre_Music {
 
 	public function Update() {
 		global $wpdb;
-		$result = array( "status" => false, "message" => "gagal update kategori" );
+		$result = array( "status" => false, "message" => "gagal update genre" );
 
-		if( $this->validCategoryName() ) {
+		if( $this->validGenreName() ) {
 			$arrUpdateData = array(
 				'nama_genre' => $this->nama
 				);
@@ -217,7 +217,7 @@ class Sltg_Genre_Music {
 				) )
 			{
 				$result[ 'status' ] = true;
-				$result[ 'message' ] = "berhasil update kategori";
+				$result[ 'message' ] = "berhasil update genre";
 			}
 		}
 		return $result;

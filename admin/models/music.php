@@ -180,6 +180,20 @@ class Sltg_Music {
 		return $rows;
 	}
 
+	public function ListByGenre( $genre ) {
+		global $wpdb;
+
+		$rows =
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM $this->table_name ".
+					"WHERE genre = %d",
+					$genre
+					)
+				);
+		return $rows;
+	}
+
 	public function Update() {
 		global $wpdb;
 		$result = array( "status" => false, "message" => "gagal update music" );

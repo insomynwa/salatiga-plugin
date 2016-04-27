@@ -86,6 +86,16 @@ class Salatiga_Plugin_Admin {
 			'sltg-music',
 			array( $this, 'render_music_page' )
 			);
+
+		// GENRE
+		add_submenu_page(
+			null,
+			'Genre Music',
+			'Genre Music',
+			'manage_options',
+			'sltg-genre',
+			array( $this, 'render_genre_page' )
+			);
 	}
 
 	// Render Main Page
@@ -343,18 +353,8 @@ class Salatiga_Plugin_Admin {
 	public function render_katprodukukm(){
 		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-
-			$obj_kat = new Sltg_Kategori_Product_UKM();
-			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
-
-			$persons = $obj_person->DataList();
-			foreach( $persons as $p ){
-				$person = new Sltg_Personal();
-				$person->HasID( $p->id_personal );
-				$attributes[ 'person' ][] = $person;
-			}
 
 			$action_template = "";
 			if( $get_action == "create-new" ){
@@ -556,6 +556,11 @@ class Salatiga_Plugin_Admin {
 				$attributes[ 'listfor' ] = 'music';
 				$option_limit_name = "music_list_limit";
 			}
+			else if( $get_listfor == 'genre' ) {
+				$obj = new Sltg_Genre_Music();
+				$attributes[ 'listfor' ] = 'genre';
+				$option_limit_name = "genre_list_limit";
+			}
 			update_option( $option_limit_name, $get_limit );
 
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
@@ -630,6 +635,11 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Music();
 				$dir_obj = "music";
 			}
+			else if( $get_listfor == 'genre' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Genre_Music();
+				$dir_obj = "genre";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -660,6 +670,11 @@ class Salatiga_Plugin_Admin {
 					$music = new Sltg_Music();
 					$music->HasID( $row->id_music );
 					$arrObj['music'][] = $music;
+				}
+				else if( $get_listfor == 'genre' ){
+					$genre = new Sltg_Genre_Music();
+					$genre->HasID( $row->id_genre );
+					$arrObj['genre'][] = $genre;
 				}
 			}
 			//var_dump( $arrObj );
@@ -907,6 +922,19 @@ class Salatiga_Plugin_Admin {
 			$result = $kategori->AddNew();
 		else
 			$result[ 'new_id' ] = $kategori->GetID();
+		return $result;
+	}
+
+	private function add_genre( $genre_name ) {
+		$genre = new Sltg_Genre_Music();
+
+		$genre->SetNama( $genre_name );
+
+
+		if( ! $genre->FindName() )
+			$result = $genre->AddNew();
+		else
+			$result[ 'new_id' ] = $genre->GetID();
 		return $result;
 	}
 
@@ -1368,7 +1396,10 @@ class Salatiga_Plugin_Admin {
 			$post_not_empty = ($post_music_id>0) && ($post_title!="") && ($post_source!="") && ($valid_genre) && ($post_creator>0);
 
 			if( $post_not_empty ) {
-				
+				if( $is_new_genre ) {
+					$result_add = $this->add_genre( $post_genre );
+					$post_genre = $result_add[ 'new_id' ];
+				}
 				$music = new Sltg_Music();
 				$music->HasID( $post_music_id );
 
@@ -1408,5 +1439,58 @@ class Salatiga_Plugin_Admin {
 		echo wp_json_encode( $result );
 
 		wp_die();
+	}
+	// Render Genre
+	public function render_genre_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'genre' ] ) && ($_GET[ 'genre' ] > 0) ) {
+				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Genre_Music();
+				$obj->HasID( $get_genre_id );
+				$attributes[ 'genre' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'genre' ] ) && ( $_GET[ 'genre' ] > 0 ) ) {
+				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Genre_Music();
+				$obj->HasID( $get_genre_id );
+				$attributes[ 'genre' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/genre', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Genre_Music();
+			$content = $this->get_html_template( 'pages/genre', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
 	}
 }

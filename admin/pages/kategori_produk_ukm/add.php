@@ -12,7 +12,7 @@
 	}
 ?>
 
-<h3>Create New UKM Category Product</h3>
+<h3>Create New UKM Product Category</h3>
 <div class="data-wrapper">
 	<form class="form-horizontal" id="form-katprodukukm" method="post" action="#">
 		<?php if( isset( $message ) ) { ?><div class="form-group"><div class="col-sm-offset-2  col-sm-4 form-message"><p class="text-success"><?php _e( $message ); ?></p></div></div><?php } ?>

@@ -31,6 +31,8 @@
 						<ul class="dropdown-menu">
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-music' ); ?>">Music</a></li>
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-craft' ); ?>">Craft</a></li>
+							<li class="divider"></li>
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-genre' ); ?>">Genre</a></li>
 						</ul>
 					</li>
 					<li><a href="#">Other</a></li>
