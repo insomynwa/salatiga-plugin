@@ -96,6 +96,16 @@ class Salatiga_Plugin_Admin {
 			'sltg-genre',
 			array( $this, 'render_genre_page' )
 			);
+
+		// Hotel
+		add_submenu_page(
+			null,
+			'Hotel',
+			'Hotel',
+			'manage_options',
+			'sltg-hotel',
+			array( $this, 'render_hotel_page' )
+			);
 	}
 
 	// Render Main Page
@@ -176,8 +186,6 @@ class Salatiga_Plugin_Admin {
 			$content = $this->get_html_template( 'pages/ukm', 'main', null, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
 		}
-		
-
 	}
 	// Render Product page
 	public function render_product_page(){
@@ -561,6 +569,11 @@ class Salatiga_Plugin_Admin {
 				$attributes[ 'listfor' ] = 'genre';
 				$option_limit_name = "genre_list_limit";
 			}
+			else if( $get_listfor == 'hotel' ) {
+				$obj = new Sltg_Hotel();
+				$attributes[ 'listfor' ] = 'hotel';
+				$option_limit_name = "hotel_list_limit";
+			}
 			update_option( $option_limit_name, $get_limit );
 
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
@@ -640,6 +653,11 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Genre_Music();
 				$dir_obj = "genre";
 			}
+			else if( $get_listfor == 'hotel' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Hotel();
+				$dir_obj = "hotel";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -675,6 +693,11 @@ class Salatiga_Plugin_Admin {
 					$genre = new Sltg_Genre_Music();
 					$genre->HasID( $row->id_genre );
 					$arrObj['genre'][] = $genre;
+				}
+				else if( $get_listfor == 'hotel' ){
+					$hotel = new Sltg_Hotel();
+					$hotel->HasID( $row->id_hotel );
+					$arrObj['hotel'][] = $hotel;
 				}
 			}
 			//var_dump( $arrObj );
@@ -1492,5 +1515,244 @@ class Salatiga_Plugin_Admin {
 			$content = $this->get_html_template( 'pages/genre', 'main', null, TRUE);
 			$this->get_html_template( 'pages', 'template', $content );
 		}
+	}
+
+	// Render Hotel page
+	public function render_hotel_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Hotel();
+
+			$obj->HasID( $get_detail );
+			$attributes[ 'hotel' ] = $obj;
+
+			$content = $this->get_html_template( 'pages/hotel', 'detail', $attributes, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'hotel' ] ) && ($_GET[ 'hotel' ] > 0) ) {
+				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Hotel();
+				$obj->HasID( $get_hotel_id );
+				$attributes[ 'hotel' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'hotel' ] ) && ( $_GET[ 'hotel' ] > 0 ) ) {
+				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Hotel();
+				$obj->HasID( $get_hotel_id );
+				$attributes[ 'hotel' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/hotel', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Hotel();
+			$content = $this->get_html_template( 'pages/hotel', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+	}
+
+	public function create_hotel() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$hotel = new Sltg_Hotel();
+				$hotel->SetNama( $post_nama );
+				$hotel->SetAlamat( $post_alamat );
+				$hotel->SetTelp( $post_telp );
+				$hotel->SetDeskripsi( $post_deskripsi );
+				$hotel->SetOther( $post_infolain );
+
+				$result = $hotel->AddNew();
+				$newHotel = new Sltg_Hotel();
+				$newHotel->HasID( $result[ 'new_id' ] );
+
+				$this->add_picture( 'hotel', $newHotel->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function update_hotel() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		//var_dump($_POST);
+		if( $post_isset ) {
+			$post_hotel_id = sanitize_text_field( $_POST[ 'hotel' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_hotel_id > 0) && ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				
+				$hotel = new Sltg_Hotel();
+				$hotel->HasID( $post_hotel_id );
+
+				// compare data
+				$oldData = array(
+					$hotel->GetNama(), // nama 
+					$hotel->GetDeskripsi(), // deskripsi
+					$hotel->GetOther(), // other
+					$hotel->GetAlamat(), // alamat
+					$hotel->GetTelp() // telp
+					);
+				$newData = array(
+					$post_nama, // nama 
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_alamat, // alamat,
+					$post_telp // telp
+					);
+
+				// compare Picture
+				$arrOldPict = $hotel->GetGambars();
+
+				$arrAddedPict = array();
+				$arrAddedPictId = array();
+				$utamaInNew = false;
+				$selectedUtama = 0;
+				foreach( $post_gambararr as $newPict) {
+					$isNew = true;
+					foreach( $arrOldPict as $oldPict) {
+						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+							$isNew = false;
+							break;
+						}
+					}
+					$arrAddedPict[] = $isNew;
+					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+					if( $isNew ) {
+						$arrAddedPictId[] = $newPict;
+						if( $newPict['utama'] == 1){
+							$utamaInNew = true;
+						}
+					}
+				}
+
+				// get deleted picture
+				$arrDelPict = array();
+				$arrDelPictId = array();
+				$utamaInDel = false;
+				foreach( $arrOldPict as $oldPict) {
+					$isDel = true;
+					foreach( $post_gambararr as $newPict) {
+						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+							$isDel = false;
+							break;
+						}
+					}
+					$arrDelPict[] = $isDel;
+					if( $isDel ) {
+						$arrDelPictId[] = $oldPict;
+						if( $oldPict->GetPostId() == 1){
+							$utamaInDel = true;
+						}
+					}
+				}
+
+				if( !$utamaInNew && !$utamaInDel ) {
+					// update gambar utama
+					foreach ( $arrOldPict as $oldPict ) {
+						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+							$result = $oldPict->SetAsGambarUtama();
+							break;
+						}
+					}
+				}
+
+				// delete old picture
+				if ( sizeof( $arrDelPictId ) > 0 ) {
+					foreach( $arrDelPictId as $delGbr ) {
+						$result = $delGbr->Delete();
+					}
+				}
+
+				// add new picture
+				if( sizeof( $arrAddedPictId ) > 0 ) {
+					if( $utamaInNew ) {
+						$temp_gbr = new Sltg_Gambar();
+						$temp_gbr->SetOwner( $hotel->GetPictCode() );
+						$temp_gbr->ClearSelectedUtama();
+					}
+					$result = $this->add_picture( 'hotel', $hotel->GetPictCode(), $arrAddedPictId );
+				}
+
+				if ( $oldData !== $newData ) {
+					$hotel->SetNama( $post_nama );
+					$hotel->SetDeskripsi( $post_deskripsi );
+					$hotel->SetOther( $post_infolain );
+					$hotel->SetAlamat( $post_alamat );
+					$hotel->SetTelp( $post_telp );
+					$result = $hotel->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
 	}
 }

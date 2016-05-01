@@ -1,1 +1,3 @@
 clean $attributes['kategori'] -> UKM, PERSONAL
+
+delete HOTEL (wait for Kamar)

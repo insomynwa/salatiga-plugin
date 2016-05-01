@@ -54,6 +54,11 @@ class Salatiga_Plugin_Controller {
 				$attributes[ 'listfor' ] = 'music';
 				$option_limit_name = "music_list_limit";
 			}
+			else if( $get_listfor == 'hotel' ) {
+				$obj = new Sltg_Hotel();
+				$attributes[ 'listfor' ] = 'hotel';
+				$option_limit_name = "hotel_list_limit";
+			}
 			update_option( $option_limit_name, $get_limit );
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
 
@@ -114,6 +119,11 @@ class Salatiga_Plugin_Controller {
 				$obj = new Sltg_Music();
 				$dir_obj = "music-list-template";
 			}
+			else if( $get_listfor == 'hotel' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Hotel();
+				$dir_obj = "hotel-list-template";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -139,6 +149,11 @@ class Salatiga_Plugin_Controller {
 					$music = new Sltg_Music();
 					$music->HasID( $row->id_music );
 					$arrObj['music'][] = $music;
+				}
+				else if( $get_listfor == 'hotel' ){
+					$hotel = new Sltg_Hotel();
+					$hotel->HasID( $row->id_hotel );
+					$arrObj['hotel'][] = $hotel;
 				}
 			}
 
