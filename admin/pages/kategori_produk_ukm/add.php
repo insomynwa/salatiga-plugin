@@ -33,7 +33,4 @@
 	</form>
 </div>
 <div class="plugin-content-link">
-	<!-- <button id="add-katprodukukm" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-katprodukukm">
-		<span class="glyphicon glyphicon-plus"></span> Add
-	</button> -->
 </div>

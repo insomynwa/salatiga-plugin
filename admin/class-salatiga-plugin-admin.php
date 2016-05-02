@@ -106,6 +106,16 @@ class Salatiga_Plugin_Admin {
 			'sltg-hotel',
 			array( $this, 'render_hotel_page' )
 			);
+
+		// Kategori Craft
+		add_submenu_page(
+			null,
+			'Category Craft',
+			'Category Craft',
+			'manage_options',
+			'sltg-katcraft',
+			array( $this, 'render_katcraft_page' )
+			);
 	}
 
 	// Render Main Page
@@ -574,6 +584,11 @@ class Salatiga_Plugin_Admin {
 				$attributes[ 'listfor' ] = 'hotel';
 				$option_limit_name = "hotel_list_limit";
 			}
+			else if( $get_listfor == 'katcraft' ) {
+				$obj = new Sltg_Kategori_Craft();
+				$attributes[ 'listfor' ] = 'katcraft';
+				$option_limit_name = "katcraft_list_limit";
+			}
 			update_option( $option_limit_name, $get_limit );
 
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
@@ -658,6 +673,11 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Hotel();
 				$dir_obj = "hotel";
 			}
+			else if( $get_listfor == 'katcraft' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Kategori_Craft();
+				$dir_obj = "kategori_craft";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -698,6 +718,11 @@ class Salatiga_Plugin_Admin {
 					$hotel = new Sltg_Hotel();
 					$hotel->HasID( $row->id_hotel );
 					$arrObj['hotel'][] = $hotel;
+				}
+				else if( $get_listfor == 'katcraft' ){
+					$katcraft = new Sltg_Kategori_Craft();
+					$katcraft->HasID( $row->id_kategori );
+					$arrObj['katcraft'][] = $katcraft;
 				}
 			}
 			//var_dump( $arrObj );
@@ -1754,5 +1779,59 @@ class Salatiga_Plugin_Admin {
 		echo wp_json_encode( $result );
 
 		wp_die();
+	}
+
+	// Render Kategori Craft page
+	public function render_katcraft_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'katcraft' ] ) && ($_GET[ 'katcraft' ] > 0) ) {
+				$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Kategori_Craft();
+				$obj->HasID( $get_katcraft_id );
+				$attributes[ 'katcraft' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'katcraft' ] ) && ( $_GET[ 'katcraft' ] > 0 ) ) {
+				$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Kategori_Craft();
+				$obj->HasID( $get_katcraft_id );
+				$attributes[ 'katcraft' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/kategori_craft', $action_template, $attributes, TRUE );
+			$this->get_html_template( 'pages', 'template', $content );
+		}
+		else {
+			$obj = new Sltg_Kategori_Craft();
+			$content = $this->get_html_template( 'pages/kategori_craft', 'main', null, TRUE);
+			$this->get_html_template( 'pages', 'template', $content );
+		}
 	}
 }

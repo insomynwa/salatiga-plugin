@@ -14,7 +14,7 @@ class Salatiga_Plugin {
 
 		$this->plugin_slug = 'salatiga-plugin-slug';
 		$this->version = '0.1.0';
-		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar", 'music', 'music_genre', 'hotel' );
+		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar", 'music', 'music_genre', 'hotel', 'kategori_craft' );
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();
