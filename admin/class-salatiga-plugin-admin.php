@@ -130,26 +130,14 @@ class Salatiga_Plugin_Admin {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_UKM();
 
-			$obj->HasID( $get_detail );
-			$attributes[ 'ukm' ] = $obj;
-
-			$content = $this->get_html_template( 'pages/ukm', 'detail', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			$content = $this->load_detail( $obj, $get_detail, "ukm", "ukm");
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-
-			$obj_kat = new Sltg_Kategori_Product_UKM();
-			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
 
-			$persons = $obj_person->DataList();
-			foreach( $persons as $p ){
-				$person = new Sltg_Personal();
-				$person->HasID( $p->id_personal );
-				$attributes[ 'person' ][] = $person;
-			}
+			$attributes[ 'person' ] = $this->get_array_datalist( 'person' );
 
 			$action_template = "";
 			if( $get_action == "create-new" ){
@@ -161,41 +149,40 @@ class Salatiga_Plugin_Admin {
 						$attributes[ 'message' ] = "Success Bro!";
 					}
 				}
-			}
-			else if( $get_action == "edit" && isset( $_GET[ 'ukm' ] ) && ($_GET[ 'ukm' ] > 0) ) {
-				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
+			}else {
+				if ( isset( $_GET[ 'ukm' ] ) && ($_GET[ 'ukm' ] > 0) ) {
+					$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
-				$action_template = "edit";
+					if( $get_action == "edit" ) {
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_UKM();
+					$obj->HasID( $get_ukm_id );
+					$attributes[ 'ukm' ] = $obj;
 				}
-
-				$obj = new Sltg_UKM();
-				$obj->HasID( $get_ukm_id );
-				$attributes[ 'ukm' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'ukm' ] ) && ( $_GET[ 'ukm' ] > 0 ) ) {
-				$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_UKM();
-				$obj->HasID( $get_ukm_id );
-				$attributes[ 'ukm' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/ukm', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
 			$obj = new Sltg_UKM();
 			$content = $this->get_html_template( 'pages/ukm', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}
+
+		$this->get_html_template( 'pages', 'template', $content );
 	}
 	// Render Product page
 	public function render_product_page(){
@@ -204,32 +191,16 @@ class Salatiga_Plugin_Admin {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Product();
 
-			$obj->HasID( $get_detail );
-			$attributes[ 'product' ] = $obj;
-
-			$content = $this->get_html_template( 'pages/product', 'detail', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			$content = $this->load_detail( $obj, $get_detail, "product", "product" );
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
 
-			$obj_kat = new Sltg_Kategori_Product_UKM();
-			$obj_ukm = new Sltg_UKM();
-			
 			$attributes = array();
-			$kats = $obj_kat->Datalist();
-			foreach( $kats as $kat ) {
-				$kategori = new Sltg_Kategori_Product_UKM();
-				$kategori->HasID( $kat->id_kategori );
-				$attributes[ 'kategori' ][] = $kategori;
-			}
 
-			$ukms = $obj_ukm->DataList();
-			foreach( $ukms as $ukm ){
-				$ukm_new = new Sltg_UKM();
-				$ukm_new->HasID( $ukm->id_ukm );
-				$attributes[ 'ukm' ][] = $ukm_new;
-			}
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'katprodukukm' );
+
+			$attributes[ 'ukm' ] = $this->get_array_datalist( 'ukm' );
 
 			$action_template = "";
 			if( $get_action == "create-new" ){
@@ -242,57 +213,45 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'product' ] ) && ($_GET[ 'product' ] > 0) ) {
-				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
+			else{
+				if( isset( $_GET[ 'product' ] ) && ($_GET[ 'product' ] > 0) ) {
+					$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
 
-				$action_template = "edit";
+					if( $get_action == "edit" ) {
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Product();
+					$obj->HasID( $get_product_id );
+					$attributes[ 'product' ] = $obj;
 				}
-
-				$obj = new Sltg_Product();
-				$obj->HasID( $get_product_id );
-				$attributes[ 'product' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'product' ] ) && ( $_GET[ 'product' ] > 0 ) ) {
-				$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Product();
-				$obj->HasID( $get_product_id );
-				$attributes[ 'product' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/product', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
-			$obj = new Sltg_Product();
-			$obj_kat = new Sltg_Kategori_Product_UKM();
-			$obj_ukm = new Sltg_UKM();
 
 			$attributes = array();
-			$kats = $obj_kat->Datalist();
-			foreach( $kats as $kat ) {
-				$kategori = new Sltg_Kategori_Product_UKM();
-				$kategori->HasID( $kat->id_kategori );
-				$attributes[ 'kategori' ][] = $kategori;
-			}
 
-			$ukms = $obj_ukm->DataList();
-			foreach( $ukms as $ukm ){
-				$ukm_new = new Sltg_UKM();
-				$ukm_new->HasID( $ukm->id_ukm );
-				$attributes[ 'ukm' ][] = $ukm_new;
-			}
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'katprodukukm' );
+
+			$attributes[ 'ukm' ] = $this->get_array_datalist( 'ukm' );
+
 			$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}	
+		$this->get_html_template( 'pages', 'template', $content );
 	}
 	// Render Personal page
 	public function render_personal_page(){
@@ -300,26 +259,12 @@ class Salatiga_Plugin_Admin {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Personal();
 
-			$obj->HasID( $get_detail );
-			$attributes[ 'person' ] = $obj;
-
-			$content = $this->get_html_template( 'pages/personal', 'detail', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			$content = $this->load_detail( $obj, $get_detail, "person", "personal");
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-
-			$obj_kat = new Sltg_Kategori_Product_UKM();
-			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
-
-			$persons = $obj_person->DataList();
-			foreach( $persons as $p ){
-				$person = new Sltg_Personal();
-				$person->HasID( $p->id_personal );
-				$attributes[ 'person' ][] = $person;
-			}
 
 			$action_template = "";
 			if( $get_action == "create-new" ){
@@ -332,41 +277,41 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'person' ] ) && ($_GET[ 'person' ] > 0) ) {
-				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+			else {
+				if( isset( $_GET[ 'person' ] ) && ($_GET[ 'person' ] > 0) ) {
+					$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
+					if( $get_action == "edit" ) {
 
-				$action_template = "edit";
+						$action_template = "edit";
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+
+					}
+
+					$obj = new Sltg_Personal();
+					$obj->HasID( $get_person_id );
+					$attributes[ 'person' ] = $obj;
 				}
-
-				$obj = new Sltg_Personal();
-				$obj->HasID( $get_person_id );
-				$attributes[ 'person' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'person' ] ) && ( $_GET[ 'person' ] > 0 ) ) {
-				$get_person_id = sanitize_text_field( $_GET[ 'person' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Personal();
-				$obj->HasID( $get_person_id );
-				$attributes[ 'person' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/personal', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
-			$obj = new Sltg_Personal();
+
 			$content = $this->get_html_template( 'pages/personal', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
 	}
+
 	// Render Kategori Produk UKM page
 	public function render_katprodukukm(){
 		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
@@ -385,74 +330,57 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'katprodukukm' ] ) && ($_GET[ 'katprodukukm' ] > 0) ) {
-				$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
+			else {
+				if( isset( $_GET[ 'katprodukukm' ] ) && ($_GET[ 'katprodukukm' ] > 0) ) {
+					$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
+					if( $get_action == "edit" ) {
+						$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
 
-				$action_template = "edit";
+						$action_template = "edit";
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Kategori_Product_UKM();
+					$obj->HasID( $get_katprodukukm_id );
+					$attributes[ 'katprodukukm' ] = $obj;
 				}
-
-				$obj = new Sltg_Kategori_Product_UKM();
-				$obj->HasID( $get_katprodukukm_id );
-				$attributes[ 'katprodukukm' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'katprodukukm' ] ) && ( $_GET[ 'katprodukukm' ] > 0 ) ) {
-				$get_katprodukukm_id = sanitize_text_field( $_GET[ 'katprodukukm' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Kategori_Product_UKM();
-				$obj->HasID( $get_katprodukukm_id );
-				$attributes[ 'katprodukukm' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/kategori_produk_ukm', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
-			$obj = new Sltg_Kategori_Product_UKM();
+
 			$content = $this->get_html_template( 'pages/kategori_produk_ukm', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
 	}
+
 	// Render Personal page
 	public function render_music_page(){
 		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Music();
 
-			$obj->HasID( $get_detail );
-			$attributes[ 'music' ] = $obj;
-
-			$content = $this->get_html_template( 'pages/music', 'detail', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			$content = $this->load_detail( $obj, $get_detail, "music", "music");
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-
-			$obj_genre = new Sltg_Genre_Music();
-			$obj_person = new Sltg_Personal();
 			
 			$attributes = array();
 
-			$genres = $obj_genre->Datalist();
-			foreach( $genres as $g ) {
-				$genre = new Sltg_Genre_Music();
-				$genre->HasID( $g->id_genre );
-				$attributes[ 'genre' ][] = $genre;
-			}
+			$attributes[ 'genre' ] = $this->get_array_datalist( 'genre_music' );
 
-			$persons = $obj_person->DataList();
-			foreach( $persons as $p ){
-				$person = new Sltg_Personal();
-				$person->HasID( $p->id_personal );
-				$attributes[ 'person' ][] = $person;
-			}
+			$attributes[ 'person' ] = $this->get_array_datalist( 'person' );
 
 			$action_template = "";
 			if( $get_action == "create-new" ){
@@ -465,49 +393,42 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'music' ] ) && ($_GET[ 'music' ] > 0) ) {
-				$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
+			else {
+				if( isset( $_GET[ 'music' ] ) && ($_GET[ 'music' ] > 0) ) {
+					$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
+					if( $get_action == "edit" ) {
 
-				$action_template = "edit";
+						$action_template = "edit";
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+						$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Music();
+					$obj->HasID( $get_music_id );
+					$attributes[ 'music' ] = $obj;
 				}
-
-				$obj = new Sltg_Music();
-				$obj->HasID( $get_music_id );
-				$attributes[ 'music' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'music' ] ) && ( $_GET[ 'music' ] > 0 ) ) {
-				$get_music_id = sanitize_text_field( $_GET[ 'music' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Music();
-				$obj->HasID( $get_music_id );
-				$attributes[ 'music' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/music', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
-			$obj = new Sltg_Music();
-			$obj_genre = new Sltg_Genre_Music();
 
 			$attributes = array();
-			$genres = $obj_genre->Datalist();
-			foreach( $genres as $g ) {
-				$genre = new Sltg_Genre_Music();
-				$genre->HasID( $g->id_genre );
-				$attributes[ 'genre' ][] = $genre;
-			}
+
+			$attributes[ 'genre' ] = $this->get_array_datalist( 'genre_music' );
 			$content = $this->get_html_template( 'pages/music', 'main', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
 	}
 
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
@@ -589,6 +510,7 @@ class Salatiga_Plugin_Admin {
 				$attributes[ 'listfor' ] = 'katcraft';
 				$option_limit_name = "katcraft_list_limit";
 			}
+
 			update_option( $option_limit_name, $get_limit );
 
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
@@ -599,13 +521,13 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
-	private function create_pagination( $obj, /*$limit_opt,*/ $limit, $search = "", $kategori = 0 ) {
+	private function create_pagination( $obj, $limit, $search = "", $kategori = 0 ) {
 
 		$jumlah_data = $obj->CountData( $search, $kategori );
-		//update_option( $limit_opt, $limit );
+
 		$jumlah_page = intval( $jumlah_data / $limit );
 		if( $jumlah_data % $limit > 0 ) $jumlah_page += 1;
-		//var_dump($limit_opt, $limit, $jumlah_data, $jumlah_page);die;
+
 		return $jumlah_page;
 	}
 
@@ -639,42 +561,34 @@ class Salatiga_Plugin_Admin {
 			$dir_obj = "";
 
 			if( $get_listfor == 'personal' ) {
-				//require( 'models/personal.php' );
 				$obj = new Sltg_Personal();
 				$dir_obj = "personal";
 			}
 			else if( $get_listfor == 'product' ) {
-				//require( 'models/product.php' );
 				$obj = new Sltg_Product();
 				$dir_obj = "product";
 			}
 			else if( $get_listfor == 'ukm' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_UKM();
 				$dir_obj = "ukm";
 			}
 			else if( $get_listfor == 'katprodukukm' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_Kategori_Product_UKM();
 				$dir_obj = "kategori_produk_ukm";
 			}
 			else if( $get_listfor == 'music' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_Music();
 				$dir_obj = "music";
 			}
 			else if( $get_listfor == 'genre' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_Genre_Music();
 				$dir_obj = "genre";
 			}
 			else if( $get_listfor == 'hotel' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_Hotel();
 				$dir_obj = "hotel";
 			}
 			else if( $get_listfor == 'katcraft' ) {
-				//require( 'models/ukm.php' );
 				$obj = new Sltg_Kategori_Craft();
 				$dir_obj = "kategori_craft";
 			}
@@ -725,7 +639,7 @@ class Salatiga_Plugin_Admin {
 					$arrObj['katcraft'][] = $katcraft;
 				}
 			}
-			//var_dump( $arrObj );
+
 			$this->get_html_template( 'pages/' . $dir_obj, 'list', $arrObj , false);
 		}
 		wp_die();
@@ -925,37 +839,17 @@ class Salatiga_Plugin_Admin {
 
 	private function add_picture( $type_pict, $pict_code, $pictureArr ) {
 		$result = array();
-		/*if ( $type_pict == "produk" ){
-			$table = "ext_gambar_produk";
-		}*/
 
 		$gambar = new Sltg_Gambar();
-		// if ( $type_pict == "produk" ){
-			$gambar->SetOwner( $pict_code );
-			//$gambar_utama = 1;
-			for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
-				//$gambar->SetGambarUtama( $gambar_utama );
-				$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
-				$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
-				$gambar->SetDeskripsi( "" );
-				$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
-				$result = $gambar->AddNew();
-				/*$gambar_utama = 0;*/
-			}
-		// }
-		// else if ( $type_pict == "ukm" ){
-		// 	$gambar->SetOwner( $pict_code );
-		// 	//$gambar_utama = 1;
-		// 	for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
-		// 		//$gambar->SetGambarUtama( $gambar_utama );
-		// 		$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
-		// 		$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
-		// 		$gambar->SetDeskripsi( "" );
-		// 		$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
-		// 		$result = $gambar->AddNew();
-		// 		/*$gambar_utama = 0;*/
-		// 	}
-		// }
+		$gambar->SetOwner( $pict_code );
+
+		for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
+			$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
+			$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
+			$gambar->SetDeskripsi( "" );
+			$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
+			$result = $gambar->AddNew();
+		}
 
 		return $result;
 	}
@@ -1075,9 +969,6 @@ class Salatiga_Plugin_Admin {
 			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
 			$post_founder = sanitize_text_field( $_POST[ 'founder' ] );
 			$post_gambararr = $_POST[ 'gambararr' ] ;
-			//var_dump($post_gambararr[0]['fname']);die;
-			//print_r($post_gambararr);
-
 
 			$post_not_empty = ($post_ukm_id > 0) && ($post_nama!="") && ($post_alamat!="") && ($post_founder>0) && (sizeof($post_gambararr)>0);
 
@@ -1106,9 +997,7 @@ class Salatiga_Plugin_Admin {
 
 				// compare Picture
 				$arrOldPict = $ukm->GetGambars();
-				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
-				// if( $sameSize ) {
-					// get added Picture
+
 				$arrAddedPict = array();
 				$arrAddedPictId = array();
 				$utamaInNew = false;
@@ -1206,7 +1095,7 @@ class Salatiga_Plugin_Admin {
 		$result = array( 'status' => false, 'message' => '' );
 		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
 			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
-		// var_dump($_POST);
+
 		if( $post_isset ) {
 			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
 			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
@@ -1249,7 +1138,6 @@ class Salatiga_Plugin_Admin {
 		$post_isset = isset( $_POST[ 'person' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
 			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
 		
-		//var_dump($_POST);
 		if( $post_isset ) {
 			$post_person_id = sanitize_text_field( $_POST[ 'person' ] );
 			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
@@ -1258,9 +1146,6 @@ class Salatiga_Plugin_Admin {
 			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
 			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
 			$post_gambararr = $_POST[ 'gambararr' ] ;
-			//var_dump($post_gambararr[0]['fname']);die;
-			//print_r($post_gambararr);
-
 
 			$post_not_empty = ($post_person_id>0) && ($post_nama!="") && (sizeof($post_gambararr)>0);
 
@@ -1287,9 +1172,7 @@ class Salatiga_Plugin_Admin {
 
 				// compare Picture
 				$arrOldPict = $person->GetGambars();
-				//$sameSize = ( sizeof( $arrOldPict ) == sizeof( $post_gambararr ) );
-				// if( $sameSize ) {
-					// get added Picture
+
 				$arrAddedPict = array();
 				$arrAddedPictId = array();
 				$utamaInNew = false;
@@ -1533,13 +1416,14 @@ class Salatiga_Plugin_Admin {
 			}
 
 			$content = $this->get_html_template( 'pages/genre', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
+			// $this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
 			$obj = new Sltg_Genre_Music();
 			$content = $this->get_html_template( 'pages/genre', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			// $this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
 	}
 
 	// Render Hotel page
@@ -1548,11 +1432,13 @@ class Salatiga_Plugin_Admin {
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Hotel();
 
-			$obj->HasID( $get_detail );
-			$attributes[ 'hotel' ] = $obj;
+			$content = $this->load_detail( $obj, $get_detail, "hotel", "hotel");
 
-			$content = $this->get_html_template( 'pages/hotel', 'detail', $attributes, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			// $obj->HasID( $get_detail );
+			// $attributes[ 'hotel' ] = $obj;
+
+			// $content = $this->get_html_template( 'pages/hotel', 'detail', $attributes, TRUE);
+			// $this->get_html_template( 'pages', 'template', $content );
 		}
 		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
 			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
@@ -1597,13 +1483,14 @@ class Salatiga_Plugin_Admin {
 			}
 
 			$content = $this->get_html_template( 'pages/hotel', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
+			// $this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
 			$obj = new Sltg_Hotel();
 			$content = $this->get_html_template( 'pages/hotel', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
+			// $this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
 	}
 
 	public function create_hotel() {
@@ -1799,39 +1686,92 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 			}
-			else if( $get_action == "edit" && isset( $_GET[ 'katcraft' ] ) && ($_GET[ 'katcraft' ] > 0) ) {
-				$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
+			else {
+				if( isset( $_GET[ 'katcraft' ] ) && ($_GET[ 'katcraft' ] > 0) ) {
+					$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
+					if( $get_action == "edit" ) {
 
-				$action_template = "edit";
+						$action_template = "edit";
 
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
 					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Kategori_Craft();
+					$obj->HasID( $get_katcraft_id );
+					$attributes[ 'katcraft' ] = $obj;
 				}
-
-				$obj = new Sltg_Kategori_Craft();
-				$obj->HasID( $get_katcraft_id );
-				$attributes[ 'katcraft' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'katcraft' ] ) && ( $_GET[ 'katcraft' ] > 0 ) ) {
-				$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Kategori_Craft();
-				$obj->HasID( $get_katcraft_id );
-				$attributes[ 'katcraft' ] = $obj;
 			}
 
 			$content = $this->get_html_template( 'pages/kategori_craft', $action_template, $attributes, TRUE );
-			$this->get_html_template( 'pages', 'template', $content );
 		}
 		else {
-			$obj = new Sltg_Kategori_Craft();
 			$content = $this->get_html_template( 'pages/kategori_craft', 'main', null, TRUE);
-			$this->get_html_template( 'pages', 'template', $content );
 		}
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
+	/*
+		Parameters:
+		obj
+		id
+		attribute's key
+		location (directory & filename)
+	*/
+	private function load_detail( $obj, $id_detail, $att_key, $dir) {
+
+		$obj->HasID( $id_detail );
+		$attributes[ "$att_key" ] = $obj;
+
+		$content = $this->get_html_template( 'pages/' . $dir, "detail" , $attributes, TRUE);
+		return $content;
+	}
+
+	private function get_array_datalist( $listof ) {
+		$attributes = array();
+
+		if( $listof == 'katprodukukm' ) {
+			$obj_kat = new Sltg_Kategori_Product_UKM();
+			$kats = $obj_kat->Datalist();
+			foreach( $kats as $kat ) {
+				$kategori = new Sltg_Kategori_Product_UKM();
+				$kategori->HasID( $kat->id_kategori );
+				$attributes[] = $kategori;
+			}
+		}else if( $listof == 'ukm' ) {
+			$obj_ukm = new Sltg_UKM();
+			$ukms = $obj_ukm->DataList();
+			foreach( $ukms as $ukm ){
+				$ukm_new = new Sltg_UKM();
+				$ukm_new->HasID( $ukm->id_ukm );
+				$attributes[] = $ukm_new;
+			}
+		}else if( $listof == 'genre_music' ) {
+			$obj_genre = new Sltg_Genre_Music();
+			$genres = $obj_genre->Datalist();
+			foreach( $genres as $g ) {
+				$genre = new Sltg_Genre_Music();
+				$genre->HasID( $g->id_genre );
+				$attributes[] = $genre;
+			}
+		}else if( $listof == 'person' ) {
+			$obj_person = new Sltg_Personal();
+			$persons = $obj_person->DataList();
+			foreach( $persons as $p ){
+				$person = new Sltg_Personal();
+				$person->HasID( $p->id_personal );
+				$attributes[] = $person;
+			}
+		}
+
+		return $attributes;
 	}
 }
