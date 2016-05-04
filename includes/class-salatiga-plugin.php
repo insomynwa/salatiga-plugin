@@ -28,6 +28,8 @@ class Salatiga_Plugin {
 
 		require_once plugin_dir_path( __FILE__ ) . 'class-salatiga-plugin-loader.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/interfaces/IListItem.php';
+
 		foreach( $this->models as $model ) {
 			require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/models/'. $model . '.php';
 		}

@@ -1,8 +1,16 @@
 <?php
 
-class Sltg_Personal {
+class Sltg_Personal implements iListItem {
 
 	private $table_name;
+
+	private $listfor;
+	public function iSet_Listfor( $listfor ) { $this->listfor = $listfor; }
+	public function iGet_Listfor() { return $this->listfor; }
+
+	private $limit_name;
+	public function iSet_LimitName( $limit_name ) { $this->limit_name = $limit_name; }
+	public function iGet_LimitName() { return $this->limit_name; }
 
 	private $id;
 	public function GetID(){ return $this->id; }
@@ -75,6 +83,9 @@ class Sltg_Personal {
 
 	function __construct() {
 		$this->table_name = "ext_personal";
+
+		$this->iSet_Listfor( 'personal' );
+		$this->iSet_LimitName( 'personal_list_limit' );
 	}
 
 	public function HasID( $personal_id = 0){

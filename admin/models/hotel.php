@@ -1,8 +1,16 @@
 <?php
 
-class Sltg_Hotel {
+class Sltg_Hotel implements IListItem{
 
 	private $table_name;
+
+	private $listfor;
+	public function iSet_Listfor( $listfor ) { $this->listfor = $listfor; }
+	public function iGet_Listfor() { return $this->listfor; }
+
+	private $limit_name;
+	public function iSet_LimitName( $limit_name ) { $this->limit_name = $limit_name; }
+	public function iGet_LimitName() { return $this->limit_name; }
 
 	private $id;
 	public function GetId(){ return $this->id; }
@@ -83,6 +91,9 @@ class Sltg_Hotel {
 
 	function __construct() {
 		$this->table_name = "ext_hotel";
+
+		$this->iSet_Listfor( 'hotel' );
+		$this->iSet_LimitName( 'hotel_list_limit' );
 		$this->products = array();
 	}
 

@@ -149,7 +149,8 @@ class Salatiga_Plugin_Admin {
 						$attributes[ 'message' ] = "Success Bro!";
 					}
 				}
-			}else {
+			}
+			else {
 				if ( isset( $_GET[ 'ukm' ] ) && ($_GET[ 'ukm' ] > 0) ) {
 					$get_ukm_id = sanitize_text_field( $_GET[ 'ukm' ] );
 
@@ -184,9 +185,10 @@ class Salatiga_Plugin_Admin {
 
 		$this->get_html_template( 'pages', 'template', $content );
 	}
+
 	// Render Product page
 	public function render_product_page(){
-		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail'] > 0) {
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0) {
 
 			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
 			$obj = new Sltg_Product();
@@ -208,6 +210,7 @@ class Salatiga_Plugin_Admin {
 
 				if( isset( $_GET[ 'status' ] )) {
 					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+
 					if( $get_status == 'success' ) {
 						$attributes[ 'message' ] = "Success Bro!";
 					}
@@ -218,7 +221,6 @@ class Salatiga_Plugin_Admin {
 					$get_product_id = sanitize_text_field( $_GET[ 'product' ] );
 
 					if( $get_action == "edit" ) {
-
 						$action_template = "edit";
 
 						if( isset( $_GET[ 'status' ] )) {
@@ -229,7 +231,6 @@ class Salatiga_Plugin_Admin {
 						}
 					}
 					else if( $get_action == 'delete' ) {
-
 						$action_template = 'delete';
 					}
 
@@ -242,17 +243,16 @@ class Salatiga_Plugin_Admin {
 			$content = $this->get_html_template( 'pages/product', $action_template, $attributes, TRUE );
 		}
 		else {
-
 			$attributes = array();
 
 			$attributes[ 'kategori' ] = $this->get_array_datalist( 'katprodukukm' );
-
 			$attributes[ 'ukm' ] = $this->get_array_datalist( 'ukm' );
 
 			$content = $this->get_html_template( 'pages/product', 'main', $attributes, TRUE);
 		}	
 		$this->get_html_template( 'pages', 'template', $content );
 	}
+
 	// Render Personal page
 	public function render_personal_page(){
 		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
@@ -430,6 +430,169 @@ class Salatiga_Plugin_Admin {
 		}
 		$this->get_html_template( 'pages', 'template', $content );
 	}
+	
+	// Render Genre
+	public function render_genre_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'genre' ] ) && ($_GET[ 'genre' ] > 0) ) {
+				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Genre_Music();
+				$obj->HasID( $get_genre_id );
+				$attributes[ 'genre' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'genre' ] ) && ( $_GET[ 'genre' ] > 0 ) ) {
+				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Genre_Music();
+				$obj->HasID( $get_genre_id );
+				$attributes[ 'genre' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/genre', $action_template, $attributes, TRUE );
+		}
+		else {
+			$obj = new Sltg_Genre_Music();
+			$content = $this->get_html_template( 'pages/genre', 'main', null, TRUE);
+		}
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
+	// Render Hotel page
+	public function render_hotel_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Hotel();
+
+			$content = $this->load_detail( $obj, $get_detail, "hotel", "hotel");
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else if( $get_action == "edit" && isset( $_GET[ 'hotel' ] ) && ($_GET[ 'hotel' ] > 0) ) {
+				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
+
+				$action_template = "edit";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+
+				$obj = new Sltg_Hotel();
+				$obj->HasID( $get_hotel_id );
+				$attributes[ 'hotel' ] = $obj;
+			}
+			else if( $get_action == 'delete' && isset( $_GET[ 'hotel' ] ) && ( $_GET[ 'hotel' ] > 0 ) ) {
+				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
+
+				$action_template = 'delete';
+
+				$obj = new Sltg_Hotel();
+				$obj->HasID( $get_hotel_id );
+				$attributes[ 'hotel' ] = $obj;
+			}
+
+			$content = $this->get_html_template( 'pages/hotel', $action_template, $attributes, TRUE );
+		}
+		else {
+			$obj = new Sltg_Hotel();
+			$content = $this->get_html_template( 'pages/hotel', 'main', null, TRUE);
+		}
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
+	// Render Kategori Craft page
+	public function render_katcraft_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else {
+				if( isset( $_GET[ 'katcraft' ] ) && ($_GET[ 'katcraft' ] > 0) ) {
+					$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
+					if( $get_action == "edit" ) {
+
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Kategori_Craft();
+					$obj->HasID( $get_katcraft_id );
+					$attributes[ 'katcraft' ] = $obj;
+				}
+			}
+
+			$content = $this->get_html_template( 'pages/kategori_craft', $action_template, $attributes, TRUE );
+		}
+		else {
+			$content = $this->get_html_template( 'pages/kategori_craft', 'main', null, TRUE);
+		}
+		$this->get_html_template( 'pages', 'template', $content );
+	}
 
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
@@ -471,45 +634,46 @@ class Salatiga_Plugin_Admin {
 			$option_limit_name = "";
 			if( $get_listfor == 'personal' ){
 				$obj = new Sltg_Personal();
-				$attributes[ 'listfor' ] = 'personal';
-				$option_limit_name = "personal_list_limit";
+				// $attributes[ 'listfor' ] = 'personal';
+				// $option_limit_name = "personal_list_limit";
 			}
 			else if( $get_listfor == 'product' ) {
 				$obj = new Sltg_Product();
-				$attributes[ 'listfor' ] = 'product';
-				$option_limit_name = "product_list_limit";
+				// $attributes[ 'listfor' ] = 'product';
+				// $option_limit_name = "product_list_limit";
 			}
 			else if( $get_listfor == 'ukm' ) {
-				//require( 'models/ukm.php');
 				$obj = new Sltg_UKM();
-				$attributes[ 'listfor' ] = 'ukm';
-				$option_limit_name = "ukm_list_limit";
+				// $attributes[ 'listfor' ] = 'ukm';
+				// $option_limit_name = "ukm_list_limit";
 			}
 			else if( $get_listfor == 'katprodukukm' ) {
 				$obj = new Sltg_Kategori_Product_UKM();
-				$attributes[ 'listfor' ] = 'katprodukukm';
-				$option_limit_name = "katprodukukm_list_limit";
+				// $attributes[ 'listfor' ] = 'katprodukukm';
+				// $option_limit_name = "katprodukukm_list_limit";
 			}
 			else if( $get_listfor == 'music' ) {
 				$obj = new Sltg_Music();
-				$attributes[ 'listfor' ] = 'music';
-				$option_limit_name = "music_list_limit";
+				// $attributes[ 'listfor' ] = 'music';
+				// $option_limit_name = "music_list_limit";
 			}
 			else if( $get_listfor == 'genre' ) {
 				$obj = new Sltg_Genre_Music();
-				$attributes[ 'listfor' ] = 'genre';
-				$option_limit_name = "genre_list_limit";
+				// $attributes[ 'listfor' ] = 'genre';
+				// $option_limit_name = "genre_list_limit";
 			}
 			else if( $get_listfor == 'hotel' ) {
 				$obj = new Sltg_Hotel();
-				$attributes[ 'listfor' ] = 'hotel';
-				$option_limit_name = "hotel_list_limit";
+				// $attributes[ 'listfor' ] = 'hotel';
+				// $option_limit_name = "hotel_list_limit";
 			}
 			else if( $get_listfor == 'katcraft' ) {
 				$obj = new Sltg_Kategori_Craft();
-				$attributes[ 'listfor' ] = 'katcraft';
-				$option_limit_name = "katcraft_list_limit";
+				// $attributes[ 'listfor' ] = 'katcraft';
+				// $option_limit_name = "katcraft_list_limit";
 			}
+			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
+			$option_limit_name = $obj->iGet_LimitName();
 
 			update_option( $option_limit_name, $get_limit );
 
@@ -647,7 +811,6 @@ class Salatiga_Plugin_Admin {
 
 	public function test( $times ) {
 		print str_repeat( ' foo ', (int) $times );
-		//wp_die();
 	}
 
 	public function create_product() {
@@ -786,8 +949,6 @@ class Salatiga_Plugin_Admin {
 					}
 				}
 
-				// var_dump( "select utama: ". $selectedUtama );
-
 				if( !$utamaInNew && !$utamaInDel ) {
 					// update gambar utama
 					foreach ( $arrOldPict as $oldPict ) {
@@ -914,7 +1075,7 @@ class Salatiga_Plugin_Admin {
 		$result = array( 'status' => false, 'message' => '' );
 		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
 			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'founder' ] ) && isset( $_POST[ 'gambararr' ] );
-		// var_dump($_POST);
+		
 		if( $post_isset ) {
 			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
 			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
@@ -1270,8 +1431,6 @@ class Salatiga_Plugin_Admin {
 		$post_isset = isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
 			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
 		
-		//var_dump($_POST);
-		
 		if( $post_isset ) {
 			$post_title = sanitize_text_field( $_POST[ 'title' ] );
 			$post_source = sanitize_text_field( $_POST[ 'source' ] );
@@ -1312,7 +1471,6 @@ class Salatiga_Plugin_Admin {
 		$post_isset = isset( $_POST[ 'music' ] ) && isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
 			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
 
-		//var_dump($_POST);
 		if( $post_isset ) {
 			$post_music_id = sanitize_text_field( $_POST[ 'music' ] );
 			$post_title = sanitize_text_field( $_POST[ 'title' ] );
@@ -1371,127 +1529,6 @@ class Salatiga_Plugin_Admin {
 
 		wp_die();
 	}
-	// Render Genre
-	public function render_genre_page(){
-		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
-			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-			
-			$attributes = array();
-
-			$action_template = "";
-			if( $get_action == "create-new" ){
-				$action_template = "add";
-
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
-					}
-				}
-			}
-			else if( $get_action == "edit" && isset( $_GET[ 'genre' ] ) && ($_GET[ 'genre' ] > 0) ) {
-				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
-
-				$action_template = "edit";
-
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
-					}
-				}
-
-				$obj = new Sltg_Genre_Music();
-				$obj->HasID( $get_genre_id );
-				$attributes[ 'genre' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'genre' ] ) && ( $_GET[ 'genre' ] > 0 ) ) {
-				$get_genre_id = sanitize_text_field( $_GET[ 'genre' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Genre_Music();
-				$obj->HasID( $get_genre_id );
-				$attributes[ 'genre' ] = $obj;
-			}
-
-			$content = $this->get_html_template( 'pages/genre', $action_template, $attributes, TRUE );
-			// $this->get_html_template( 'pages', 'template', $content );
-		}
-		else {
-			$obj = new Sltg_Genre_Music();
-			$content = $this->get_html_template( 'pages/genre', 'main', null, TRUE);
-			// $this->get_html_template( 'pages', 'template', $content );
-		}
-		$this->get_html_template( 'pages', 'template', $content );
-	}
-
-	// Render Hotel page
-	public function render_hotel_page(){
-		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0 ) {
-			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
-			$obj = new Sltg_Hotel();
-
-			$content = $this->load_detail( $obj, $get_detail, "hotel", "hotel");
-
-			// $obj->HasID( $get_detail );
-			// $attributes[ 'hotel' ] = $obj;
-
-			// $content = $this->get_html_template( 'pages/hotel', 'detail', $attributes, TRUE);
-			// $this->get_html_template( 'pages', 'template', $content );
-		}
-		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
-			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-			
-			$attributes = array();
-
-			$action_template = "";
-			if( $get_action == "create-new" ){
-				$action_template = "add";
-
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
-					}
-				}
-			}
-			else if( $get_action == "edit" && isset( $_GET[ 'hotel' ] ) && ($_GET[ 'hotel' ] > 0) ) {
-				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
-
-				$action_template = "edit";
-
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
-					}
-				}
-
-				$obj = new Sltg_Hotel();
-				$obj->HasID( $get_hotel_id );
-				$attributes[ 'hotel' ] = $obj;
-			}
-			else if( $get_action == 'delete' && isset( $_GET[ 'hotel' ] ) && ( $_GET[ 'hotel' ] > 0 ) ) {
-				$get_hotel_id = sanitize_text_field( $_GET[ 'hotel' ] );
-
-				$action_template = 'delete';
-
-				$obj = new Sltg_Hotel();
-				$obj->HasID( $get_hotel_id );
-				$attributes[ 'hotel' ] = $obj;
-			}
-
-			$content = $this->get_html_template( 'pages/hotel', $action_template, $attributes, TRUE );
-			// $this->get_html_template( 'pages', 'template', $content );
-		}
-		else {
-			$obj = new Sltg_Hotel();
-			$content = $this->get_html_template( 'pages/hotel', 'main', null, TRUE);
-			// $this->get_html_template( 'pages', 'template', $content );
-		}
-		$this->get_html_template( 'pages', 'template', $content );
-	}
 
 	public function create_hotel() {
 		$result = array( 'status' => false, 'message' => '' );
@@ -1540,7 +1577,6 @@ class Salatiga_Plugin_Admin {
 		$post_isset = isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
 			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
 		
-		//var_dump($_POST);
 		if( $post_isset ) {
 			$post_hotel_id = sanitize_text_field( $_POST[ 'hotel' ] );
 			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
@@ -1666,57 +1702,6 @@ class Salatiga_Plugin_Admin {
 		echo wp_json_encode( $result );
 
 		wp_die();
-	}
-
-	// Render Kategori Craft page
-	public function render_katcraft_page(){
-		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
-			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
-			
-			$attributes = array();
-
-			$action_template = "";
-			if( $get_action == "create-new" ){
-				$action_template = "add";
-
-				if( isset( $_GET[ 'status' ] )) {
-					$get_status = sanitize_text_field( $_GET[ 'status' ] );
-					if( $get_status == 'success' ) {
-						$attributes[ 'message' ] = "Success Bro!";
-					}
-				}
-			}
-			else {
-				if( isset( $_GET[ 'katcraft' ] ) && ($_GET[ 'katcraft' ] > 0) ) {
-					$get_katcraft_id = sanitize_text_field( $_GET[ 'katcraft' ] );
-					if( $get_action == "edit" ) {
-
-						$action_template = "edit";
-
-						if( isset( $_GET[ 'status' ] )) {
-							$get_status = sanitize_text_field( $_GET[ 'status' ] );
-							if( $get_status == 'success' ) {
-								$attributes[ 'message' ] = "Success Bro!";
-							}
-						}
-					}
-					else if( $get_action == 'delete' ) {
-
-						$action_template = 'delete';
-					}
-
-					$obj = new Sltg_Kategori_Craft();
-					$obj->HasID( $get_katcraft_id );
-					$attributes[ 'katcraft' ] = $obj;
-				}
-			}
-
-			$content = $this->get_html_template( 'pages/kategori_craft', $action_template, $attributes, TRUE );
-		}
-		else {
-			$content = $this->get_html_template( 'pages/kategori_craft', 'main', null, TRUE);
-		}
-		$this->get_html_template( 'pages', 'template', $content );
 	}
 
 	/*

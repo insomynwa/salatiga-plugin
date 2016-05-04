@@ -1,8 +1,16 @@
 <?php
 
-class Sltg_Genre_Music {
+class Sltg_Genre_Music implements IListItem{
 
 	private $table_name;
+
+	private $listfor;
+	public function iSet_Listfor( $listfor ) { $this->listfor = $listfor; }
+	public function iGet_Listfor() { return $this->listfor; }
+
+	private $limit_name;
+	public function iSet_LimitName( $limit_name ) { $this->limit_name = $limit_name; }
+	public function iGet_LimitName() { return $this->limit_name; }
 
 	private $id;
 	public function GetID(){ return $this->id; }
@@ -27,6 +35,9 @@ class Sltg_Genre_Music {
 
 	function __construct() {
 		$this->table_name = "ext_genre_music";
+
+		$this->iSet_Listfor( 'genre' );
+		$this->iSet_LimitName( 'genre_list_limit' );
 	}
 
 	public function HasID( $genre_id = 0){

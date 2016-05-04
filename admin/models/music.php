@@ -1,8 +1,16 @@
 <?php
 
-class Sltg_Music {
+class Sltg_Music implements IListItem{
 
 	private $table_name;
+
+	private $listfor;
+	public function iSet_Listfor( $listfor ) { $this->listfor = $listfor; }
+	public function iGet_Listfor() { return $this->listfor; }
+
+	private $limit_name;
+	public function iSet_LimitName( $limit_name ) { $this->limit_name = $limit_name; }
+	public function iGet_LimitName() { return $this->limit_name; }
 	/*private $creator_pict_name;*/
 
 	private $id;
@@ -42,6 +50,9 @@ class Sltg_Music {
 
 	function __construct() {
 		$this->table_name = 'ext_music';
+
+		$this->iSet_Listfor( 'music' );
+		$this->iSet_LimitName( 'music_list_limit' );
 
 		/*if( $table_name == 'ext_music_creator')
 			$this->creator_pict_name = 'creator';*/
