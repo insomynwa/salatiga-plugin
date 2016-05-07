@@ -76,7 +76,6 @@ class Salatiga_Plugin_Admin {
 			'sltg-katprodukukm',
 			array( $this, 'render_katprodukukm' )
 			);
-
 		// MUSIC
 		add_submenu_page(
 			null,
@@ -86,7 +85,6 @@ class Salatiga_Plugin_Admin {
 			'sltg-music',
 			array( $this, 'render_music_page' )
 			);
-
 		// GENRE
 		add_submenu_page(
 			null,
@@ -96,7 +94,6 @@ class Salatiga_Plugin_Admin {
 			'sltg-genre',
 			array( $this, 'render_genre_page' )
 			);
-
 		// Hotel
 		add_submenu_page(
 			null,
@@ -106,7 +103,6 @@ class Salatiga_Plugin_Admin {
 			'sltg-hotel',
 			array( $this, 'render_hotel_page' )
 			);
-
 		// Kategori Craft
 		add_submenu_page(
 			null,
@@ -115,6 +111,15 @@ class Salatiga_Plugin_Admin {
 			'manage_options',
 			'sltg-katcraft',
 			array( $this, 'render_katcraft_page' )
+			);
+		// Craft
+		add_submenu_page(
+			null,
+			'Craft',
+			'Craft',
+			'manage_options',
+			'sltg-craft',
+			array( $this, 'render_craft_page' )
 			);
 	}
 
@@ -594,6 +599,73 @@ class Salatiga_Plugin_Admin {
 		$this->get_html_template( 'pages', 'template', $content );
 	}
 
+	// Render Craft page
+	public function render_craft_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0) {
+
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Craft();
+
+			$content = $this->load_detail( $obj, $get_detail, "craft", "craft" );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$attributes = array();
+
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'katcraft' );
+
+			$attributes[ 'person' ] = $this->get_array_datalist( 'person' );
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else{
+				if( isset( $_GET[ 'craft' ] ) && ($_GET[ 'craft' ] > 0) ) {
+					$get_craft_id = sanitize_text_field( $_GET[ 'craft' ] );
+
+					if( $get_action == "edit" ) {
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Craft();
+					$obj->HasID( $get_craft_id );
+					$attributes[ 'craft' ] = $obj;
+				}
+			}
+
+			$content = $this->get_html_template( 'pages/craft', $action_template, $attributes, TRUE );
+		}
+		else {
+			$attributes = array();
+
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'katcraft' );
+			$attributes[ 'person' ] = $this->get_array_datalist( 'person' );
+
+			$content = $this->get_html_template( 'pages/craft', 'main', $attributes, TRUE);
+		}	
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -669,6 +741,11 @@ class Salatiga_Plugin_Admin {
 			}
 			else if( $get_listfor == 'katcraft' ) {
 				$obj = new Sltg_Kategori_Craft();
+				// $attributes[ 'listfor' ] = 'katcraft';
+				// $option_limit_name = "katcraft_list_limit";
+			}
+			else if( $get_listfor == 'craft' ) {
+				$obj = new Sltg_Craft();
 				// $attributes[ 'listfor' ] = 'katcraft';
 				// $option_limit_name = "katcraft_list_limit";
 			}
@@ -756,6 +833,10 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Kategori_Craft();
 				$dir_obj = "kategori_craft";
 			}
+			else if( $get_listfor == 'craft' ) {
+				$obj = new Sltg_Craft();
+				$dir_obj = "craft";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -802,6 +883,11 @@ class Salatiga_Plugin_Admin {
 					$katcraft->HasID( $row->id_kategori );
 					$arrObj['katcraft'][] = $katcraft;
 				}
+				else if( $get_listfor == 'craft' ){
+					$craft = new Sltg_Craft();
+					$craft->HasID( $row->id_craft );
+					$arrObj['craft'][] = $craft;
+				}
 			}
 
 			$this->get_html_template( 'pages/' . $dir_obj, 'list', $arrObj , false);
@@ -846,6 +932,53 @@ class Salatiga_Plugin_Admin {
 				$newProduct = new Sltg_Product();
 				$newProduct->HasID( $result[ 'new_id' ] );
 				$this->add_picture( 'produk', $newProduct->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_craft() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+
+			$post_not_empty = ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$craft = new Sltg_Craft();
+				$craft->SetNama( $post_nama );
+				$craft->SetDeskripsi( $post_deskripsi );
+				$craft->SetOther( $post_infolain );
+				$craft->SetKategori( $post_kategori );
+				$craft->SetProducer( $post_kreator );
+
+				$result = $craft->AddNew();
+				$newCraft = new Sltg_Craft();
+				$newCraft->HasID( $result[ 'new_id' ] );
+				$this->add_picture( 'craft', $newCraft->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -983,6 +1116,144 @@ class Salatiga_Plugin_Admin {
 					$product->SetKategori( $post_kategori );
 					$product->SetProducer( $post_kreator );
 					$result = $product->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function update_craft() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'craft' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		if( $post_isset ) {
+			$post_craft_id = sanitize_text_field( $_POST[ 'craft' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+
+			$post_not_empty = ($post_craft_id > 0) && ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$craft = new Sltg_Craft();
+				$craft->HasID( $post_craft_id );
+
+				// compare data
+				$oldData = array(
+					$craft->GetNama(), // nama craft
+					$craft->GetDeskripsi(), // deskripsi
+					$craft->GetOther(), // other
+					$craft->GetKategori()->GetID(), // kategori
+					$craft->GetProducer()->GetID() // person
+					);
+				$newData = array(
+					$post_nama, // nama craft
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_kategori, // kategori,
+					$post_kreator // person
+					);
+
+				// compare Picture
+				$arrOldPict = $craft->GetGambars();
+
+				$arrAddedPict = array();
+				$arrAddedPictId = array();
+				$utamaInNew = false;
+				$selectedUtama = 0;
+				foreach( $post_gambararr as $newPict) {
+					$isNew = true;
+					foreach( $arrOldPict as $oldPict) {
+						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+							$isNew = false;
+							break;
+						}
+					}
+					$arrAddedPict[] = $isNew;
+					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+					if( $isNew ) {
+						$arrAddedPictId[] = $newPict;
+						if( $newPict['utama'] == 1){
+							$utamaInNew = true;
+						}
+					}
+				}
+
+				// get deleted picture
+				$arrDelPict = array();
+				$arrDelPictId = array();
+				$utamaInDel = false;
+				foreach( $arrOldPict as $oldPict) {
+					$isDel = true;
+					foreach( $post_gambararr as $newPict) {
+						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+							$isDel = false;
+							break;
+						}
+					}
+					$arrDelPict[] = $isDel;
+					if( $isDel ) {
+						$arrDelPictId[] = $oldPict;
+						if( $oldPict->GetPostId() == 1){
+							$utamaInDel = true;
+						}
+					}
+				}
+
+				if( !$utamaInNew && !$utamaInDel ) {
+					// update gambar utama
+					foreach ( $arrOldPict as $oldPict ) {
+						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+							$result = $oldPict->SetAsGambarUtama();
+							break;
+						}
+					}
+				}
+
+				// delete old picture
+				if ( sizeof( $arrDelPictId ) > 0 ) {
+					foreach( $arrDelPictId as $delGbr ) {
+						$result = $delGbr->Delete();
+					}
+				}
+
+				// add new picture
+				if( sizeof( $arrAddedPictId ) > 0 ) {
+					if( $utamaInNew ) {
+						$temp_gbr = new Sltg_Gambar();
+						$temp_gbr->SetOwner( $craft->GetPictCode() );
+						$temp_gbr->ClearSelectedUtama();
+					}
+					$result = $this->add_picture( 'craft', $craft->GetPictCode(), $arrAddedPictId );
+				}
+
+				if ( $oldData !== $newData ) {
+					$craft->SetNama( $post_nama );
+					$craft->SetDeskripsi( $post_deskripsi );
+					$craft->SetOther( $post_infolain );
+					$craft->SetKategori( $post_kategori );
+					$craft->SetProducer( $post_kreator );
+					$result = $craft->Update();
 				}
 			}
 			else {
@@ -1754,6 +2025,14 @@ class Salatiga_Plugin_Admin {
 				$person = new Sltg_Personal();
 				$person->HasID( $p->id_personal );
 				$attributes[] = $person;
+			}
+		}else if( $listof == 'katcraft' ) {
+			$obj_kat = new Sltg_Kategori_Craft();
+			$kats = $obj_kat->Datalist();
+			foreach( $kats as $kat ) {
+				$kategori = new Sltg_Kategori_Craft();
+				$kategori->HasID( $kat->id_kategori );
+				$attributes[] = $kategori;
 			}
 		}
 

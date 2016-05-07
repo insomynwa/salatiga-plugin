@@ -19,6 +19,7 @@ class Salatiga_Plugin_Controller {
 
 			if( isset( $_GET[ 'category' ] ) ) {
 				$get_kategori = sanitize_text_field( $_GET[ 'category' ] );
+				$filter = $get_kategori;
 			}
 			if( isset( $_GET[ 'search' ] ) ) {
 				$get_search = sanitize_text_field( $_GET[ 'search' ] );
@@ -40,25 +41,34 @@ class Salatiga_Plugin_Controller {
 			else if( $get_listfor == 'product' ) {
 
 				$obj = new Sltg_Product();
-				$attributes[ 'listfor' ] = 'product';
-				$option_limit_name = "product_list_limit";
+				// $attributes[ 'listfor' ] = 'product';
+				// $option_limit_name = "product_list_limit";
 
 			}
 			else if( $get_listfor == 'ukm' ) {
 				$obj = new Sltg_UKM();
-				$attributes[ 'listfor' ] = 'ukm';
-				$option_limit_name = "ukm_list_limit";
+				// $attributes[ 'listfor' ] = 'ukm';
+				// $option_limit_name = "ukm_list_limit";
 			}
 			else if( $get_listfor == 'music' ) {
 				$obj = new Sltg_Music();
-				$attributes[ 'listfor' ] = 'music';
-				$option_limit_name = "music_list_limit";
+				// $attributes[ 'listfor' ] = 'music';
+				// $option_limit_name = "music_list_limit";
 			}
 			else if( $get_listfor == 'hotel' ) {
 				$obj = new Sltg_Hotel();
-				$attributes[ 'listfor' ] = 'hotel';
-				$option_limit_name = "hotel_list_limit";
+				// $attributes[ 'listfor' ] = 'hotel';
+				// $option_limit_name = "hotel_list_limit";
 			}
+			else if( $get_listfor == 'craft' ) {
+				$obj = new Sltg_Craft();
+				// $attributes[ 'listfor' ] = 'craft';
+				// $option_limit_name = "craft_list_limit";
+			}
+
+			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
+			$option_limit_name = $obj->iGet_LimitName();
+
 			update_option( $option_limit_name, $get_limit );
 			$attributes[ 'n-page' ] = $this->create_pagination( $obj, $get_limit, $get_search, $filter );
 
@@ -89,6 +99,7 @@ class Salatiga_Plugin_Controller {
 
 			if( isset( $_GET[ 'category' ] ) ) {
 				$get_kategori = sanitize_text_field( $_GET[ 'category' ] );
+				$filter = $get_kategori;
 			}
 			if( isset( $_GET[ 'search' ] ) ) {
 				$get_search = sanitize_text_field( $_GET[ 'search' ] );
@@ -124,6 +135,11 @@ class Salatiga_Plugin_Controller {
 				$obj = new Sltg_Hotel();
 				$dir_obj = "hotel-list-template";
 			}
+			else if( $get_listfor == 'craft' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_Craft();
+				$dir_obj = "craft-list-template";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -154,6 +170,11 @@ class Salatiga_Plugin_Controller {
 					$hotel = new Sltg_Hotel();
 					$hotel->HasID( $row->id_hotel );
 					$arrObj['hotel'][] = $hotel;
+				}
+				else if( $get_listfor == 'craft' ){
+					$craft = new Sltg_Craft();
+					$craft->HasID( $row->id_craft );
+					$arrObj['craft'][] = $craft;
 				}
 			}
 

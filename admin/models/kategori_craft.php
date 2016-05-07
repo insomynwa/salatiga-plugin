@@ -20,18 +20,18 @@ class Sltg_Kategori_Craft implements IListItem{
 	public function SetNama( $nama ) { $this->nama = $nama; }
 
 	// IN RELATIONSHIP
-	// public function GetProducts() { 
-	// 	$arrProduct = array();
+	public function GetProducts() { 
+		$arrCraft = array();
 
-	// 	$obj_product = new Sltg_Product();
-	// 	$list_product = $obj_product->ListByCategory( $this->id );
-	// 	foreach( $list_product as $p ) {
-	// 		$product = new Sltg_Product();
-	// 		$product->HasID( $p->id_produk );
-	// 		$arrProduct[] = $product;
-	// 	}
-	// 	return $arrProduct; 
-	// }
+		$obj_craft = new Sltg_Craft();
+		$list_craft = $obj_craft->ListByCategory( $this->id );
+		foreach( $list_craft as $p ) {
+			$craft = new Sltg_Craft();
+			$craft->HasID( $p->id_craft );
+			$arrCraft[] = $craft;
+		}
+		return $arrCraft; 
+	}
 
 	function __construct() {
 		$this->table_name = "ext_kategori_craft";

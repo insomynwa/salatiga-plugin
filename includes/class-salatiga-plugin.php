@@ -14,7 +14,7 @@ class Salatiga_Plugin {
 
 		$this->plugin_slug = 'salatiga-plugin-slug';
 		$this->version = '0.1.0';
-		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar", 'music', 'music_genre', 'hotel', 'kategori_craft' );
+		$this->models  = array( "kategori_produk_ukm", "personal", "product", "ukm", "gambar", 'music', 'music_genre', 'hotel', 'kategori_craft', 'craft' );
 
 		$this->load_dependencies();
 		$this->define_admin_hooks();
@@ -61,6 +61,8 @@ class Salatiga_Plugin {
 		$this->loader->add_action( 'wp_ajax_UpdateMusic', $admin, 'update_music' );
 		$this->loader->add_action( 'wp_ajax_CreateNewHotel', $admin, 'create_hotel' );
 		$this->loader->add_action( 'wp_ajax_UpdateHotel', $admin, 'update_hotel' );
+		$this->loader->add_action( 'wp_ajax_CreateNewCraft', $admin, 'create_craft' );
+		$this->loader->add_action( 'wp_ajax_UpdateCraft', $admin, 'update_craft' );
 		
 		$controller = new Salatiga_Plugin_Controller();
 		$this->loader->add_action( 'wp_ajax_nopriv_RetrievePaginationTemplate', $controller, 'retrieve_pagination' );
