@@ -75,18 +75,20 @@ class Sltg_Hotel implements IListItem{
 		return $arrGambar; 
 	}
 
-	/*private $products;
-	public function GetProducts() { 
-		$obj_product = new Sltg_Product();
-		$list_product = $obj_product->ListByOwner( $this->id );
-		foreach( $list_product as $p ) {
-			$product = new Sltg_Product();
-			$product->HasID( $p->id_produk );
-			$this->products[] = $product;
+	//private $jeniskamars;
+	public function GetJenisKamars() { 
+		$jeniskamars = array();
+		$obj_jeniskamar = new Sltg_Jenis_Kamar();
+		$list_jeniskamar = $obj_jeniskamar->ListByOwner( $this->id );
+		foreach( $list_jeniskamar as $jk ) {
+			$jeniskamar = new Sltg_Jenis_Kamar();
+			$jeniskamar->HasID( $jk->id_jeniskamar );
+			$jeniskamars[] = $jeniskamar;
 		}
-		return $this->products; 
-	}*/
-	// public function SetProducts( $products ) { $this->products = $products; }
+		// var_dump($jeniskamars);
+		return $jeniskamars; 
+	}
+	// public function SetJenis_Kamars( $jeniskamars ) { $this->jeniskamars = $jeniskamars; }
 
 
 	function __construct() {
@@ -94,7 +96,7 @@ class Sltg_Hotel implements IListItem{
 
 		$this->iSet_Listfor( 'hotel' );
 		$this->iSet_LimitName( 'hotel_list_limit' );
-		$this->products = array();
+		//$this->jeniskamars = array();
 	}
 
 	public function HasID( $hotel_id = 0){
@@ -204,8 +206,8 @@ class Sltg_Hotel implements IListItem{
 			)
 		)) {
 			$statusDelGambars = $this->deleteGambars();
-			// $statusDelProducts = $this->deleteProducts();
-			$result ['status'] = $statusDelGambars /*&& $statusDelProducts*/;
+			$statusDelJenisKamars = $this->deleteJenisKamars();
+			$result ['status'] = $statusDelGambars && $statusDelJenisKamars;
 		}
 
 		return $result;
@@ -231,21 +233,21 @@ class Sltg_Hotel implements IListItem{
 		return $result;
 	}
 
-	// private function deleteProducts() {
-	// 	$arrProducts = $this->GetProducts();
-	// 	//global $wpdb;
-	// 	$result[ 'status' ] = ( sizeof( $arrProducts ) == 0 );
+	private function deleteJenisKamars() {
+		$arrJenisKamars = $this->GetJenisKamars();
+		//global $wpdb;
+		$result[ 'status' ] = ( sizeof( $arrJenisKamars ) == 0 );
 
-	// 	if( sizeof( $arrProducts ) > 0 ) {
-	// 		foreach( $arrProducts as $product ) {
-	// 			// $product = new Sltg_Product();
-	// 			// $product->HasID( $p->id_produk );
-	// 			$result[ 'status' ] = $product->Delete();
-	// 		}
-	// 	}
+		if( sizeof( $arrJenisKamars ) > 0 ) {
+			foreach( $arrJenisKamars as $jeniskamar ) {
+				// $jeniskamar = new Sltg_Jenis_Kamar();
+				// $jeniskamar->HasID( $p->id_produk );
+				$result[ 'status' ] = $jeniskamar->Delete();
+			}
+		}
 
-	// 	return $result[ 'status' ];
-	// }
+		return $result[ 'status' ];
+	}
 
 	public function Update() {
 		global $wpdb;

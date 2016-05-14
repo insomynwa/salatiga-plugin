@@ -22,4 +22,15 @@
 			<?php endforeach; ?>
 		</ul>
 	</div>
+	<div>
+		<ul><h4>Kamar:</h4>
+			<?php foreach( $hotel->GetJenisKamars() as $jeniskamar ): ?>
+			<?php /*var_dump($jeniskamar);*/ ?>
+				<li>
+					<h5><?php _e( $jeniskamar->GetNama() ); ?></h5>
+					<a href="?page=sltg-jeniskamar&detail=<?php _e( $jeniskamar->GetID() ); ?>"><img src="<?php _e( $jeniskamar->GetGambarUtama()->GetLinkGambar() ) ?>" width="10%"></a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
 </div>

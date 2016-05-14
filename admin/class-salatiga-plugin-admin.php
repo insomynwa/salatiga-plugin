@@ -103,6 +103,15 @@ class Salatiga_Plugin_Admin {
 			'sltg-hotel',
 			array( $this, 'render_hotel_page' )
 			);
+		// Jenis Kamar Hotel
+		add_submenu_page(
+			null,
+			'Kamar',
+			'Kamar',
+			'manage_options',
+			'sltg-jeniskamar',
+			array( $this, 'render_jeniskamar_page' )
+			);
 		// Kategori Craft
 		add_submenu_page(
 			null,
@@ -666,6 +675,70 @@ class Salatiga_Plugin_Admin {
 		$this->get_html_template( 'pages', 'template', $content );
 	}
 
+	// Render Jenis Kamar
+	public function render_jeniskamar_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0) {
+
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_Jenis_Kamar();
+
+			$content = $this->load_detail( $obj, $get_detail, "jeniskamar", "jenis_kamar" );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$attributes = array();
+
+			$attributes[ 'hotel' ] = $this->get_array_datalist( 'hotel' );
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else{
+				if( isset( $_GET[ 'jeniskamar' ] ) && ($_GET[ 'jeniskamar' ] > 0) ) {
+					$get_jeniskamar_id = sanitize_text_field( $_GET[ 'jeniskamar' ] );
+
+					if( $get_action == "edit" ) {
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Jenis_Kamar();
+					$obj->HasID( $get_jeniskamar_id );
+					$attributes[ 'jeniskamar' ] = $obj;
+				}
+			}
+
+			$content = $this->get_html_template( 'pages/jenis_kamar', $action_template, $attributes, TRUE );
+		}
+		else {
+			$attributes = array();
+
+			$attributes[ 'hotel' ] = $this->get_array_datalist( 'hotel' );
+
+			$content = $this->get_html_template( 'pages/jenis_kamar', 'main', $attributes, TRUE);
+		}	
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -730,6 +803,9 @@ class Salatiga_Plugin_Admin {
 			}
 			else if( $get_listfor == 'craft' ) {
 				$obj = new Sltg_Craft();
+			}
+			else if( $get_listfor == 'jeniskamar' ) {
+				$obj = new Sltg_Jenis_Kamar();
 			}
 			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
 			$option_limit_name = $obj->iGet_LimitName();
@@ -819,6 +895,10 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Craft();
 				$dir_obj = "craft";
 			}
+			else if( $get_listfor == 'jeniskamar' ) {
+				$obj = new Sltg_Jenis_Kamar();
+				$dir_obj = "jenis_kamar";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -870,6 +950,11 @@ class Salatiga_Plugin_Admin {
 					$craft->HasID( $row->id_craft );
 					$arrObj['craft'][] = $craft;
 				}
+				else if( $get_listfor == 'jeniskamar' ){
+					$jeniskamar = new Sltg_Jenis_Kamar();
+					$jeniskamar->HasID( $row->id_jeniskamar );
+					$arrObj['jeniskamar'][] = $jeniskamar;
+				}
 			}
 
 			$this->get_html_template( 'pages/' . $dir_obj, 'list', $arrObj , false);
@@ -913,7 +998,7 @@ class Salatiga_Plugin_Admin {
 				$result = $product->AddNew();
 				$newProduct = new Sltg_Product();
 				$newProduct->HasID( $result[ 'new_id' ] );
-				$this->add_picture( 'produk', $newProduct->GetPictCode(), $post_gambararr );
+				$this->add_picture( $newProduct->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -960,7 +1045,7 @@ class Salatiga_Plugin_Admin {
 				$result = $craft->AddNew();
 				$newCraft = new Sltg_Craft();
 				$newCraft->HasID( $result[ 'new_id' ] );
-				$this->add_picture( 'craft', $newCraft->GetPictCode(), $post_gambararr );
+				$this->add_picture( $newCraft->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1004,7 +1089,7 @@ class Salatiga_Plugin_Admin {
 				$newUKM = new Sltg_UKM();
 				$newUKM->HasID( $result[ 'new_id' ] );
 
-				$this->add_picture( 'ukm', $newUKM->GetPictCode(), $post_gambararr );
+				$this->add_picture( $newUKM->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1046,7 +1131,7 @@ class Salatiga_Plugin_Admin {
 				$newPersonal = new Sltg_Personal();
 				$newPersonal->HasID( $result[ 'new_id' ] );
 
-				$this->add_picture( 'personal', $newPersonal->GetPictCode(), $post_gambararr );
+				$this->add_picture( $newPersonal->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1128,7 +1213,44 @@ class Salatiga_Plugin_Admin {
 				$newHotel = new Sltg_Hotel();
 				$newHotel->HasID( $result[ 'new_id' ] );
 
-				$this->add_picture( 'hotel', $newHotel->GetPictCode(), $post_gambararr );
+				$this->add_picture( $newHotel->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_jeniskamar() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
+			isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'gambararr' ] );
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_hotel = sanitize_text_field( $_POST[ 'hotel' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && ($post_hotel>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+
+				$jeniskamar = new Sltg_Jenis_Kamar();
+				$jeniskamar->SetNama( $post_nama );
+				$jeniskamar->SetDeskripsi( $post_deskripsi );
+				$jeniskamar->SetHotel( $post_hotel );
+
+				$result = $jeniskamar->AddNew();
+				$newJenisKamar = new Sltg_Jenis_Kamar();
+				$newJenisKamar->HasID( $result[ 'new_id' ] );
+				$this->add_picture( $newJenisKamar->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1894,6 +2016,59 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
+	public function update_jeniskamar() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'jeniskamar' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
+			isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		if( $post_isset ) {
+			$post_jeniskamar_id = sanitize_text_field( $_POST[ 'jeniskamar' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_hotel = sanitize_text_field( $_POST[ 'hotel' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_jeniskamar_id > 0) && ($post_nama!="") && ($post_hotel>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+
+				$jeniskamar = new Sltg_Jenis_Kamar();
+				$jeniskamar->HasID( $post_jeniskamar_id );
+
+				// compare data
+				$oldData = array(
+					$jeniskamar->GetNama(), // nama produk
+					$jeniskamar->GetDeskripsi(), // deskripsi
+					$jeniskamar->GetHotel()->GetID() // ukm
+					);
+				$newData = array(
+					$post_nama, // nama produk
+					$post_deskripsi, // deskripsi
+					$post_hotel // ukm
+					);
+
+				$result = $this->update_pictures( $jeniskamar, $post_gambararr );
+
+				if ( $oldData !== $newData ) {
+					$jeniskamar->SetNama( $post_nama );
+					$jeniskamar->SetDeskripsi( $post_deskripsi );
+					$jeniskamar->SetHotel( $post_hotel );
+					$result = $jeniskamar->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
 	private function add_picture( /*$type_pict, */$pict_code, $pictureArr ) {
 		$result = array();
 
@@ -2025,6 +2200,14 @@ class Salatiga_Plugin_Admin {
 				$kategori = new Sltg_Kategori_Craft();
 				$kategori->HasID( $kat->id_kategori );
 				$attributes[] = $kategori;
+			}
+		}else if( $listof == 'hotel' ) {
+			$obj_hotel = new Sltg_Hotel();
+			$hotels = $obj_hotel->Datalist();
+			foreach( $hotels as $htl ) {
+				$hotel = new Sltg_Hotel();
+				$hotel->HasID( $htl->id_hotel );
+				$attributes[] = $hotel;
 			}
 		}
 

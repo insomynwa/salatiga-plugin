@@ -1,79 +1,67 @@
 <?php
-	private function update_pictures( $obj, $picture_owner, $arr_post_gambar) {
+	public function update_product() {
 		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'product' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		if( $post_isset ) {
+			$post_product_id = sanitize_text_field( $_POST[ 'product' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
 
-		// compare Picture
-		$arrOldPict = $obj->GetGambars();
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
 
-		$arrAddedPict = array();
-		$arrAddedPictId = array();
-		$utamaInNew = false;
-		$selectedUtama = 0;
-		foreach( $arr_post_gambar as $newPict) {
-			$isNew = true;
-			foreach( $arrOldPict as $oldPict) {
-				if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-					$isNew = false;
-					break;
+			$post_not_empty = ($post_product_id > 0) && ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$product = new Sltg_Product();
+				$product->HasID( $post_product_id );
+
+				// compare data
+				$oldData = array(
+					$product->GetNama(), // nama produk
+					$product->GetDeskripsi(), // deskripsi
+					$product->GetOther(), // other
+					$product->GetKategori()->GetID(), // kategori
+					$product->GetProducer()->GetID() // ukm
+					);
+				$newData = array(
+					$post_nama, // nama produk
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_kategori, // kategori,
+					$post_kreator // ukm
+					);
+
+				$result = $this->update_pictures( $product, /*'produk',*/ $post_gambararr );
+
+				if ( $oldData !== $newData ) {
+					$product->SetNama( $post_nama );
+					$product->SetDeskripsi( $post_deskripsi );
+					$product->SetOther( $post_infolain );
+					$product->SetKategori( $post_kategori );
+					$product->SetProducer( $post_kreator );
+					$result = $product->Update();
 				}
 			}
-			$arrAddedPict[] = $isNew;
-			if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-			if( $isNew ) {
-				$arrAddedPictId[] = $newPict;
-				if( $newPict['utama'] == 1){
-					$utamaInNew = true;
-				}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
 			}
 		}
-
-		// get deleted picture
-		$arrDelPict = array();
-		$arrDelPictId = array();
-		$utamaInDel = false;
-		foreach( $arrOldPict as $oldPict) {
-			$isDel = true;
-			foreach( $arr_post_gambar as $newPict) {
-				if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-					$isDel = false;
-					break;
-				}
-			}
-			$arrDelPict[] = $isDel;
-			if( $isDel ) {
-				$arrDelPictId[] = $oldPict;
-				if( $oldPict->GetPostId() == 1){
-					$utamaInDel = true;
-				}
-			}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
 		}
 
-		if( !$utamaInNew && !$utamaInDel ) {
-			// update gambar utama
-			foreach ( $arrOldPict as $oldPict ) {
-				if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-					$result = $oldPict->SetAsGambarUtama();
-					break;
-				}
-			}
-		}
+		echo wp_json_encode( $result );
 
-		// delete old picture
-		if ( sizeof( $arrDelPictId ) > 0 ) {
-			foreach( $arrDelPictId as $delGbr ) {
-				$result = $delGbr->Delete();
-			}
-		}
-
-		// add new picture
-		if( sizeof( $arrAddedPictId ) > 0 ) {
-			if( $utamaInNew ) {
-				$temp_gbr = new Sltg_Gambar();
-				$temp_gbr->SetOwner( $obj->GetPictCode() );
-				$temp_gbr->ClearSelectedUtama();
-			}
-			$result = $this->add_picture( $picture_owner, $obj->GetPictCode(), $arrAddedPictId );
-		}
-
-		return $result;
+		wp_die();
 	}

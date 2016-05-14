@@ -40,7 +40,7 @@
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Escape Plan <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-hotel' ); ?>">Hotel</a></li>
-							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-craft' ); ?>">X</a></li>
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-jeniskamar' ); ?>">Kamar</a></li>
 							<li class="divider"></li>
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-genre' ); ?>">Y</a></li>
 						</ul>
