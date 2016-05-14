@@ -23,3 +23,21 @@
 		</ul>
 	</div>
 </div>
+<div class="plugin-content-link">
+	<a href="?page=sltg-product&doaction=create-new">
+		<button id="add-product" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
+	<a href="?page=sltg-product&doaction=edit&product=<?php _e( $product->GetID() ) ?>">
+		<button id="edit-product" class="btn btn-warning">
+			<span class="glyphicon glyphicon-edit"></span> Edit
+		</button>
+	</a>
+	<a href="?page=sltg-product&doaction=delete&product=<?php _e( $product->GetID() ) ?>">
+		<button id="delete-product" class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Delete
+		</button>
+	</a>
+	| Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-product' ); ?>">product list</a>.
+</div>

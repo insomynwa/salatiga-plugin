@@ -73,6 +73,7 @@
 	</form>
 </div>
 <div class="plugin-content-link">
+	Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-product' ); ?>">product list</a>.
 	<!-- <button id="add-product" class="btn btn-primary" data-toggle="modal" data-target="#modal-form-product">
 		<span class="glyphicon glyphicon-plus"></span> Add
 	</button> -->

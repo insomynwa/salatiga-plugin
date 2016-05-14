@@ -199,7 +199,7 @@ class Sltg_Gambar {
 			$wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT * FROM $this->table_name ".
-					"WHERE owner = %s",
+					"WHERE owner = %s ORDER BY gambar_utama DESC",
 					$owner
 					)
 				);//var_dump($rows);

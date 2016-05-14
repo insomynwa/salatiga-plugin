@@ -8,7 +8,7 @@
 			_e( "SUCCESS" );
 	}
 	else {
-
+		if( !is_null( $product->GetId() ) ) {
 ?>
 <div class="form-delete-area">
 	<form id="form-delete-product" method="post">
@@ -17,4 +17,5 @@
 		<button class="btn btn-danger" type="submit" id="btn-delete-product" name="submit-delete-product">YES</button>
 	</form>
 </div>
-<?php } ?>
+<?php } } ?>
+Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-product' ); ?>">product list</a>.

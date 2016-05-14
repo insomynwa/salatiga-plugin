@@ -706,48 +706,30 @@ class Salatiga_Plugin_Admin {
 			$option_limit_name = "";
 			if( $get_listfor == 'personal' ){
 				$obj = new Sltg_Personal();
-				// $attributes[ 'listfor' ] = 'personal';
-				// $option_limit_name = "personal_list_limit";
 			}
 			else if( $get_listfor == 'product' ) {
 				$obj = new Sltg_Product();
-				// $attributes[ 'listfor' ] = 'product';
-				// $option_limit_name = "product_list_limit";
 			}
 			else if( $get_listfor == 'ukm' ) {
 				$obj = new Sltg_UKM();
-				// $attributes[ 'listfor' ] = 'ukm';
-				// $option_limit_name = "ukm_list_limit";
 			}
 			else if( $get_listfor == 'katprodukukm' ) {
 				$obj = new Sltg_Kategori_Product_UKM();
-				// $attributes[ 'listfor' ] = 'katprodukukm';
-				// $option_limit_name = "katprodukukm_list_limit";
 			}
 			else if( $get_listfor == 'music' ) {
 				$obj = new Sltg_Music();
-				// $attributes[ 'listfor' ] = 'music';
-				// $option_limit_name = "music_list_limit";
 			}
 			else if( $get_listfor == 'genre' ) {
 				$obj = new Sltg_Genre_Music();
-				// $attributes[ 'listfor' ] = 'genre';
-				// $option_limit_name = "genre_list_limit";
 			}
 			else if( $get_listfor == 'hotel' ) {
 				$obj = new Sltg_Hotel();
-				// $attributes[ 'listfor' ] = 'hotel';
-				// $option_limit_name = "hotel_list_limit";
 			}
 			else if( $get_listfor == 'katcraft' ) {
 				$obj = new Sltg_Kategori_Craft();
-				// $attributes[ 'listfor' ] = 'katcraft';
-				// $option_limit_name = "katcraft_list_limit";
 			}
 			else if( $get_listfor == 'craft' ) {
 				$obj = new Sltg_Craft();
-				// $attributes[ 'listfor' ] = 'katcraft';
-				// $option_limit_name = "katcraft_list_limit";
 			}
 			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
 			$option_limit_name = $obj->iGet_LimitName();
@@ -993,6 +975,174 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
+	public function create_ukm() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'founder' ] ) && isset( $_POST[ 'gambararr' ] );
+		
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_founder = sanitize_text_field( $_POST[ 'founder' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && ($post_founder>0) && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$ukm = new Sltg_UKM();
+				$ukm->SetNama( $post_nama );
+				$ukm->SetAlamat( $post_alamat );
+				$ukm->SetTelp( $post_telp );
+				$ukm->SetDeskripsi( $post_deskripsi );
+				$ukm->SetOther( $post_infolain );
+				$ukm->SetPemilik( $post_founder );
+
+				$result = $ukm->AddNew();
+				$newUKM = new Sltg_UKM();
+				$newUKM->HasID( $result[ 'new_id' ] );
+
+				$this->add_picture( 'ukm', $newUKM->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_person() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$person = new Sltg_Personal();
+				$person->SetNama( $post_nama );
+				$person->SetAlamat( $post_alamat );
+				$person->SetTelp( $post_telp );
+				$person->SetDeskripsi( $post_deskripsi );
+				$person->SetOther( $post_infolain );
+
+				$result = $person->AddNew();
+				$newPersonal = new Sltg_Personal();
+				$newPersonal->HasID( $result[ 'new_id' ] );
+
+				$this->add_picture( 'personal', $newPersonal->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_music() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
+			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
+		
+		if( $post_isset ) {
+			$post_title = sanitize_text_field( $_POST[ 'title' ] );
+			$post_source = sanitize_text_field( $_POST[ 'source' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_genre = sanitize_text_field( $_POST[ 'genre' ] );
+			$post_creator = sanitize_text_field( $_POST[ 'creator' ] );
+
+			$is_new_genre = (! is_numeric( $post_genre ) );
+			$valid_genre = $this->validate_genre( $is_new_genre, $post_genre );
+
+			$post_not_empty = ($post_title!="") && ($post_source!="") && ($valid_genre) && ($post_creator>0);
+
+			if( $post_not_empty ) {
+				$music = new Sltg_Music();
+				$music->SetTitle( $post_title );
+				$music->SetSource( $post_source );
+				$music->SetInfo( $post_deskripsi );
+				$music->SetGenre( $post_genre );
+				$music->SetCreator( $post_creator );
+
+				$result = $music->AddNew();
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_hotel() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				$hotel = new Sltg_Hotel();
+				$hotel->SetNama( $post_nama );
+				$hotel->SetAlamat( $post_alamat );
+				$hotel->SetTelp( $post_telp );
+				$hotel->SetDeskripsi( $post_deskripsi );
+				$hotel->SetOther( $post_infolain );
+
+				$result = $hotel->AddNew();
+				$newHotel = new Sltg_Hotel();
+				$newHotel->HasID( $result[ 'new_id' ] );
+
+				$this->add_picture( 'hotel', $newHotel->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
 	public function update_product() {
 		$result = array( 'status' => false, 'message' => '' );
 		$post_isset = isset( $_POST[ 'product' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
@@ -1036,78 +1186,80 @@ class Salatiga_Plugin_Admin {
 					$post_kreator // ukm
 					);
 
+				$result = $this->update_pictures( $product, /*'produk',*/ $post_gambararr );
+
 				// compare Picture
-				$arrOldPict = $product->GetGambars();
+				// $arrOldPict = $product->GetGambars();
 
-				$arrAddedPict = array();
-				$arrAddedPictId = array();
-				$utamaInNew = false;
-				$selectedUtama = 0;
-				foreach( $post_gambararr as $newPict) {
-					$isNew = true;
-					foreach( $arrOldPict as $oldPict) {
-						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-							$isNew = false;
-							break;
-						}
-					}
-					$arrAddedPict[] = $isNew;
-					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-					if( $isNew ) {
-						$arrAddedPictId[] = $newPict;
-						if( $newPict['utama'] == 1){
-							$utamaInNew = true;
-						}
-					}
-				}
+				// $arrAddedPict = array();
+				// $arrAddedPictId = array();
+				// $utamaInNew = false;
+				// $selectedUtama = 0;
+				// foreach( $post_gambararr as $newPict) {
+				// 	$isNew = true;
+				// 	foreach( $arrOldPict as $oldPict) {
+				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+				// 			$isNew = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrAddedPict[] = $isNew;
+				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+				// 	if( $isNew ) {
+				// 		$arrAddedPictId[] = $newPict;
+				// 		if( $newPict['utama'] == 1){
+				// 			$utamaInNew = true;
+				// 		}
+				// 	}
+				// }
 
-				// get deleted picture
-				$arrDelPict = array();
-				$arrDelPictId = array();
-				$utamaInDel = false;
-				foreach( $arrOldPict as $oldPict) {
-					$isDel = true;
-					foreach( $post_gambararr as $newPict) {
-						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-							$isDel = false;
-							break;
-						}
-					}
-					$arrDelPict[] = $isDel;
-					if( $isDel ) {
-						$arrDelPictId[] = $oldPict;
-						if( $oldPict->GetPostId() == 1){
-							$utamaInDel = true;
-						}
-					}
-				}
+				// // get deleted picture
+				// $arrDelPict = array();
+				// $arrDelPictId = array();
+				// $utamaInDel = false;
+				// foreach( $arrOldPict as $oldPict) {
+				// 	$isDel = true;
+				// 	foreach( $post_gambararr as $newPict) {
+				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+				// 			$isDel = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrDelPict[] = $isDel;
+				// 	if( $isDel ) {
+				// 		$arrDelPictId[] = $oldPict;
+				// 		if( $oldPict->GetPostId() == 1){
+				// 			$utamaInDel = true;
+				// 		}
+				// 	}
+				// }
 
-				if( !$utamaInNew && !$utamaInDel ) {
-					// update gambar utama
-					foreach ( $arrOldPict as $oldPict ) {
-						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-							$result = $oldPict->SetAsGambarUtama();
-							break;
-						}
-					}
-				}
+				// if( !$utamaInNew && !$utamaInDel ) {
+				// 	// update gambar utama
+				// 	foreach ( $arrOldPict as $oldPict ) {
+				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+				// 			$result = $oldPict->SetAsGambarUtama();
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
-				// delete old picture
-				if ( sizeof( $arrDelPictId ) > 0 ) {
-					foreach( $arrDelPictId as $delGbr ) {
-						$result = $delGbr->Delete();
-					}
-				}
+				// // delete old picture
+				// if ( sizeof( $arrDelPictId ) > 0 ) {
+				// 	foreach( $arrDelPictId as $delGbr ) {
+				// 		$result = $delGbr->Delete();
+				// 	}
+				// }
 
-				// add new picture
-				if( sizeof( $arrAddedPictId ) > 0 ) {
-					if( $utamaInNew ) {
-						$temp_gbr = new Sltg_Gambar();
-						$temp_gbr->SetOwner( $product->GetPictCode() );
-						$temp_gbr->ClearSelectedUtama();
-					}
-					$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
-				}
+				// // add new picture
+				// if( sizeof( $arrAddedPictId ) > 0 ) {
+				// 	if( $utamaInNew ) {
+				// 		$temp_gbr = new Sltg_Gambar();
+				// 		$temp_gbr->SetOwner( $product->GetPictCode() );
+				// 		$temp_gbr->ClearSelectedUtama();
+				// 	}
+				// 	$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
+				// }
 
 				if ( $oldData !== $newData ) {
 					$product->SetNama( $post_nama );
@@ -1174,78 +1326,80 @@ class Salatiga_Plugin_Admin {
 					$post_kreator // person
 					);
 
+				$result = $this->update_pictures( $craft, /*'craft',*/ $post_gambararr );
+
 				// compare Picture
-				$arrOldPict = $craft->GetGambars();
+				// $arrOldPict = $craft->GetGambars();
 
-				$arrAddedPict = array();
-				$arrAddedPictId = array();
-				$utamaInNew = false;
-				$selectedUtama = 0;
-				foreach( $post_gambararr as $newPict) {
-					$isNew = true;
-					foreach( $arrOldPict as $oldPict) {
-						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-							$isNew = false;
-							break;
-						}
-					}
-					$arrAddedPict[] = $isNew;
-					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-					if( $isNew ) {
-						$arrAddedPictId[] = $newPict;
-						if( $newPict['utama'] == 1){
-							$utamaInNew = true;
-						}
-					}
-				}
+				// $arrAddedPict = array();
+				// $arrAddedPictId = array();
+				// $utamaInNew = false;
+				// $selectedUtama = 0;
+				// foreach( $post_gambararr as $newPict) {
+				// 	$isNew = true;
+				// 	foreach( $arrOldPict as $oldPict) {
+				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+				// 			$isNew = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrAddedPict[] = $isNew;
+				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+				// 	if( $isNew ) {
+				// 		$arrAddedPictId[] = $newPict;
+				// 		if( $newPict['utama'] == 1){
+				// 			$utamaInNew = true;
+				// 		}
+				// 	}
+				// }
 
-				// get deleted picture
-				$arrDelPict = array();
-				$arrDelPictId = array();
-				$utamaInDel = false;
-				foreach( $arrOldPict as $oldPict) {
-					$isDel = true;
-					foreach( $post_gambararr as $newPict) {
-						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-							$isDel = false;
-							break;
-						}
-					}
-					$arrDelPict[] = $isDel;
-					if( $isDel ) {
-						$arrDelPictId[] = $oldPict;
-						if( $oldPict->GetPostId() == 1){
-							$utamaInDel = true;
-						}
-					}
-				}
+				// // get deleted picture
+				// $arrDelPict = array();
+				// $arrDelPictId = array();
+				// $utamaInDel = false;
+				// foreach( $arrOldPict as $oldPict) {
+				// 	$isDel = true;
+				// 	foreach( $post_gambararr as $newPict) {
+				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+				// 			$isDel = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrDelPict[] = $isDel;
+				// 	if( $isDel ) {
+				// 		$arrDelPictId[] = $oldPict;
+				// 		if( $oldPict->GetPostId() == 1){
+				// 			$utamaInDel = true;
+				// 		}
+				// 	}
+				// }
 
-				if( !$utamaInNew && !$utamaInDel ) {
-					// update gambar utama
-					foreach ( $arrOldPict as $oldPict ) {
-						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-							$result = $oldPict->SetAsGambarUtama();
-							break;
-						}
-					}
-				}
+				// if( !$utamaInNew && !$utamaInDel ) {
+				// 	// update gambar utama
+				// 	foreach ( $arrOldPict as $oldPict ) {
+				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+				// 			$result = $oldPict->SetAsGambarUtama();
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
-				// delete old picture
-				if ( sizeof( $arrDelPictId ) > 0 ) {
-					foreach( $arrDelPictId as $delGbr ) {
-						$result = $delGbr->Delete();
-					}
-				}
+				// // delete old picture
+				// if ( sizeof( $arrDelPictId ) > 0 ) {
+				// 	foreach( $arrDelPictId as $delGbr ) {
+				// 		$result = $delGbr->Delete();
+				// 	}
+				// }
 
-				// add new picture
-				if( sizeof( $arrAddedPictId ) > 0 ) {
-					if( $utamaInNew ) {
-						$temp_gbr = new Sltg_Gambar();
-						$temp_gbr->SetOwner( $craft->GetPictCode() );
-						$temp_gbr->ClearSelectedUtama();
-					}
-					$result = $this->add_picture( 'craft', $craft->GetPictCode(), $arrAddedPictId );
-				}
+				// // add new picture
+				// if( sizeof( $arrAddedPictId ) > 0 ) {
+				// 	if( $utamaInNew ) {
+				// 		$temp_gbr = new Sltg_Gambar();
+				// 		$temp_gbr->SetOwner( $craft->GetPictCode() );
+				// 		$temp_gbr->ClearSelectedUtama();
+				// 	}
+				// 	$result = $this->add_picture( 'craft', $craft->GetPictCode(), $arrAddedPictId );
+				// }
 
 				if ( $oldData !== $newData ) {
 					$craft->SetNama( $post_nama );
@@ -1269,109 +1423,126 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
-	private function add_picture( $type_pict, $pict_code, $pictureArr ) {
-		$result = array();
-
-		$gambar = new Sltg_Gambar();
-		$gambar->SetOwner( $pict_code );
-
-		for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
-			$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
-			$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
-			$gambar->SetDeskripsi( "" );
-			$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
-			$result = $gambar->AddNew();
-		}
-
-		return $result;
-	}
-
-	private function add_kategori( $kategori_name ) {
-		$kategori = new Sltg_Kategori_Product_UKM();
-
-		$kategori->SetNama( $kategori_name );
-
-
-		if( ! $kategori->FindName() )
-			$result = $kategori->AddNew();
-		else
-			$result[ 'new_id' ] = $kategori->GetID();
-		return $result;
-	}
-
-	private function add_genre( $genre_name ) {
-		$genre = new Sltg_Genre_Music();
-
-		$genre->SetNama( $genre_name );
-
-
-		if( ! $genre->FindName() )
-			$result = $genre->AddNew();
-		else
-			$result[ 'new_id' ] = $genre->GetID();
-		return $result;
-	}
-
-	private function validate_kategori( $is_new_kategori, $kategori ) {
-		return ( ( $is_new_kategori && $kategori != "" ) || (!$is_new_kategori && $kategori>0) );
-	}
-
-	private function validate_genre( $is_new_genre, $genre ) {
-		return ( ( $is_new_genre && $genre != "" ) || (!$is_new_genre && $genre>0) );
-	}
-
-	public function add_meta_box() {
-
-	}
-
-	private function TESTFROMPLUGIN() {
-		_e( "HELLO BRO");
-	}
-
-	function delete_post_attachments($post_id) {
-	    global $wpdb;
-	 
-	    $sql = "SELECT ID FROM {$wpdb->posts} ";
-	    $sql .= " WHERE post_parent = $post_id ";
-	    $sql .= " AND post_type = 'attachment'";
-	 
-	    $ids = $wpdb->get_col($sql);
-	 
-	    foreach ( $ids as $id ) {
-	        wp_delete_attachment($id);
-	    }
-	}
-
-	public function create_ukm() {
+	public function update_hotel() {
 		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
-			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'founder' ] ) && isset( $_POST[ 'gambararr' ] );
+		$post_isset = isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
 		
 		if( $post_isset ) {
+			$post_hotel_id = sanitize_text_field( $_POST[ 'hotel' ] );
 			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
 			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
 			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
 			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
 			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
-			$post_founder = sanitize_text_field( $_POST[ 'founder' ] );
 			$post_gambararr = $_POST[ 'gambararr' ] ;
 
-			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && ($post_founder>0) && (sizeof($post_gambararr)>0);
+			$post_not_empty = ($post_hotel_id > 0) && ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
 
 			if( $post_not_empty ) {
-				$ukm = new Sltg_UKM();
-				$ukm->SetNama( $post_nama );
-				$ukm->SetAlamat( $post_alamat );
-				$ukm->SetTelp( $post_telp );
-				$ukm->SetDeskripsi( $post_deskripsi );
-				$ukm->SetOther( $post_infolain );
-				$ukm->SetPemilik( $post_founder );
+				
+				$hotel = new Sltg_Hotel();
+				$hotel->HasID( $post_hotel_id );
 
-				$result = $ukm->AddNew();
-				$newUKM = new Sltg_UKM();
-				$newUKM->HasID( $result[ 'new_id' ] );
+				// compare data
+				$oldData = array(
+					$hotel->GetNama(), // nama 
+					$hotel->GetDeskripsi(), // deskripsi
+					$hotel->GetOther(), // other
+					$hotel->GetAlamat(), // alamat
+					$hotel->GetTelp() // telp
+					);
+				$newData = array(
+					$post_nama, // nama 
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_alamat, // alamat,
+					$post_telp // telp
+					);
 
-				$this->add_picture( 'ukm', $newUKM->GetPictCode(), $post_gambararr );
+				$result = $this->update_pictures( $hotel, /*'produk',*/ $post_gambararr );
+
+				// compare Picture
+				// $arrOldPict = $hotel->GetGambars();
+
+				// $arrAddedPict = array();
+				// $arrAddedPictId = array();
+				// $utamaInNew = false;
+				// $selectedUtama = 0;
+				// foreach( $post_gambararr as $newPict) {
+				// 	$isNew = true;
+				// 	foreach( $arrOldPict as $oldPict) {
+				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+				// 			$isNew = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrAddedPict[] = $isNew;
+				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+				// 	if( $isNew ) {
+				// 		$arrAddedPictId[] = $newPict;
+				// 		if( $newPict['utama'] == 1){
+				// 			$utamaInNew = true;
+				// 		}
+				// 	}
+				// }
+
+				// // get deleted picture
+				// $arrDelPict = array();
+				// $arrDelPictId = array();
+				// $utamaInDel = false;
+				// foreach( $arrOldPict as $oldPict) {
+				// 	$isDel = true;
+				// 	foreach( $post_gambararr as $newPict) {
+				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+				// 			$isDel = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrDelPict[] = $isDel;
+				// 	if( $isDel ) {
+				// 		$arrDelPictId[] = $oldPict;
+				// 		if( $oldPict->GetPostId() == 1){
+				// 			$utamaInDel = true;
+				// 		}
+				// 	}
+				// }
+
+				// if( !$utamaInNew && !$utamaInDel ) {
+				// 	// update gambar utama
+				// 	foreach ( $arrOldPict as $oldPict ) {
+				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+				// 			$result = $oldPict->SetAsGambarUtama();
+				// 			break;
+				// 		}
+				// 	}
+				// }
+
+				// // delete old picture
+				// if ( sizeof( $arrDelPictId ) > 0 ) {
+				// 	foreach( $arrDelPictId as $delGbr ) {
+				// 		$result = $delGbr->Delete();
+				// 	}
+				// }
+
+				// // add new picture
+				// if( sizeof( $arrAddedPictId ) > 0 ) {
+				// 	if( $utamaInNew ) {
+				// 		$temp_gbr = new Sltg_Gambar();
+				// 		$temp_gbr->SetOwner( $hotel->GetPictCode() );
+				// 		$temp_gbr->ClearSelectedUtama();
+				// 	}
+				// 	$result = $this->add_picture( 'hotel', $hotel->GetPictCode(), $arrAddedPictId );
+				// }
+
+				if ( $oldData !== $newData ) {
+					$hotel->SetNama( $post_nama );
+					$hotel->SetDeskripsi( $post_deskripsi );
+					$hotel->SetOther( $post_infolain );
+					$hotel->SetAlamat( $post_alamat );
+					$hotel->SetTelp( $post_telp );
+					$result = $hotel->Update();
+				}
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1427,78 +1598,80 @@ class Salatiga_Plugin_Admin {
 					$post_founder // pemilik
 					);
 
+				$result = $this->update_pictures( $ukm, /*'ukm',*/ $post_gambararr );
+
 				// compare Picture
-				$arrOldPict = $ukm->GetGambars();
+				// $arrOldPict = $ukm->GetGambars();
 
-				$arrAddedPict = array();
-				$arrAddedPictId = array();
-				$utamaInNew = false;
-				$selectedUtama = 0;
-				foreach( $post_gambararr as $newPict) {
-					$isNew = true;
-					foreach( $arrOldPict as $oldPict) {
-						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-							$isNew = false;
-							break;
-						}
-					}
-					$arrAddedPict[] = $isNew;
-					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-					if( $isNew ) {
-						$arrAddedPictId[] = $newPict;
-						if( $newPict['utama'] == 1){
-							$utamaInNew = true;
-						}
-					}
-				}
+				// $arrAddedPict = array();
+				// $arrAddedPictId = array();
+				// $utamaInNew = false;
+				// $selectedUtama = 0;
+				// foreach( $post_gambararr as $newPict) {
+				// 	$isNew = true;
+				// 	foreach( $arrOldPict as $oldPict) {
+				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+				// 			$isNew = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrAddedPict[] = $isNew;
+				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+				// 	if( $isNew ) {
+				// 		$arrAddedPictId[] = $newPict;
+				// 		if( $newPict['utama'] == 1){
+				// 			$utamaInNew = true;
+				// 		}
+				// 	}
+				// }
 
-				// get deleted picture
-				$arrDelPict = array();
-				$arrDelPictId = array();
-				$utamaInDel = false;
-				foreach( $arrOldPict as $oldPict) {
-					$isDel = true;
-					foreach( $post_gambararr as $newPict) {
-						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-							$isDel = false;
-							break;
-						}
-					}
-					$arrDelPict[] = $isDel;
-					if( $isDel ) {
-						$arrDelPictId[] = $oldPict;
-						if( $oldPict->GetPostId() == 1){
-							$utamaInDel = true;
-						}
-					}
-				}
+				// // get deleted picture
+				// $arrDelPict = array();
+				// $arrDelPictId = array();
+				// $utamaInDel = false;
+				// foreach( $arrOldPict as $oldPict) {
+				// 	$isDel = true;
+				// 	foreach( $post_gambararr as $newPict) {
+				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+				// 			$isDel = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrDelPict[] = $isDel;
+				// 	if( $isDel ) {
+				// 		$arrDelPictId[] = $oldPict;
+				// 		if( $oldPict->GetPostId() == 1){
+				// 			$utamaInDel = true;
+				// 		}
+				// 	}
+				// }
 
-				if( !$utamaInNew && !$utamaInDel ) {
-					// update gambar utama
-					foreach ( $arrOldPict as $oldPict ) {
-						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-							$result = $oldPict->SetAsGambarUtama();
-							break;
-						}
-					}
-				}
+				// if( !$utamaInNew && !$utamaInDel ) {
+				// 	// update gambar utama
+				// 	foreach ( $arrOldPict as $oldPict ) {
+				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+				// 			$result = $oldPict->SetAsGambarUtama();
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
-				// delete old picture
-				if ( sizeof( $arrDelPictId ) > 0 ) {
-					foreach( $arrDelPictId as $delGbr ) {
-						$result = $delGbr->Delete();
-					}
-				}
+				// // delete old picture
+				// if ( sizeof( $arrDelPictId ) > 0 ) {
+				// 	foreach( $arrDelPictId as $delGbr ) {
+				// 		$result = $delGbr->Delete();
+				// 	}
+				// }
 
-				// add new picture
-				if( sizeof( $arrAddedPictId ) > 0 ) {
-					if( $utamaInNew ) {
-						$temp_gbr = new Sltg_Gambar();
-						$temp_gbr->SetOwner( $ukm->GetPictCode() );
-						$temp_gbr->ClearSelectedUtama();
-					}
-					$result = $this->add_picture( 'ukm', $ukm->GetPictCode(), $arrAddedPictId );
-				}
+				// // add new picture
+				// if( sizeof( $arrAddedPictId ) > 0 ) {
+				// 	if( $utamaInNew ) {
+				// 		$temp_gbr = new Sltg_Gambar();
+				// 		$temp_gbr->SetOwner( $ukm->GetPictCode() );
+				// 		$temp_gbr->ClearSelectedUtama();
+				// 	}
+				// 	$result = $this->add_picture( 'ukm', $ukm->GetPictCode(), $arrAddedPictId );
+				// }
 
 				if ( $oldData !== $newData ) {
 					$ukm->SetNama( $post_nama );
@@ -1509,48 +1682,6 @@ class Salatiga_Plugin_Admin {
 					$ukm->SetPemilik( $post_founder );
 					$result = $ukm->Update();
 				}
-			}
-			else {
-				$result[ 'message' ] = 'parameter tidak valid!';
-			}
-		}
-		else {
-			$result[ 'message' ] = 'parameter tidak lengkap!';
-		}
-
-		echo wp_json_encode( $result );
-
-		wp_die();
-	}
-
-	public function create_person() {
-		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
-			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
-
-		if( $post_isset ) {
-			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
-			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
-			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
-			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
-			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
-			$post_gambararr = $_POST[ 'gambararr' ] ;
-
-			$post_not_empty = ($post_nama!="") && (sizeof($post_gambararr)>0);
-
-			if( $post_not_empty ) {
-				$person = new Sltg_Personal();
-				$person->SetNama( $post_nama );
-				$person->SetAlamat( $post_alamat );
-				$person->SetTelp( $post_telp );
-				$person->SetDeskripsi( $post_deskripsi );
-				$person->SetOther( $post_infolain );
-
-				$result = $person->AddNew();
-				$newPersonal = new Sltg_Personal();
-				$newPersonal->HasID( $result[ 'new_id' ] );
-
-				$this->add_picture( 'personal', $newPersonal->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1602,78 +1733,80 @@ class Salatiga_Plugin_Admin {
 					$post_telp // telp
 					);
 
+				$result = $this->update_pictures( $person, /*'person',*/ $post_gambararr );
+
 				// compare Picture
-				$arrOldPict = $person->GetGambars();
+				// $arrOldPict = $person->GetGambars();
 
-				$arrAddedPict = array();
-				$arrAddedPictId = array();
-				$utamaInNew = false;
-				$selectedUtama = 0;
-				foreach( $post_gambararr as $newPict) {
-					$isNew = true;
-					foreach( $arrOldPict as $oldPict) {
-						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-							$isNew = false;
-							break;
-						}
-					}
-					$arrAddedPict[] = $isNew;
-					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-					if( $isNew ) {
-						$arrAddedPictId[] = $newPict;
-						if( $newPict['utama'] == 1){
-							$utamaInNew = true;
-						}
-					}
-				}
+				// $arrAddedPict = array();
+				// $arrAddedPictId = array();
+				// $utamaInNew = false;
+				// $selectedUtama = 0;
+				// foreach( $post_gambararr as $newPict) {
+				// 	$isNew = true;
+				// 	foreach( $arrOldPict as $oldPict) {
+				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+				// 			$isNew = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrAddedPict[] = $isNew;
+				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+				// 	if( $isNew ) {
+				// 		$arrAddedPictId[] = $newPict;
+				// 		if( $newPict['utama'] == 1){
+				// 			$utamaInNew = true;
+				// 		}
+				// 	}
+				// }
 
-				// get deleted picture
-				$arrDelPict = array();
-				$arrDelPictId = array();
-				$utamaInDel = false;
-				foreach( $arrOldPict as $oldPict) {
-					$isDel = true;
-					foreach( $post_gambararr as $newPict) {
-						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-							$isDel = false;
-							break;
-						}
-					}
-					$arrDelPict[] = $isDel;
-					if( $isDel ) {
-						$arrDelPictId[] = $oldPict;
-						if( $oldPict->GetPostId() == 1){
-							$utamaInDel = true;
-						}
-					}
-				}
+				// // get deleted picture
+				// $arrDelPict = array();
+				// $arrDelPictId = array();
+				// $utamaInDel = false;
+				// foreach( $arrOldPict as $oldPict) {
+				// 	$isDel = true;
+				// 	foreach( $post_gambararr as $newPict) {
+				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+				// 			$isDel = false;
+				// 			break;
+				// 		}
+				// 	}
+				// 	$arrDelPict[] = $isDel;
+				// 	if( $isDel ) {
+				// 		$arrDelPictId[] = $oldPict;
+				// 		if( $oldPict->GetPostId() == 1){
+				// 			$utamaInDel = true;
+				// 		}
+				// 	}
+				// }
 
-				if( !$utamaInNew && !$utamaInDel ) {
-					// update gambar utama
-					foreach ( $arrOldPict as $oldPict ) {
-						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-							$result = $oldPict->SetAsGambarUtama();
-							break;
-						}
-					}
-				}
+				// if( !$utamaInNew && !$utamaInDel ) {
+				// 	// update gambar utama
+				// 	foreach ( $arrOldPict as $oldPict ) {
+				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+				// 			$result = $oldPict->SetAsGambarUtama();
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
-				// delete old picture
-				if ( sizeof( $arrDelPictId ) > 0 ) {
-					foreach( $arrDelPictId as $delGbr ) {
-						$result = $delGbr->Delete();
-					}
-				}
+				// // delete old picture
+				// if ( sizeof( $arrDelPictId ) > 0 ) {
+				// 	foreach( $arrDelPictId as $delGbr ) {
+				// 		$result = $delGbr->Delete();
+				// 	}
+				// }
 
-				// add new picture
-				if( sizeof( $arrAddedPictId ) > 0 ) {
-					if( $utamaInNew ) {
-						$temp_gbr = new Sltg_Gambar();
-						$temp_gbr->SetOwner( $person->GetPictCode() );
-						$temp_gbr->ClearSelectedUtama();
-					}
-					$result = $this->add_picture( 'person', $person->GetPictCode(), $arrAddedPictId );
-				}
+				// // add new picture
+				// if( sizeof( $arrAddedPictId ) > 0 ) {
+				// 	if( $utamaInNew ) {
+				// 		$temp_gbr = new Sltg_Gambar();
+				// 		$temp_gbr->SetOwner( $person->GetPictCode() );
+				// 		$temp_gbr->ClearSelectedUtama();
+				// 	}
+				// 	$result = $this->add_picture( 'person', $person->GetPictCode(), $arrAddedPictId );
+				// }
 
 				if ( $oldData !== $newData ) {
 					$person->SetNama( $post_nama );
@@ -1683,46 +1816,6 @@ class Salatiga_Plugin_Admin {
 					$person->SetTelp( $post_telp );
 					$result = $person->Update();
 				}
-			}
-			else {
-				$result[ 'message' ] = 'parameter tidak valid!';
-			}
-		}
-		else {
-			$result[ 'message' ] = 'parameter tidak lengkap!';
-		}
-
-		echo wp_json_encode( $result );
-
-		wp_die();
-	}
-
-	public function create_music() {
-		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'title' ] ) && isset( $_POST[ 'source' ] ) && isset( $_POST[ 'deskripsi' ] ) &&
-			isset( $_POST[ 'genre' ] ) && isset( $_POST[ 'creator' ] );
-		
-		if( $post_isset ) {
-			$post_title = sanitize_text_field( $_POST[ 'title' ] );
-			$post_source = sanitize_text_field( $_POST[ 'source' ] );
-			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
-			$post_genre = sanitize_text_field( $_POST[ 'genre' ] );
-			$post_creator = sanitize_text_field( $_POST[ 'creator' ] );
-
-			$is_new_genre = (! is_numeric( $post_genre ) );
-			$valid_genre = $this->validate_genre( $is_new_genre, $post_genre );
-
-			$post_not_empty = ($post_title!="") && ($post_source!="") && ($valid_genre) && ($post_creator>0);
-
-			if( $post_not_empty ) {
-				$music = new Sltg_Music();
-				$music->SetTitle( $post_title );
-				$music->SetSource( $post_source );
-				$music->SetInfo( $post_deskripsi );
-				$music->SetGenre( $post_genre );
-				$music->SetCreator( $post_creator );
-
-				$result = $music->AddNew();
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1801,178 +1894,77 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
-	public function create_hotel() {
-		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
-			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
+	private function add_picture( /*$type_pict, */$pict_code, $pictureArr ) {
+		$result = array();
 
-		if( $post_isset ) {
-			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
-			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
-			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
-			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
-			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
-			$post_gambararr = $_POST[ 'gambararr' ] ;
+		$gambar = new Sltg_Gambar();
+		$gambar->SetOwner( $pict_code );
 
-			$post_not_empty = ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
-
-			if( $post_not_empty ) {
-				$hotel = new Sltg_Hotel();
-				$hotel->SetNama( $post_nama );
-				$hotel->SetAlamat( $post_alamat );
-				$hotel->SetTelp( $post_telp );
-				$hotel->SetDeskripsi( $post_deskripsi );
-				$hotel->SetOther( $post_infolain );
-
-				$result = $hotel->AddNew();
-				$newHotel = new Sltg_Hotel();
-				$newHotel->HasID( $result[ 'new_id' ] );
-
-				$this->add_picture( 'hotel', $newHotel->GetPictCode(), $post_gambararr );
-			}
-			else {
-				$result[ 'message' ] = 'parameter tidak valid!';
-			}
-		}
-		else {
-			$result[ 'message' ] = 'parameter tidak lengkap!';
+		for( $i = 0; $i < sizeof( $pictureArr ); $i++) {
+			$gambar->SetGambarUtama( $pictureArr[ $i ][ 'utama' ] );
+			$gambar->SetLinkGambar( $pictureArr[ $i ][ 'url' ] );
+			$gambar->SetDeskripsi( "" );
+			$gambar->SetPostId( $pictureArr[ $i ][ 'post_id' ] );
+			$result = $gambar->AddNew();
 		}
 
-		echo wp_json_encode( $result );
-
-		wp_die();
+		return $result;
 	}
 
-	public function update_hotel() {
-		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'hotel' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
-			isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'gambararr' ] );
-		
-		if( $post_isset ) {
-			$post_hotel_id = sanitize_text_field( $_POST[ 'hotel' ] );
-			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
-			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
-			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
-			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
-			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
-			$post_gambararr = $_POST[ 'gambararr' ] ;
+	private function add_kategori( $kategori_name ) {
+		$kategori = new Sltg_Kategori_Product_UKM();
 
-			$post_not_empty = ($post_hotel_id > 0) && ($post_nama!="") && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+		$kategori->SetNama( $kategori_name );
 
-			if( $post_not_empty ) {
-				
-				$hotel = new Sltg_Hotel();
-				$hotel->HasID( $post_hotel_id );
 
-				// compare data
-				$oldData = array(
-					$hotel->GetNama(), // nama 
-					$hotel->GetDeskripsi(), // deskripsi
-					$hotel->GetOther(), // other
-					$hotel->GetAlamat(), // alamat
-					$hotel->GetTelp() // telp
-					);
-				$newData = array(
-					$post_nama, // nama 
-					$post_deskripsi, // deskripsi
-					$post_infolain, // other
-					$post_alamat, // alamat,
-					$post_telp // telp
-					);
+		if( ! $kategori->FindName() )
+			$result = $kategori->AddNew();
+		else
+			$result[ 'new_id' ] = $kategori->GetID();
+		return $result;
+	}
 
-				// compare Picture
-				$arrOldPict = $hotel->GetGambars();
+	private function add_genre( $genre_name ) {
+		$genre = new Sltg_Genre_Music();
 
-				$arrAddedPict = array();
-				$arrAddedPictId = array();
-				$utamaInNew = false;
-				$selectedUtama = 0;
-				foreach( $post_gambararr as $newPict) {
-					$isNew = true;
-					foreach( $arrOldPict as $oldPict) {
-						if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-							$isNew = false;
-							break;
-						}
-					}
-					$arrAddedPict[] = $isNew;
-					if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-					if( $isNew ) {
-						$arrAddedPictId[] = $newPict;
-						if( $newPict['utama'] == 1){
-							$utamaInNew = true;
-						}
-					}
-				}
+		$genre->SetNama( $genre_name );
 
-				// get deleted picture
-				$arrDelPict = array();
-				$arrDelPictId = array();
-				$utamaInDel = false;
-				foreach( $arrOldPict as $oldPict) {
-					$isDel = true;
-					foreach( $post_gambararr as $newPict) {
-						if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-							$isDel = false;
-							break;
-						}
-					}
-					$arrDelPict[] = $isDel;
-					if( $isDel ) {
-						$arrDelPictId[] = $oldPict;
-						if( $oldPict->GetPostId() == 1){
-							$utamaInDel = true;
-						}
-					}
-				}
 
-				if( !$utamaInNew && !$utamaInDel ) {
-					// update gambar utama
-					foreach ( $arrOldPict as $oldPict ) {
-						if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-							$result = $oldPict->SetAsGambarUtama();
-							break;
-						}
-					}
-				}
+		if( ! $genre->FindName() )
+			$result = $genre->AddNew();
+		else
+			$result[ 'new_id' ] = $genre->GetID();
+		return $result;
+	}
 
-				// delete old picture
-				if ( sizeof( $arrDelPictId ) > 0 ) {
-					foreach( $arrDelPictId as $delGbr ) {
-						$result = $delGbr->Delete();
-					}
-				}
+	private function validate_kategori( $is_new_kategori, $kategori ) {
+		return ( ( $is_new_kategori && $kategori != "" ) || (!$is_new_kategori && $kategori>0) );
+	}
 
-				// add new picture
-				if( sizeof( $arrAddedPictId ) > 0 ) {
-					if( $utamaInNew ) {
-						$temp_gbr = new Sltg_Gambar();
-						$temp_gbr->SetOwner( $hotel->GetPictCode() );
-						$temp_gbr->ClearSelectedUtama();
-					}
-					$result = $this->add_picture( 'hotel', $hotel->GetPictCode(), $arrAddedPictId );
-				}
+	private function validate_genre( $is_new_genre, $genre ) {
+		return ( ( $is_new_genre && $genre != "" ) || (!$is_new_genre && $genre>0) );
+	}
 
-				if ( $oldData !== $newData ) {
-					$hotel->SetNama( $post_nama );
-					$hotel->SetDeskripsi( $post_deskripsi );
-					$hotel->SetOther( $post_infolain );
-					$hotel->SetAlamat( $post_alamat );
-					$hotel->SetTelp( $post_telp );
-					$result = $hotel->Update();
-				}
-			}
-			else {
-				$result[ 'message' ] = 'parameter tidak valid!';
-			}
-		}
-		else {
-			$result[ 'message' ] = 'parameter tidak lengkap!';
-		}
+	public function add_meta_box() {
 
-		echo wp_json_encode( $result );
+	}
 
-		wp_die();
+	private function TESTFROMPLUGIN() {
+		_e( "HELLO BRO");
+	}
+
+	function delete_post_attachments($post_id) {
+	    global $wpdb;
+	 
+	    $sql = "SELECT ID FROM {$wpdb->posts} ";
+	    $sql .= " WHERE post_parent = $post_id ";
+	    $sql .= " AND post_type = 'attachment'";
+	 
+	    $ids = $wpdb->get_col($sql);
+	 
+	    foreach ( $ids as $id ) {
+	        wp_delete_attachment($id);
+	    }
 	}
 
 	/*
@@ -2037,5 +2029,84 @@ class Salatiga_Plugin_Admin {
 		}
 
 		return $attributes;
+	}
+
+	private function update_pictures( $obj, /*$picture_owner,*/ $arr_post_gambar) {
+		$result = array( 'status' => false, 'message' => '' );
+
+		// compare Picture
+		$arrOldPict = $obj->GetGambars();
+
+		$arrAddedPict = array();
+		$arrAddedPictId = array();
+		$utamaInNew = false;
+		$selectedUtama = 0;
+		foreach( $arr_post_gambar as $newPict) {
+			$isNew = true;
+			foreach( $arrOldPict as $oldPict) {
+				if( $newPict['post_id'] == $oldPict->GetPostId() ) {
+					$isNew = false;
+					break;
+				}
+			}
+			$arrAddedPict[] = $isNew;
+			if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
+			if( $isNew ) {
+				$arrAddedPictId[] = $newPict;
+				if( $newPict['utama'] == 1){
+					$utamaInNew = true;
+				}
+			}
+		}
+
+		// get deleted picture
+		$arrDelPict = array();
+		$arrDelPictId = array();
+		$utamaInDel = false;
+		foreach( $arrOldPict as $oldPict) {
+			$isDel = true;
+			foreach( $arr_post_gambar as $newPict) {
+				if( $oldPict->GetPostId() == $newPict['post_id'] ) {
+					$isDel = false;
+					break;
+				}
+			}
+			$arrDelPict[] = $isDel;
+			if( $isDel ) {
+				$arrDelPictId[] = $oldPict;
+				if( $oldPict->GetPostId() == 1){
+					$utamaInDel = true;
+				}
+			}
+		}
+
+		if( !$utamaInNew && !$utamaInDel ) {
+			// update gambar utama
+			foreach ( $arrOldPict as $oldPict ) {
+				if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
+					$result = $oldPict->SetAsGambarUtama();
+					break;
+				}
+			}
+		}
+
+		// delete old picture
+		if ( sizeof( $arrDelPictId ) > 0 ) {
+			foreach( $arrDelPictId as $delGbr ) {
+				$result = $delGbr->Delete();
+			}
+		}
+
+		// add new picture
+		if( sizeof( $arrAddedPictId ) > 0 ) {
+			if( $utamaInNew ) {
+				$temp_gbr = new Sltg_Gambar();
+				$temp_gbr->SetOwner( $obj->GetPictCode() );
+				$temp_gbr->ClearSelectedUtama();
+			}
+			$result = $this->add_picture( /*$picture_owner,*/ $obj->GetPictCode(), $arrAddedPictId );
+		}
+
+		return $result;
 	}
 }

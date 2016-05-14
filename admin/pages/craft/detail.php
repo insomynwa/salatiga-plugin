@@ -23,3 +23,21 @@
 		</ul>
 	</div>
 </div>
+<div class="plugin-content-link">
+	<a href="?page=sltg-craft&doaction=create-new">
+		<button id="add-craft" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
+	<a href="?page=sltg-craft&doaction=edit&craft=<?php _e( $craft->GetID() ) ?>">
+		<button id="edit-craft" class="btn btn-warning">
+			<span class="glyphicon glyphicon-edit"></span> Edit
+		</button>
+	</a>
+	<a href="?page=sltg-craft&doaction=delete&craft=<?php _e( $craft->GetID() ) ?>">
+		<button id="delete-craft" class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Delete
+		</button>
+	</a>
+	| Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-craft' ); ?>">craft list</a>.
+</div>

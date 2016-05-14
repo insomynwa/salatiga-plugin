@@ -31,3 +31,21 @@
 		</ul>
 	</div>
 </div>
+<div class="plugin-content-link">
+	<a href="?page=sltg-personal&doaction=create-new">
+		<button id="add-personal" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
+	<a href="?page=sltg-personal&doaction=edit&person=<?php _e( $person->GetID() ) ?>">
+		<button id="edit-person" class="btn btn-warning">
+			<span class="glyphicon glyphicon-edit"></span> Edit
+		</button>
+	</a>
+	<a href="?page=sltg-personal&doaction=delete&person=<?php _e( $person->GetID() ) ?>">
+		<button id="delete-person" class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Delete
+		</button>
+	</a>
+	| Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-personal' ); ?>">person list</a>.
+</div>

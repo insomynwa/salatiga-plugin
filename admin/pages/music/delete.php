@@ -12,7 +12,7 @@
 ?>
 <div class="form-delete-area">
 	<form id="form-delete-music" method="post">
-		<label>Yakin hapus <?php _e( $music->GetTitle() ) ?>?</label>
+		<label>Yakin hapus <?php _e( str_replace("\'", "'", $music->GetTitle() ) ) ?>?</label>
 		<input type="hidden" value="<?php _e( $music->GetId() ); ?>" name="id-music" id="id-music">
 		<button class="btn btn-danger" type="submit" id="btn-delete-music" name="submit-delete-music">YES</button>
 	</form>

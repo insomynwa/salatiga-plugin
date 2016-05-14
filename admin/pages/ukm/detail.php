@@ -32,3 +32,21 @@
 		</ul>
 	</div>
 </div>
+<div class="plugin-content-link">
+	<a href="?page=sltg-ukm&doaction=create-new">
+		<button id="add-ukm" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
+	<a href="?page=sltg-ukm&doaction=edit&ukm=<?php _e( $ukm->GetID() ) ?>">
+		<button id="edit-ukm" class="btn btn-warning">
+			<span class="glyphicon glyphicon-edit"></span> Edit
+		</button>
+	</a>
+	<a href="?page=sltg-ukm&doaction=delete&ukm=<?php _e( $ukm->GetID() ) ?>">
+		<button id="delete-ukm" class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Delete
+		</button>
+	</a>
+	| Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-ukm' ); ?>">UKM list</a>.
+</div>

@@ -50,17 +50,23 @@ class Salatiga_Plugin {
 		$this->loader->add_action( 'wp_ajax_RetrieveList', $admin, 'retrieve_list' );
 		$this->loader->add_action( 'wp_ajax_SearchFor', $admin, 'retrieve_list' );
 		$this->loader->add_action( 'sltg_product_category_pagination', $admin, 'get_kategori_product' );
+		
 		$this->loader->add_action( 'wp_ajax_CreateNewProduct', $admin, 'create_product' );
 		$this->loader->add_action( 'delete_post', $admin, 'delete_post_attachments' );
 		$this->loader->add_action( 'wp_ajax_UpdateProduct', $admin, 'update_product' );
+
 		$this->loader->add_action( 'wp_ajax_CreateNewUKM', $admin, 'create_ukm' );
 		$this->loader->add_action( 'wp_ajax_UpdateUKM', $admin, 'update_ukm' );
+
 		$this->loader->add_action( 'wp_ajax_CreateNewPerson', $admin, 'create_person' );
 		$this->loader->add_action( 'wp_ajax_UpdatePerson', $admin, 'update_person' );
+
 		$this->loader->add_action( 'wp_ajax_CreateNewMusic', $admin, 'create_music' );
 		$this->loader->add_action( 'wp_ajax_UpdateMusic', $admin, 'update_music' );
+
 		$this->loader->add_action( 'wp_ajax_CreateNewHotel', $admin, 'create_hotel' );
 		$this->loader->add_action( 'wp_ajax_UpdateHotel', $admin, 'update_hotel' );
+
 		$this->loader->add_action( 'wp_ajax_CreateNewCraft', $admin, 'create_craft' );
 		$this->loader->add_action( 'wp_ajax_UpdateCraft', $admin, 'update_craft' );
 		
