@@ -42,7 +42,8 @@
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-hotel' ); ?>">Hotel</a></li>
 							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-jeniskamar' ); ?>">Kamar</a></li>
 							<li class="divider"></li>
-							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-genre' ); ?>">Y</a></li>
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-touristsite' ); ?>">Tourist Site</a></li>
+							<li><a href="<?php echo admin_url( 'admin.php?page=sltg-kattouristsite' ); ?>">Category</a></li>
 						</ul>
 					</li>
 					<li><a href="#">Other</a></li>

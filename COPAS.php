@@ -1,67 +1,50 @@
 <?php
-	public function update_product() {
-		$result = array( 'status' => false, 'message' => '' );
-		$post_isset = isset( $_POST[ 'product' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
-			isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'kreator' ] ) && isset( $_POST[ 'gambararr' ] );
-		
-		if( $post_isset ) {
-			$post_product_id = sanitize_text_field( $_POST[ 'product' ] );
-			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
-			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
-			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
-			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
-			$post_kreator = sanitize_text_field( $_POST[ 'kreator' ] );
-			$post_gambararr = $_POST[ 'gambararr' ] ;
+	public function render_kattouristsite_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
 
-			$is_new_kategori = (! is_numeric( $post_kategori ) );
-			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
 
-			$post_not_empty = ($post_product_id > 0) && ($post_nama!="") && ($valid_kategori) && ($post_kreator>0) && (sizeof($post_gambararr)>0);
-
-			if( $post_not_empty ) {
-				if( $is_new_kategori ) {
-					$result_add = $this->add_kategori( $post_kategori );
-					$post_kategori = $result_add[ 'new_id' ];
-				}
-				$product = new Sltg_Product();
-				$product->HasID( $post_product_id );
-
-				// compare data
-				$oldData = array(
-					$product->GetNama(), // nama produk
-					$product->GetDeskripsi(), // deskripsi
-					$product->GetOther(), // other
-					$product->GetKategori()->GetID(), // kategori
-					$product->GetProducer()->GetID() // ukm
-					);
-				$newData = array(
-					$post_nama, // nama produk
-					$post_deskripsi, // deskripsi
-					$post_infolain, // other
-					$post_kategori, // kategori,
-					$post_kreator // ukm
-					);
-
-				$result = $this->update_pictures( $product, /*'produk',*/ $post_gambararr );
-
-				if ( $oldData !== $newData ) {
-					$product->SetNama( $post_nama );
-					$product->SetDeskripsi( $post_deskripsi );
-					$product->SetOther( $post_infolain );
-					$product->SetKategori( $post_kategori );
-					$product->SetProducer( $post_kreator );
-					$result = $product->Update();
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
 				}
 			}
 			else {
-				$result[ 'message' ] = 'parameter tidak valid!';
+				if( isset( $_GET[ 'kattouristsite' ] ) && ($_GET[ 'kattouristsite' ] > 0) ) {
+					$get_kattouristsite_id = sanitize_text_field( $_GET[ 'kattouristsite' ] );
+					if( $get_action == "edit" ) {
+
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Kategori_TouristSite();
+					$obj->HasID( $get_kattouristsite_id );
+					$attributes[ 'kattouristsite' ] = $obj;
+				}
 			}
+
+			$content = $this->get_html_template( 'pages/kategori_touristsite', $action_template, $attributes, TRUE );
 		}
 		else {
-			$result[ 'message' ] = 'parameter tidak lengkap!';
+			$content = $this->get_html_template( 'pages/kategori_touristsite', 'main', null, TRUE);
 		}
-
-		echo wp_json_encode( $result );
-
-		wp_die();
+		$this->get_html_template( 'pages', 'template', $content );
 	}

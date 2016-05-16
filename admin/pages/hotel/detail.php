@@ -34,3 +34,21 @@
 		</ul>
 	</div>
 </div>
+<div class="plugin-content-link">
+	<a href="?page=sltg-hotel&doaction=create-new">
+		<button id="add-hotel" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus"></span> Add
+		</button>
+	</a>
+	<a href="?page=sltg-hotel&doaction=edit&hotel=<?php _e( $hotel->GetID() ) ?>">
+		<button id="edit-hotel" class="btn btn-warning">
+			<span class="glyphicon glyphicon-edit"></span> Edit
+		</button>
+	</a>
+	<a href="?page=sltg-hotel&doaction=delete&hotel=<?php _e( $hotel->GetID() ) ?>">
+		<button id="delete-hotel" class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Delete
+		</button>
+	</a>
+	| Go to <a href="<?php echo admin_url( 'admin.php?page=sltg-hotel' ); ?>">Hotel list</a>.
+</div>

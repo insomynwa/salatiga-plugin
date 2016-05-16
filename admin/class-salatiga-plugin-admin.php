@@ -130,6 +130,15 @@ class Salatiga_Plugin_Admin {
 			'sltg-craft',
 			array( $this, 'render_craft_page' )
 			);
+		// Kategori Tourist Site
+		add_submenu_page(
+			null,
+			'Tourist Site Category',
+			'Tourist Site Category',
+			'manage_options',
+			'sltg-kattouristsite',
+			array( $this, 'render_kattouristsite_page' )
+			);
 	}
 
 	// Render Main Page
@@ -739,6 +748,57 @@ class Salatiga_Plugin_Admin {
 		$this->get_html_template( 'pages', 'template', $content );
 	}
 
+	// Render Kategori Craft page
+	public function render_kattouristsite_page(){
+		if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+			
+			$attributes = array();
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else {
+				if( isset( $_GET[ 'kattouristsite' ] ) && ($_GET[ 'kattouristsite' ] > 0) ) {
+					$get_kattouristsite_id = sanitize_text_field( $_GET[ 'kattouristsite' ] );
+					if( $get_action == "edit" ) {
+
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_Kategori_TouristSite();
+					$obj->HasID( $get_kattouristsite_id );
+					$attributes[ 'kattouristsite' ] = $obj;
+				}
+			}
+
+			$content = $this->get_html_template( 'pages/kategori_touristsite', $action_template, $attributes, TRUE );
+		}
+		else {
+			$content = $this->get_html_template( 'pages/kategori_touristsite', 'main', null, TRUE);
+		}
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -806,6 +866,9 @@ class Salatiga_Plugin_Admin {
 			}
 			else if( $get_listfor == 'jeniskamar' ) {
 				$obj = new Sltg_Jenis_Kamar();
+			}
+			else if( $get_listfor == 'kattouristsite' ) {
+				$obj = new Sltg_Kategori_TouristSite();
 			}
 			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
 			$option_limit_name = $obj->iGet_LimitName();
@@ -899,6 +962,10 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Jenis_Kamar();
 				$dir_obj = "jenis_kamar";
 			}
+			else if( $get_listfor == 'kattouristsite' ) {
+				$obj = new Sltg_Kategori_TouristSite();
+				$dir_obj = "kategori_touristsite";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -954,6 +1021,11 @@ class Salatiga_Plugin_Admin {
 					$jeniskamar = new Sltg_Jenis_Kamar();
 					$jeniskamar->HasID( $row->id_jeniskamar );
 					$arrObj['jeniskamar'][] = $jeniskamar;
+				}
+				else if( $get_listfor == 'kattouristsite' ){
+					$kattouristsite = new Sltg_Kategori_TouristSite();
+					$kattouristsite->HasID( $row->id_kategori );
+					$arrObj['kattouristsite'][] = $kattouristsite;
 				}
 			}
 
@@ -1310,79 +1382,6 @@ class Salatiga_Plugin_Admin {
 
 				$result = $this->update_pictures( $product, /*'produk',*/ $post_gambararr );
 
-				// compare Picture
-				// $arrOldPict = $product->GetGambars();
-
-				// $arrAddedPict = array();
-				// $arrAddedPictId = array();
-				// $utamaInNew = false;
-				// $selectedUtama = 0;
-				// foreach( $post_gambararr as $newPict) {
-				// 	$isNew = true;
-				// 	foreach( $arrOldPict as $oldPict) {
-				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-				// 			$isNew = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrAddedPict[] = $isNew;
-				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-				// 	if( $isNew ) {
-				// 		$arrAddedPictId[] = $newPict;
-				// 		if( $newPict['utama'] == 1){
-				// 			$utamaInNew = true;
-				// 		}
-				// 	}
-				// }
-
-				// // get deleted picture
-				// $arrDelPict = array();
-				// $arrDelPictId = array();
-				// $utamaInDel = false;
-				// foreach( $arrOldPict as $oldPict) {
-				// 	$isDel = true;
-				// 	foreach( $post_gambararr as $newPict) {
-				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-				// 			$isDel = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrDelPict[] = $isDel;
-				// 	if( $isDel ) {
-				// 		$arrDelPictId[] = $oldPict;
-				// 		if( $oldPict->GetPostId() == 1){
-				// 			$utamaInDel = true;
-				// 		}
-				// 	}
-				// }
-
-				// if( !$utamaInNew && !$utamaInDel ) {
-				// 	// update gambar utama
-				// 	foreach ( $arrOldPict as $oldPict ) {
-				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-				// 			$result = $oldPict->SetAsGambarUtama();
-				// 			break;
-				// 		}
-				// 	}
-				// }
-
-				// // delete old picture
-				// if ( sizeof( $arrDelPictId ) > 0 ) {
-				// 	foreach( $arrDelPictId as $delGbr ) {
-				// 		$result = $delGbr->Delete();
-				// 	}
-				// }
-
-				// // add new picture
-				// if( sizeof( $arrAddedPictId ) > 0 ) {
-				// 	if( $utamaInNew ) {
-				// 		$temp_gbr = new Sltg_Gambar();
-				// 		$temp_gbr->SetOwner( $product->GetPictCode() );
-				// 		$temp_gbr->ClearSelectedUtama();
-				// 	}
-				// 	$result = $this->add_picture( 'produk', $product->GetPictCode(), $arrAddedPictId );
-				// }
-
 				if ( $oldData !== $newData ) {
 					$product->SetNama( $post_nama );
 					$product->SetDeskripsi( $post_deskripsi );
@@ -1450,79 +1449,6 @@ class Salatiga_Plugin_Admin {
 
 				$result = $this->update_pictures( $craft, /*'craft',*/ $post_gambararr );
 
-				// compare Picture
-				// $arrOldPict = $craft->GetGambars();
-
-				// $arrAddedPict = array();
-				// $arrAddedPictId = array();
-				// $utamaInNew = false;
-				// $selectedUtama = 0;
-				// foreach( $post_gambararr as $newPict) {
-				// 	$isNew = true;
-				// 	foreach( $arrOldPict as $oldPict) {
-				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-				// 			$isNew = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrAddedPict[] = $isNew;
-				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-				// 	if( $isNew ) {
-				// 		$arrAddedPictId[] = $newPict;
-				// 		if( $newPict['utama'] == 1){
-				// 			$utamaInNew = true;
-				// 		}
-				// 	}
-				// }
-
-				// // get deleted picture
-				// $arrDelPict = array();
-				// $arrDelPictId = array();
-				// $utamaInDel = false;
-				// foreach( $arrOldPict as $oldPict) {
-				// 	$isDel = true;
-				// 	foreach( $post_gambararr as $newPict) {
-				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-				// 			$isDel = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrDelPict[] = $isDel;
-				// 	if( $isDel ) {
-				// 		$arrDelPictId[] = $oldPict;
-				// 		if( $oldPict->GetPostId() == 1){
-				// 			$utamaInDel = true;
-				// 		}
-				// 	}
-				// }
-
-				// if( !$utamaInNew && !$utamaInDel ) {
-				// 	// update gambar utama
-				// 	foreach ( $arrOldPict as $oldPict ) {
-				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-				// 			$result = $oldPict->SetAsGambarUtama();
-				// 			break;
-				// 		}
-				// 	}
-				// }
-
-				// // delete old picture
-				// if ( sizeof( $arrDelPictId ) > 0 ) {
-				// 	foreach( $arrDelPictId as $delGbr ) {
-				// 		$result = $delGbr->Delete();
-				// 	}
-				// }
-
-				// // add new picture
-				// if( sizeof( $arrAddedPictId ) > 0 ) {
-				// 	if( $utamaInNew ) {
-				// 		$temp_gbr = new Sltg_Gambar();
-				// 		$temp_gbr->SetOwner( $craft->GetPictCode() );
-				// 		$temp_gbr->ClearSelectedUtama();
-				// 	}
-				// 	$result = $this->add_picture( 'craft', $craft->GetPictCode(), $arrAddedPictId );
-				// }
-
 				if ( $oldData !== $newData ) {
 					$craft->SetNama( $post_nama );
 					$craft->SetDeskripsi( $post_deskripsi );
@@ -1583,79 +1509,6 @@ class Salatiga_Plugin_Admin {
 					);
 
 				$result = $this->update_pictures( $hotel, /*'produk',*/ $post_gambararr );
-
-				// compare Picture
-				// $arrOldPict = $hotel->GetGambars();
-
-				// $arrAddedPict = array();
-				// $arrAddedPictId = array();
-				// $utamaInNew = false;
-				// $selectedUtama = 0;
-				// foreach( $post_gambararr as $newPict) {
-				// 	$isNew = true;
-				// 	foreach( $arrOldPict as $oldPict) {
-				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-				// 			$isNew = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrAddedPict[] = $isNew;
-				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-				// 	if( $isNew ) {
-				// 		$arrAddedPictId[] = $newPict;
-				// 		if( $newPict['utama'] == 1){
-				// 			$utamaInNew = true;
-				// 		}
-				// 	}
-				// }
-
-				// // get deleted picture
-				// $arrDelPict = array();
-				// $arrDelPictId = array();
-				// $utamaInDel = false;
-				// foreach( $arrOldPict as $oldPict) {
-				// 	$isDel = true;
-				// 	foreach( $post_gambararr as $newPict) {
-				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-				// 			$isDel = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrDelPict[] = $isDel;
-				// 	if( $isDel ) {
-				// 		$arrDelPictId[] = $oldPict;
-				// 		if( $oldPict->GetPostId() == 1){
-				// 			$utamaInDel = true;
-				// 		}
-				// 	}
-				// }
-
-				// if( !$utamaInNew && !$utamaInDel ) {
-				// 	// update gambar utama
-				// 	foreach ( $arrOldPict as $oldPict ) {
-				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-				// 			$result = $oldPict->SetAsGambarUtama();
-				// 			break;
-				// 		}
-				// 	}
-				// }
-
-				// // delete old picture
-				// if ( sizeof( $arrDelPictId ) > 0 ) {
-				// 	foreach( $arrDelPictId as $delGbr ) {
-				// 		$result = $delGbr->Delete();
-				// 	}
-				// }
-
-				// // add new picture
-				// if( sizeof( $arrAddedPictId ) > 0 ) {
-				// 	if( $utamaInNew ) {
-				// 		$temp_gbr = new Sltg_Gambar();
-				// 		$temp_gbr->SetOwner( $hotel->GetPictCode() );
-				// 		$temp_gbr->ClearSelectedUtama();
-				// 	}
-				// 	$result = $this->add_picture( 'hotel', $hotel->GetPictCode(), $arrAddedPictId );
-				// }
 
 				if ( $oldData !== $newData ) {
 					$hotel->SetNama( $post_nama );
@@ -1722,79 +1575,6 @@ class Salatiga_Plugin_Admin {
 
 				$result = $this->update_pictures( $ukm, /*'ukm',*/ $post_gambararr );
 
-				// compare Picture
-				// $arrOldPict = $ukm->GetGambars();
-
-				// $arrAddedPict = array();
-				// $arrAddedPictId = array();
-				// $utamaInNew = false;
-				// $selectedUtama = 0;
-				// foreach( $post_gambararr as $newPict) {
-				// 	$isNew = true;
-				// 	foreach( $arrOldPict as $oldPict) {
-				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-				// 			$isNew = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrAddedPict[] = $isNew;
-				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-				// 	if( $isNew ) {
-				// 		$arrAddedPictId[] = $newPict;
-				// 		if( $newPict['utama'] == 1){
-				// 			$utamaInNew = true;
-				// 		}
-				// 	}
-				// }
-
-				// // get deleted picture
-				// $arrDelPict = array();
-				// $arrDelPictId = array();
-				// $utamaInDel = false;
-				// foreach( $arrOldPict as $oldPict) {
-				// 	$isDel = true;
-				// 	foreach( $post_gambararr as $newPict) {
-				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-				// 			$isDel = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrDelPict[] = $isDel;
-				// 	if( $isDel ) {
-				// 		$arrDelPictId[] = $oldPict;
-				// 		if( $oldPict->GetPostId() == 1){
-				// 			$utamaInDel = true;
-				// 		}
-				// 	}
-				// }
-
-				// if( !$utamaInNew && !$utamaInDel ) {
-				// 	// update gambar utama
-				// 	foreach ( $arrOldPict as $oldPict ) {
-				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-				// 			$result = $oldPict->SetAsGambarUtama();
-				// 			break;
-				// 		}
-				// 	}
-				// }
-
-				// // delete old picture
-				// if ( sizeof( $arrDelPictId ) > 0 ) {
-				// 	foreach( $arrDelPictId as $delGbr ) {
-				// 		$result = $delGbr->Delete();
-				// 	}
-				// }
-
-				// // add new picture
-				// if( sizeof( $arrAddedPictId ) > 0 ) {
-				// 	if( $utamaInNew ) {
-				// 		$temp_gbr = new Sltg_Gambar();
-				// 		$temp_gbr->SetOwner( $ukm->GetPictCode() );
-				// 		$temp_gbr->ClearSelectedUtama();
-				// 	}
-				// 	$result = $this->add_picture( 'ukm', $ukm->GetPictCode(), $arrAddedPictId );
-				// }
-
 				if ( $oldData !== $newData ) {
 					$ukm->SetNama( $post_nama );
 					$ukm->SetDeskripsi( $post_deskripsi );
@@ -1856,79 +1636,6 @@ class Salatiga_Plugin_Admin {
 					);
 
 				$result = $this->update_pictures( $person, /*'person',*/ $post_gambararr );
-
-				// compare Picture
-				// $arrOldPict = $person->GetGambars();
-
-				// $arrAddedPict = array();
-				// $arrAddedPictId = array();
-				// $utamaInNew = false;
-				// $selectedUtama = 0;
-				// foreach( $post_gambararr as $newPict) {
-				// 	$isNew = true;
-				// 	foreach( $arrOldPict as $oldPict) {
-				// 		if( $newPict['post_id'] == $oldPict->GetPostId() ) {
-				// 			$isNew = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrAddedPict[] = $isNew;
-				// 	if( $newPict[ 'utama'] == 1) $selectedUtama = $newPict['post_id'];
-				// 	if( $isNew ) {
-				// 		$arrAddedPictId[] = $newPict;
-				// 		if( $newPict['utama'] == 1){
-				// 			$utamaInNew = true;
-				// 		}
-				// 	}
-				// }
-
-				// // get deleted picture
-				// $arrDelPict = array();
-				// $arrDelPictId = array();
-				// $utamaInDel = false;
-				// foreach( $arrOldPict as $oldPict) {
-				// 	$isDel = true;
-				// 	foreach( $post_gambararr as $newPict) {
-				// 		if( $oldPict->GetPostId() == $newPict['post_id'] ) {
-				// 			$isDel = false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	$arrDelPict[] = $isDel;
-				// 	if( $isDel ) {
-				// 		$arrDelPictId[] = $oldPict;
-				// 		if( $oldPict->GetPostId() == 1){
-				// 			$utamaInDel = true;
-				// 		}
-				// 	}
-				// }
-
-				// if( !$utamaInNew && !$utamaInDel ) {
-				// 	// update gambar utama
-				// 	foreach ( $arrOldPict as $oldPict ) {
-				// 		if( $oldPict->GetPostId() == $selectedUtama && $oldPict->GetGambarUtama() == 0) {
-				// 			$result = $oldPict->SetAsGambarUtama();
-				// 			break;
-				// 		}
-				// 	}
-				// }
-
-				// // delete old picture
-				// if ( sizeof( $arrDelPictId ) > 0 ) {
-				// 	foreach( $arrDelPictId as $delGbr ) {
-				// 		$result = $delGbr->Delete();
-				// 	}
-				// }
-
-				// // add new picture
-				// if( sizeof( $arrAddedPictId ) > 0 ) {
-				// 	if( $utamaInNew ) {
-				// 		$temp_gbr = new Sltg_Gambar();
-				// 		$temp_gbr->SetOwner( $person->GetPictCode() );
-				// 		$temp_gbr->ClearSelectedUtama();
-				// 	}
-				// 	$result = $this->add_picture( 'person', $person->GetPictCode(), $arrAddedPictId );
-				// }
 
 				if ( $oldData !== $newData ) {
 					$person->SetNama( $post_nama );
