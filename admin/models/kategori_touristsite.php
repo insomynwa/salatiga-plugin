@@ -20,18 +20,18 @@ class Sltg_Kategori_TouristSite implements IListItem{
 	public function SetNama( $nama ) { $this->nama = $nama; }
 
 	// IN RELATIONSHIP
-	// public function GetProducts() { 
-	// 	$arrCraft = array();
+	public function GetTouristSites() { 
+		$arrTouristSite = array();
 
-	// 	$obj_touristsite = new Sltg_Craft();
-	// 	$list_touristsite = $obj_touristsite->ListByCategory( $this->id );
-	// 	foreach( $list_touristsite as $p ) {
-	// 		$touristsite = new Sltg_Craft();
-	// 		$touristsite->HasID( $p->id_touristsite );
-	// 		$arrCraft[] = $touristsite;
-	// 	}
-	// 	return $arrCraft; 
-	// }
+		$obj_touristsite = new Sltg_TouristSite();
+		$list_touristsite = $obj_touristsite->ListByCategory( $this->id );
+		foreach( $list_touristsite as $tr ) {
+			$touristsite = new Sltg_TouristSite();
+			$touristsite->HasID( $tr->id_touristsite );
+			$arrTouristSite[] = $touristsite;
+		}
+		return $arrTouristSite; 
+	}
 
 	function __construct() {
 		$this->table_name = "ext_kategori_touristsite";
@@ -176,27 +176,27 @@ class Sltg_Kategori_TouristSite implements IListItem{
 				$this->id
 			)
 		)) {
-			/*$statusUpdateProducts = $this->updateProducts();
-			$result ['status'] = $statusUpdateProducts;*/
+			$statusTouristSites = $this->updateTouristSites();
+			$result ['status'] = $statusTouristSites;
 		}
 
 		return $result;
 	}
 
-	/*private function updateProducts() {
-		$arrProducts = $this->GetProducts();
+	private function updateTouristSites() {
+		$arrTouristSites = $this->GetTouristSites();
 
-		$result[ 'status' ] = ( sizeof( $arrProducts ) == 0 );
+		$result[ 'status' ] = ( sizeof( $arrTouristSites ) == 0 );
 
-		if( sizeof( $arrProducts ) > 0 ) {
-			foreach( $arrProducts as $product ) {
-				$product->SetKategori(0);
-				$result[ 'status' ] = $product->Update();
+		if( sizeof( $arrTouristSites ) > 0 ) {
+			foreach( $arrTouristSites as $touristsite ) {
+				$touristsite->SetKategori(0);
+				$result[ 'status' ] = $touristsite->Update();
 			}
 		}
 
 		return $result[ 'status' ];
-	}*/
+	}
 
 	public function Update() {
 		global $wpdb;

@@ -130,6 +130,15 @@ class Salatiga_Plugin_Admin {
 			'sltg-craft',
 			array( $this, 'render_craft_page' )
 			);
+		// Tourist Site
+		add_submenu_page(
+			null,
+			'Tourist Site',
+			'Tourist Site',
+			'manage_options',
+			'sltg-touristsite',
+			array( $this, 'render_touristsite_page' )
+			);
 		// Kategori Tourist Site
 		add_submenu_page(
 			null,
@@ -799,6 +808,70 @@ class Salatiga_Plugin_Admin {
 		$this->get_html_template( 'pages', 'template', $content );
 	}
 
+	// Render Tourist Site
+	public function render_touristsite_page(){
+		if( isset( $_GET[ 'detail' ] ) && $_GET[ 'detail' ] > 0) {
+
+			$get_detail = sanitize_text_field( $_GET[ 'detail'] );
+			$obj = new Sltg_TouristSite();
+
+			$content = $this->load_detail( $obj, $get_detail, "touristsite", "tourist_site" );
+		}
+		else if( isset( $_GET[ 'doaction' ] ) && $_GET[ 'doaction' ] != "" ){
+			$get_action = sanitize_text_field( $_GET[ 'doaction' ] );
+
+			$attributes = array();
+
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'kattouristsite' );
+
+			$action_template = "";
+			if( $get_action == "create-new" ){
+				$action_template = "add";
+
+				if( isset( $_GET[ 'status' ] )) {
+					$get_status = sanitize_text_field( $_GET[ 'status' ] );
+
+					if( $get_status == 'success' ) {
+						$attributes[ 'message' ] = "Success Bro!";
+					}
+				}
+			}
+			else{
+				if( isset( $_GET[ 'touristsite' ] ) && ($_GET[ 'touristsite' ] > 0) ) {
+					$get_touristsite_id = sanitize_text_field( $_GET[ 'touristsite' ] );
+
+					if( $get_action == "edit" ) {
+						$action_template = "edit";
+
+						if( isset( $_GET[ 'status' ] )) {
+							$get_status = sanitize_text_field( $_GET[ 'status' ] );
+							if( $get_status == 'success' ) {
+								$attributes[ 'message' ] = "Success Bro!";
+							}
+						}
+					}
+					else if( $get_action == 'delete' ) {
+						$action_template = 'delete';
+					}
+
+					$obj = new Sltg_TouristSite();
+					$obj->HasID( $get_touristsite_id );
+					$attributes[ 'touristsite' ] = $obj;
+				}
+			}
+
+			$content = $this->get_html_template( 'pages/tourist_site', $action_template, $attributes, TRUE );
+		}
+		else {
+			$attributes = array();
+
+			$attributes[ 'kategori' ] = $this->get_array_datalist( 'kattouristsite' );
+
+			$content = $this->get_html_template( 'pages/tourist_site', 'main', $attributes, TRUE);
+		}	
+		$this->get_html_template( 'pages', 'template', $content );
+	}
+
 	private function get_html_template( $location, $template_name, $attributes = null , $return_val = FALSE) {
 		if (! $attributes ) {
 			$attributes = array();
@@ -869,6 +942,9 @@ class Salatiga_Plugin_Admin {
 			}
 			else if( $get_listfor == 'kattouristsite' ) {
 				$obj = new Sltg_Kategori_TouristSite();
+			}
+			else if( $get_listfor == 'touristsite' ) {
+				$obj = new Sltg_TouristSite();
 			}
 			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
 			$option_limit_name = $obj->iGet_LimitName();
@@ -966,6 +1042,10 @@ class Salatiga_Plugin_Admin {
 				$obj = new Sltg_Kategori_TouristSite();
 				$dir_obj = "kategori_touristsite";
 			}
+			else if( $get_listfor == 'touristsite' ) {
+				$obj = new Sltg_TouristSite();
+				$dir_obj = "tourist_site";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -1026,6 +1106,11 @@ class Salatiga_Plugin_Admin {
 					$kattouristsite = new Sltg_Kategori_TouristSite();
 					$kattouristsite->HasID( $row->id_kategori );
 					$arrObj['kattouristsite'][] = $kattouristsite;
+				}
+				else if( $get_listfor == 'touristsite' ){
+					$touristsite = new Sltg_TouristSite();
+					$touristsite->HasID( $row->id_touristsite );
+					$arrObj['touristsite'][] = $touristsite;
 				}
 			}
 
@@ -1323,6 +1408,60 @@ class Salatiga_Plugin_Admin {
 				$newJenisKamar = new Sltg_Jenis_Kamar();
 				$newJenisKamar->HasID( $result[ 'new_id' ] );
 				$this->add_picture( $newJenisKamar->GetPictCode(), $post_gambararr );
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
+	public function create_touristsite() {
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'alamat' ] ) && isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'gambararr' ] ) &&
+			isset( $_POST[ 'latitude' ] ) && isset( $_POST[ 'longitude' ] );
+		if( $post_isset ) {
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_latitude = sanitize_text_field( $_POST[ 'latitude' ] );
+			$post_longitude = sanitize_text_field( $_POST[ 'longitude' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+
+			$post_not_empty = ($post_nama!="") && ($valid_kategori) && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori_touristsite( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$touristsite = new Sltg_TouristSite();
+				$touristsite->SetNama( $post_nama );
+				$touristsite->SetAlamat( $post_alamat );
+				$touristsite->SetDeskripsi( $post_deskripsi );
+				$touristsite->SetOther( $post_infolain );
+				$touristsite->SetTelp( $post_telp );
+				$touristsite->SetLatitude( $post_latitude );
+				$touristsite->SetLongitude( $post_longitude );
+				$touristsite->SetKategori( $post_kategori );
+
+				$result = $touristsite->AddNew();
+				$newTouristSite = new Sltg_TouristSite();
+				$newTouristSite->HasID( $result[ 'new_id' ] );
+				$this->add_picture( $newTouristSite->GetPictCode(), $post_gambararr );
 			}
 			else {
 				$result[ 'message' ] = 'parameter tidak valid!';
@@ -1776,6 +1915,89 @@ class Salatiga_Plugin_Admin {
 		wp_die();
 	}
 
+	public function update_touristsite() {
+
+		$result = array( 'status' => false, 'message' => '' );
+		$post_isset = 
+			isset( $_POST[ 'touristsite' ] ) && isset( $_POST[ 'nama' ] ) && isset( $_POST[ 'alamat' ] ) && 
+			isset( $_POST[ 'deskripsi' ] ) && isset( $_POST[ 'infolain' ] ) &&
+			isset( $_POST[ 'telp' ] ) && isset( $_POST[ 'kategori' ] ) && isset( $_POST[ 'gambararr' ] ) &&
+			isset( $_POST[ 'latitude' ] ) && isset( $_POST[ 'longitude' ] );
+		//var_dump($post_isset);
+		if( $post_isset ) {
+			$post_touristsite_id = sanitize_text_field( $_POST[ 'touristsite' ] );
+			$post_nama = sanitize_text_field( $_POST[ 'nama' ] );
+			$post_alamat = sanitize_text_field( $_POST[ 'alamat' ] );
+			$post_deskripsi = sanitize_text_field( $_POST[ 'deskripsi' ] );
+			$post_infolain = sanitize_text_field( $_POST[ 'infolain' ] );
+			$post_telp = sanitize_text_field( $_POST[ 'telp' ] );
+			$post_latitude = sanitize_text_field( $_POST[ 'latitude' ] );
+			$post_longitude = sanitize_text_field( $_POST[ 'longitude' ] );
+			$post_kategori = sanitize_text_field( $_POST[ 'kategori' ] );
+			$post_gambararr = $_POST[ 'gambararr' ] ;
+
+			$is_new_kategori = (! is_numeric( $post_kategori ) );
+			$valid_kategori = $this->validate_kategori( $is_new_kategori, $post_kategori );
+
+			$post_not_empty = ($post_touristsite_id > 0) && ($post_nama!="") && ($valid_kategori) && ($post_alamat!="") && (sizeof($post_gambararr)>0);
+			//var_dump($post_not_empty);
+			if( $post_not_empty ) {
+				if( $is_new_kategori ) {
+					$result_add = $this->add_kategori_touristsite( $post_kategori );
+					$post_kategori = $result_add[ 'new_id' ];
+				}
+				$touristsite = new Sltg_TouristSite();
+				$touristsite->HasID( $post_touristsite_id );
+
+				// compare data
+				$oldData = array(
+					$touristsite->GetNama(), // nama touristsite
+					$touristsite->GetALamat(), // alamat
+					$touristsite->GetDeskripsi(), // deskripsi
+					$touristsite->GetOther(), // other
+					$touristsite->GetTelp(), // telp
+					$touristsite->GetLatitude(), // latitude
+					$touristsite->GetLongitude(), // longitude
+					$touristsite->GetKategori()->GetID() // kategori
+					);
+				$newData = array(
+					$post_nama, // nama touristsite
+					$post_alamat, // alamat
+					$post_deskripsi, // deskripsi
+					$post_infolain, // other
+					$post_telp, // telp
+					$post_latitude, // latitude
+					$post_longitude, // longitude
+					$post_kategori // kategori,
+					);
+				$result = $this->update_pictures( $touristsite, /*'touristsite',*/ $post_gambararr );
+				//var_dump($oldData !== $newData);
+
+				if ( $oldData !== $newData ) {
+					$touristsite->SetNama( $post_nama );
+					$touristsite->SetAlamat( $post_alamat );
+					$touristsite->SetDeskripsi( $post_deskripsi );
+					$touristsite->SetOther( $post_infolain );
+					$touristsite->SetTelp( $post_telp );
+					$touristsite->SetLatitude( $post_latitude );
+					$touristsite->SetLongitude( $post_longitude );
+					$touristsite->SetKategori( $post_kategori );
+					$result = $touristsite->Update();
+				}
+			}
+			else {
+				$result[ 'message' ] = 'parameter tidak valid!';
+			}
+		}
+		else {
+			$result[ 'message' ] = 'parameter tidak lengkap!';
+		}
+
+		echo wp_json_encode( $result );
+
+		wp_die();
+	}
+
 	private function add_picture( /*$type_pict, */$pict_code, $pictureArr ) {
 		$result = array();
 
@@ -1795,6 +2017,19 @@ class Salatiga_Plugin_Admin {
 
 	private function add_kategori( $kategori_name ) {
 		$kategori = new Sltg_Kategori_Product_UKM();
+
+		$kategori->SetNama( $kategori_name );
+
+
+		if( ! $kategori->FindName() )
+			$result = $kategori->AddNew();
+		else
+			$result[ 'new_id' ] = $kategori->GetID();
+		return $result;
+	}
+
+	private function add_kategori_touristsite( $kategori_name ) {
+		$kategori = new Sltg_Kategori_TouristSite();
 
 		$kategori->SetNama( $kategori_name );
 
@@ -1916,6 +2151,14 @@ class Salatiga_Plugin_Admin {
 				$hotel->HasID( $htl->id_hotel );
 				$attributes[] = $hotel;
 			}
+		}else if( $listof == 'kattouristsite' ) {
+			$obj_kat = new Sltg_Kategori_TouristSite();
+			$kattouristsites = $obj_kat->Datalist();
+			foreach( $kattouristsites as $ktr ) {
+				$kattouristsite = new Sltg_Kategori_TouristSite();
+				$kattouristsite->HasID( $ktr->id_kategori );
+				$attributes[] = $kattouristsite;
+			}
 		}
 
 		return $attributes;
@@ -1986,7 +2229,7 @@ class Salatiga_Plugin_Admin {
 				$result = $delGbr->Delete();
 			}
 		}
-
+		// var_dump($result,'update');
 		// add new picture
 		if( sizeof( $arrAddedPictId ) > 0 ) {
 			if( $utamaInNew ) {
