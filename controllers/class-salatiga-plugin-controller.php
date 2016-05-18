@@ -65,6 +65,11 @@ class Salatiga_Plugin_Controller {
 				// $attributes[ 'listfor' ] = 'craft';
 				// $option_limit_name = "craft_list_limit";
 			}
+			else if( $get_listfor == 'touristsite' ) {
+				$obj = new Sltg_TouristSite();
+				// $attributes[ 'listfor' ] = 'craft';
+				// $option_limit_name = "craft_list_limit";
+			}
 
 			$attributes[ 'listfor' ] = $obj->iGet_Listfor();
 			$option_limit_name = $obj->iGet_LimitName();
@@ -140,6 +145,11 @@ class Salatiga_Plugin_Controller {
 				$obj = new Sltg_Craft();
 				$dir_obj = "craft-list-template";
 			}
+			else if( $get_listfor == 'touristsite' ) {
+				//require( 'models/ukm.php' );
+				$obj = new Sltg_TouristSite();
+				$dir_obj = "touristsite-list-template";
+			}
 
 			$rows = $obj->DataList( $get_limit, $offset, $get_search, $filter );
 
@@ -175,6 +185,11 @@ class Salatiga_Plugin_Controller {
 					$craft = new Sltg_Craft();
 					$craft->HasID( $row->id_craft );
 					$arrObj['craft'][] = $craft;
+				}
+				else if( $get_listfor == 'touristsite' ){
+					$touristsite = new Sltg_TouristSite();
+					$touristsite->HasID( $row->id_touristsite );
+					$arrObj['touristsite'][] = $touristsite;
 				}
 			}
 
