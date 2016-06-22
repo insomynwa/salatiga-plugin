@@ -68,6 +68,20 @@ class Sltg_Personal implements iListItem {
 	}
 
 	//private $products;
+	public function GetCrafts() { 
+		$arrCraft = array();
+		$obj_craft = new Sltg_Craft();
+		$list_craft = $obj_craft->ListByOwner( $this->id );
+		foreach( $list_craft as $c ) {
+			$craft = new Sltg_Craft();
+			$craft->HasID( $c->id_craft );
+			$arrCraft[] = $craft;
+		}
+		//var_dump($list_craft);
+		return $arrCraft; 
+	}
+
+	//private $products;
 	public function GetUKMs() { 
 		$arrUKM = array();
 		$obj_ukm = new Sltg_UKM();
@@ -223,8 +237,9 @@ class Sltg_Personal implements iListItem {
 			)
 		)) {
 			$statusDelGambars = $this->deleteGambars();
-			$statusUpdateProducts = $this->updateUKMs();
-			$result ['status'] = $statusDelGambars && $statusUpdateProducts;
+			$statusUpdateUKMs = $this->updateUKMs();
+			$statusDeleteCrafts = $this->deleteCrafts();
+			$result ['status'] = $statusDelGambars && $statusUpdateUKMs && $statusDeleteCrafts;
 		}
 
 		return $result;
@@ -261,6 +276,22 @@ class Sltg_Personal implements iListItem {
 				// $product->HasID( $p->id_produk );
 				$ukm->SetPemilik(0);
 				$result[ 'status' ] = $ukm->Update();
+			}
+		}
+
+		return $result[ 'status' ];
+	}
+
+	private function deleteCrafts() {
+		$arrCrafts = $this->GetCrafts();
+		//global $wpdb;
+		$result[ 'status' ] = ( sizeof( $arrCrafts ) == 0 );
+
+		if( sizeof( $arrCrafts ) > 0 ) {
+			foreach( $arrCrafts as $craft ) {
+				// $product = new Sltg_Product();
+				// $product->HasID( $p->id_produk );
+				$result[ 'status' ] = $craft->Delete();
 			}
 		}
 
